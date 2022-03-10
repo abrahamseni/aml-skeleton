@@ -14,6 +14,8 @@ import {
   Modal,
   Select,
   TextArea,
+  FileInput,
+  InputError,
 } from '@reapit/elements'
 import { cx } from '@linaria/core'
 import { SubmitHandler, useForm } from 'react-hook-form'
@@ -22,8 +24,7 @@ import { formField, ValuesType } from './form-schema/form-field'
 import validationSchema from './form-schema/validation-schema'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { RISK_ASSESSMENT_TYPE } from '../../../../constants/appointment-details'
-import { InputError } from '../../input-error'
-import { FileInput } from '../../file-input'
+
 import { ContactModelMock } from '../__mocks__'
 
 // available options risk assessment type
@@ -95,7 +96,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = (): 
                 defaultValue={declarationForm}
                 onFileView={() => setIsModalDeclarationFileOpen(true)}
               />
-              {errors.declarationForm && (
+              {errors.declarationForm?.message && (
                 <>
                   <InputError message={errors.declarationForm.message} />
                 </>
@@ -108,7 +109,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = (): 
                 {generateOptionRiskAssessmentType()}
               </Select>
               <Label>Risk Assessment Type</Label>
-              {errors.type && (
+              {errors.type?.message && (
                 <>
                   <InputError message={errors.type.message} />
                 </>
@@ -126,7 +127,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = (): 
                 defaultValue={riskAssessmentForm}
                 onFileView={() => setIsRiskAssessmentFileOpen(true)}
               />
-              {errors.riskAssessmentForm && (
+              {errors.riskAssessmentForm?.message && (
                 <>
                   <InputError message={errors.riskAssessmentForm.message} />
                 </>
@@ -139,7 +140,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = (): 
             <InputGroup className={elWFull}>
               <TextArea {...register(reasonField.name)} placeholder={reasonField.label} />
               <Label>Reason For Type</Label>
-              {errors.reason && (
+              {errors.reason?.message && (
                 <>
                   <InputError message={errors.reason.message} />
                 </>

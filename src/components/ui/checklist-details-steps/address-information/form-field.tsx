@@ -18,11 +18,11 @@ import {
   Label,
   Modal,
   Select,
+  FileInput,
+  InputError,
 } from '@reapit/elements'
 import { formFields, ValuesType } from './form-schema/form-field'
 import { UseFormReturn } from 'react-hook-form'
-import { FileInput } from '../../file-input'
-import { InputError } from '../../input-error'
 import { DOCUMENT_TYPE } from '../../../../constants/appointment-details'
 
 const MIN_NUMBER_OF_YEARS = 0
@@ -99,6 +99,7 @@ interface FormFieldProps {
 
 const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.ReactElement => {
   const [isModalDocumentAOpen, setIsModalDocumentAOpen] = React.useState<boolean>(false)
+  const [isModalDocumentBOpen, setIsModalDocumentBOpen] = React.useState<boolean>(false)
 
   const {
     register,
@@ -129,7 +130,7 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
             <Input type="text" {...register(buildingNameField.name)} placeholder={buildingNameField.label} />
             <Label>Building Name</Label>
           </InputGroup>
-          {errors.primaryAddress?.buildingName && <InputError message={errors.primaryAddress?.buildingName.message} />}
+          {errors.primaryAddress?.buildingName && <InputError message={errors.primaryAddress?.buildingName.message!} />}
         </div>
         <div className={elW4}>
           <InputGroup className={elW11}>
@@ -201,7 +202,9 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
               {...register(documentImageField.name)}
               placeholderText={documentImageField.label}
               defaultValue={getValues(documentImageField.name)}
-              onFileView={() => setIsModalDocumentAOpen(true)}
+              onFileView={() => {
+                identity === 'primaryAddress' ? setIsModalDocumentAOpen(true) : setIsModalDocumentBOpen(true)
+              }}
             />
             {errors.metadata?.primaryAddress && (
               <>
@@ -211,15 +214,24 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
           </InputGroup>
         </div>
       </FlexContainer>
-      {/* Declaration Form */}
+      {/* Document Image Primary Address */}
       <Modal isOpen={isModalDocumentAOpen} title="Image Preview" onModalClose={() => setIsModalDocumentAOpen(false)}>
         <FlexContainer isFlexAlignCenter isFlexJustifyCenter>
-          {watch('metadata.primaryAddress.documentImage') && (
-            <img src={watch('metadata.primaryAddress.documentImage')} height="auto" width="150px" />
-          )}
+          {watch(documentImageField.name) && <img src={watch(documentImageField.name)} height="auto" width="150px" />}
         </FlexContainer>
         <ButtonGroup alignment="right">
           <Button intent="low" onClick={() => setIsModalDocumentAOpen(false)}>
+            Close
+          </Button>
+        </ButtonGroup>
+      </Modal>
+      {/* Document Image Secondary Address */}
+      <Modal isOpen={isModalDocumentBOpen} title="Image Preview" onModalClose={() => setIsModalDocumentBOpen(false)}>
+        <FlexContainer isFlexAlignCenter isFlexJustifyCenter>
+          {watch(documentImageField.name) && <img src={watch(documentImageField.name)} height="auto" width="150px" />}
+        </FlexContainer>
+        <ButtonGroup alignment="right">
+          <Button intent="low" onClick={() => setIsModalDocumentBOpen(false)}>
             Close
           </Button>
         </ButtonGroup>

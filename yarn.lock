@@ -1540,10 +1540,10 @@
     react-dom "^17.0.2"
     snyk "^1.662.0"
 
-"@reapit/elements@^3.7.16":
-  version "3.7.16"
-  resolved "https://registry.yarnpkg.com/@reapit/elements/-/elements-3.7.16.tgz#f3374e98174a4c9e8a24ce9d668d5e0466e55f34"
-  integrity sha512-h+mjPAfIpUX6m77/2NWsGgY4Tt8iiiz8RnM/L3KGPwOjxZz5iqeE3Op06oId6ce5eGd6hksAhCzVs93vXUfZJQ==
+"@reapit/elements@3.7.18":
+  version "3.7.18"
+  resolved "https://registry.yarnpkg.com/@reapit/elements/-/elements-3.7.18.tgz#983e57aadc3c49969307b5099444ea6cc0448e9b"
+  integrity sha512-6T19fXVG7ZDAc5Ib74JArOIaWC7qqd7kPCyA4lcAZ5iHcAk4DGVcLG3VDaPWr3npr36udp5xD3Nguy7BmWAG/A==
   dependencies:
     "@linaria/core" "^3.0.0-beta.15"
     "@linaria/react" "^3.0.0-beta.15"
@@ -2012,9 +2012,9 @@
     "@types/react" "*"
 
 "@types/react@*", "@types/react@^17.0.39":
-  version "17.0.39"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.39.tgz#d0f4cde092502a6db00a1cded6e6bf2abb7633ce"
-  integrity sha512-UVavlfAxDd/AgAacMa60Azl7ygyQNRwC/DsHZmKgNvPmRR5p70AJ5Q9EAmL2NWOJmeV+vVUI4IAP7GZrN8h8Ug==
+  version "17.0.40"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.40.tgz#dc010cee6254d5239a138083f3799a16638e6bad"
+  integrity sha512-UrXhD/JyLH+W70nNSufXqMZNuUD2cXHu6UjCllC6pmOQgBX4SGXOH8fjRka0O0Ee0HrFxapDD8Bwn81Kmiz6jQ==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
@@ -8430,9 +8430,9 @@ slash@^4.0.0:
   integrity sha512-3dOsAHXXUkQTpOYcoAxLIorMTp4gIQr5IW3iVb7A7lFIp0VHhnynm9izx6TssdrIcVIESAlVjtnO2K8bg+Coew==
 
 snyk@^1.662.0:
-  version "1.865.0"
-  resolved "https://registry.yarnpkg.com/snyk/-/snyk-1.865.0.tgz#9e4e731a3e3bc708a7a3567f8d0f63be39569deb"
-  integrity sha512-Cgl23n7rBSZL4O8h31UKeDvZJdxuAVg5KId/zupE07H1JXR4IjBMU9J1MYyJVki08tt9MGFWPeUq4ppML1G5XQ==
+  version "1.866.0"
+  resolved "https://registry.yarnpkg.com/snyk/-/snyk-1.866.0.tgz#4a380ffbc65c2837379d94a67e2441c7b8c9461f"
+  integrity sha512-bV0yXm1iJtHKtV2OHA5eBYa6S/1p0bRe1cqDPTO2zzsfnhPJqpvIM6fDjCxSISYMqv00eGFoaNa0MPM25KmUoQ==
 
 sockjs@^0.3.21:
   version "0.3.24"
