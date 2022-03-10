@@ -14,6 +14,7 @@ const schema = yup.object().shape({
   email: yup.string().email(),
   // password: yup.string().min(8).max(32).required(),
 })
+
 const PersonalDetails = ({ data }: Props) => {
   console.log({ data })
   const {
@@ -27,6 +28,7 @@ const PersonalDetails = ({ data }: Props) => {
     console.log({ dataInput })
     // reset();
   }
+
   return (
     <form onSubmit={handleSubmit(onSubmitHandler)}>
       <div className="el-flex el-flex-row el-flex-wrap">
