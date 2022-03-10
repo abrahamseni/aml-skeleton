@@ -7,11 +7,13 @@ import { useParams } from 'react-router'
 import PersonalDetails from '../checklist-details-steps/personal-details'
 import PrimaryId from '../checklist-details-steps/primary-id'
 import SecondaryId from '../checklist-details-steps/secondary-id'
+import AddressInformation from '../checklist-details-steps/address-information'
+import DeclarationRiskManagement from '../checklist-details-steps/declaration-risk-management'
 
 export const ChecklistDetailPage: FC = () => {
   const { id } = useParams<{ id: string }>()
   const data = {} // we will get data state from API
-  const [tab, setTab] = useState<boolean[]>([true, false, false])
+  const [tab, setTab] = useState<boolean[]>([true, false, false, false, false])
 
   const renderTabContent = () => {
     if (data) {
@@ -20,6 +22,8 @@ export const ChecklistDetailPage: FC = () => {
           {tab[0] && <PersonalDetails data={data} />}
           {tab[1] && <PrimaryId data={data} />}
           {tab[2] && <SecondaryId data={data} />}
+          {tab[3] && <AddressInformation data={data} />}
+          {tab[4] && <DeclarationRiskManagement data={data} />}
         </>
       )
     }
@@ -53,6 +57,18 @@ export const ChecklistDetailPage: FC = () => {
               value: '2',
               text: 'Secondary Id',
               isChecked: tab[2],
+            },
+            {
+              id: 'tab-4',
+              value: '3',
+              text: 'Address Information',
+              isChecked: tab[3],
+            },
+            {
+              id: 'tab-5',
+              value: '4',
+              text: 'Declaration Risk Management',
+              isChecked: tab[4],
             },
           ]}
           onChange={(event: any) =>
