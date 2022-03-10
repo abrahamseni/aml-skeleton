@@ -118,7 +118,7 @@ export const SearchPage: FC = () => {
               </TableCell>
               <TableCell narrowLabel="Postcode">57146</TableCell>
               <TableCell narrowLabel="Status">
-                <StatusIndicator intent="critical" /> Complete
+                <StatusIndicator intent="critical" /> Pending
               </TableCell>
               <TableCtaTriggerCell>
                 <Button>Edit</Button>
