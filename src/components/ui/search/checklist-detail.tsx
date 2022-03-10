@@ -7,8 +7,8 @@ import { useParams } from 'react-router'
 import PersonalDetails from '../checklist-details-steps/personal-details'
 import PrimaryId from '../checklist-details-steps/primary-id'
 import SecondaryId from '../checklist-details-steps/secondary-id'
-import AddressInformation from '../checklist-details-steps/address-information'
-import DeclarationRiskManagement from '../checklist-details-steps/declaration-risk-management'
+import { DeclarationRiskManagement } from '../checklist-details-steps/declaration-risk-management'
+import { AddressInformation } from '../checklist-details-steps/address-information'
 
 export const ChecklistDetailPage: FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -22,8 +22,8 @@ export const ChecklistDetailPage: FC = () => {
           {tab[0] && <PersonalDetails data={data} />}
           {tab[1] && <PrimaryId data={data} />}
           {tab[2] && <SecondaryId data={data} />}
-          {tab[3] && <AddressInformation data={data} />}
-          {tab[4] && <DeclarationRiskManagement data={data} />}
+          {tab[3] && <AddressInformation />}
+          {tab[4] && <DeclarationRiskManagement />}
         </>
       )
     }
