@@ -49,6 +49,7 @@ export const SearchPage: FC = () => {
     })
   const result = useFetchContactsBy(searchParams)
   console.log(result)
+  console.log(result?.data?._embedded)
 
   return (
     <FlexContainer isFlexAuto isFlexColumn className={cx(elRowGap6)}>
@@ -109,21 +110,25 @@ export const SearchPage: FC = () => {
             <TableHeader>Action</TableHeader>
           </TableHeadersRow>
           <TableRowContainer>
-            <TableRow>
-              <TableCell narrowLabel="Name" icon="usernameSystem">
-                Mr Johnny Corrigan
-              </TableCell>
-              <TableCell narrowLabel="Address" icon="homeSystem" narrowIsFullWidth>
-                Mt Ash Jacket Brassey Road
-              </TableCell>
-              <TableCell narrowLabel="Postcode">57146</TableCell>
-              <TableCell narrowLabel="Status">
-                <StatusIndicator intent="critical" /> Pending
-              </TableCell>
-              <TableCtaTriggerCell>
-                <Button>Edit</Button>
-              </TableCtaTriggerCell>
-            </TableRow>
+            {result?.data?._embedded.map((contact)=>{
+              return(
+                <TableRow>
+                  <TableCell narrowLabel="Name" icon="usernameSystem">
+                    {contact.forename}
+                  </TableCell>
+                  <TableCell narrowLabel="Address" icon="homeSystem" narrowIsFullWidth>
+                    {contact.primaryAddress?.buildingName}
+                  </TableCell>
+                  <TableCell narrowLabel="Postcode">{contact.primaryAddress?.postcode}</TableCell>
+                  <TableCell narrowLabel="Status">
+                    <StatusIndicator intent="critical" /> {contact.identityCheck}
+                  </TableCell>
+                  <TableCtaTriggerCell>
+                    <Button>Edit</Button>
+                  </TableCtaTriggerCell>
+                </TableRow>
+              )
+            })}
           </TableRowContainer>
         </Table>
       </FlexContainer>
