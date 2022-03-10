@@ -52,7 +52,6 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = (): 
   const contactMetadata = ContactModelMock.metadata ?? {}
   const { declarationForm, reason, riskAssessmentForm, type } = contactMetadata.declarationRisk
 
-  console.log(contactMetadata)
   // setup initial values from context
   const INITIAL_VALUES: ValuesType = {
     declarationForm,
