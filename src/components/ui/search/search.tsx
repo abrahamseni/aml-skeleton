@@ -1,5 +1,16 @@
 import React, { FC } from 'react'
-import { FlexContainer, Table,TableHeadersRow,TableHeader,TableRowContainer,TableRow,TableCell,StatusIndicator,TableCtaTriggerCell,Button } from '@reapit/elements'
+import {
+  FlexContainer,
+  Table,
+  TableHeadersRow,
+  TableHeader,
+  TableRowContainer,
+  TableRow,
+  TableCell,
+  StatusIndicator,
+  TableCtaTriggerCell,
+  Button,
+} from '@reapit/elements'
 
 export const SearchPage: FC = () => {
   return (
@@ -25,10 +36,12 @@ export const SearchPage: FC = () => {
             <TableCell narrowLabel="Status">
               <StatusIndicator intent="critical" /> Complete
             </TableCell>
-            <TableCtaTriggerCell><Button>Edit</Button></TableCtaTriggerCell>
+            <TableCtaTriggerCell>
+              <Button>Edit</Button>
+            </TableCtaTriggerCell>
           </TableRow>
         </TableRowContainer>
-    </Table>
+      </Table>
     </>
   )
 }
