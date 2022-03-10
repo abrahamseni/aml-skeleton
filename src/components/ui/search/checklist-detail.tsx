@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { FC, useState } from 'react'
-import { Subtitle, Title, Tabs } from '@reapit/elements'
+import { Subtitle, Title, Tabs, Icon } from '@reapit/elements'
 import { useParams } from 'react-router'
 
 import PersonalDetails from '../checklist-details-steps/personal-details'
@@ -32,9 +32,12 @@ export const ChecklistDetailPage: FC = () => {
   return (
     <main>
       <Title hasNoMargin>Name of User</Title>
-      <Subtitle hasGreyText hasBoldText>
-        Status: Pass
-      </Subtitle>
+      <div className="el-flex el-flex-row">
+        <Subtitle hasGreyText hasBoldText>
+          Status: PASS
+        </Subtitle>
+        <Icon icon="editSolidSystem" iconSize="smallest" className="el-ml2" />
+      </div>
       <>
         <Tabs
           name="my-cool-tabs-full-width"

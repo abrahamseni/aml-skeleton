@@ -34,11 +34,11 @@ const PersonalDetails = ({ data }: Props) => {
           <Input id="title" type="text" {...register('personalDetails.title')} />
           <Label htmlFor="name">Title</Label>
         </InputGroup>
-        <InputGroup className="el-ml6 el-flex1">
+        <InputGroup className="el-ml8 el-flex1">
           <Input id="forename" type="text" {...register('personalDetails.forename')} />
           <Label htmlFor="name">Forename</Label>
         </InputGroup>
-        <InputGroup className="el-ml6 el-flex1">
+        <InputGroup className="el-ml8 el-flex1">
           <Input id="surname" type="text" {...register('personalDetails.surname')} />
           <Label htmlFor="name">Surname</Label>
         </InputGroup>
@@ -48,7 +48,7 @@ const PersonalDetails = ({ data }: Props) => {
           <Input id="dob" type="date" {...register('personalDetails.dob')} />
           <Label htmlFor="name">Date Of Birth</Label>
         </InputGroup>
-        <InputGroup className="el-ml6 el-flex1">
+        <InputGroup className="el-ml8 el-flex1">
           <Input id="email" type="email" {...register('personalDetails.email')} />
           <Label htmlFor="name">Email</Label>
           <p>{errors.email?.message}</p>
@@ -63,20 +63,24 @@ const PersonalDetails = ({ data }: Props) => {
             <Input id="home" type="text" {...register('personalDetails.home')} />
             <Label htmlFor="name">Home</Label>
           </InputGroup>
-          <InputGroup className="el-ml6 el-flex1">
+          <InputGroup className="el-ml8 el-flex1">
             <Input id="mobile" type="text" {...register('personalDetails.mobile')} />
             <Label htmlFor="name">Mobile</Label>
           </InputGroup>
-          <InputGroup className="el-ml6 el-flex1">
+          <InputGroup className="el-ml8 el-flex1">
             <Input id="work" type="text" {...register('personalDetails.work')} />
             <Label htmlFor="name">Work</Label>
           </InputGroup>
         </div>
       </div>
-
-      <Button className="el-mt6" intent="primary" type="submit">
-        Save
-      </Button>
+      <div className="el-flex el-flex-row el-flex-justify-end el-mt8">
+        <Button className="el-mr6" intent="success" type="submit">
+          Save
+        </Button>
+        <Button intent="primary" chevronRight type="submit">
+          Next
+        </Button>
+      </div>
     </form>
   )
 }
