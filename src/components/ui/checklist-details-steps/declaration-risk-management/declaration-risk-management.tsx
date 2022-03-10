@@ -69,6 +69,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = (): 
   } = useForm<ValuesType>({
     defaultValues: INITIAL_VALUES,
     resolver: yupResolver(validationSchema),
+    mode: 'onChange',
   })
 
   // declare form

@@ -6,9 +6,15 @@ export interface ValuesType {
   metadata: {
     primaryAddress: {
       documentImage?: string
+      documentType?: string
+      month?: string
+      year?: string
     }
     secondaryAddress: {
       documentImage?: string
+      documentType?: string
+      month?: string
+      year?: string
     }
   }
 }

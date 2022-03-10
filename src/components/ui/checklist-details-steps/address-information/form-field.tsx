@@ -1,4 +1,4 @@
-import React, { FC, ReactElement } from 'react'
+import React from 'react'
 import { cx } from '@linaria/core'
 import {
   Button,
@@ -23,6 +23,71 @@ import { formFields, ValuesType } from './form-schema/form-field'
 import { UseFormReturn } from 'react-hook-form'
 import { FileInput } from '../../file-input'
 import { InputError } from '../../input-error'
+import { DOCUMENT_TYPE } from '../../../../constants/appointment-details'
+
+const MIN_NUMBER_OF_YEARS = 0
+const MAX_NUMBER_OF_YEARS = 100
+
+const MIN_NUMBER_OF_MONTHS = 1
+const MAX_NUMBER_OF_MONTHS = 12
+
+// generate years value
+const generateOptions = (type: 'months' | 'years'): React.ReactNode[] => {
+  let min: number
+  let max: number
+  switch (type) {
+    case 'years':
+      min = MIN_NUMBER_OF_YEARS
+      max = MAX_NUMBER_OF_YEARS
+      break
+    case 'months':
+      min = MIN_NUMBER_OF_MONTHS
+      max = MAX_NUMBER_OF_MONTHS
+      break
+  }
+
+  const optionArr: React.ReactNode[] = []
+  while (min <= max) {
+    const option = (
+      <>
+        <option key={min} value={min}>
+          {min}
+        </option>
+      </>
+    )
+    optionArr.push(option)
+    min++
+  }
+  return optionArr
+}
+
+// Available document type options
+const optionsDocumentType = [
+  { label: 'Please Select', value: '' },
+  { label: DOCUMENT_TYPE.MORTGATE, value: DOCUMENT_TYPE.MORTGATE },
+  { label: DOCUMENT_TYPE.BILL, value: DOCUMENT_TYPE.BILL },
+  { label: DOCUMENT_TYPE.TAX_BILL, value: DOCUMENT_TYPE.TAX_BILL },
+  { label: DOCUMENT_TYPE.DRIVING_LICENSE, value: DOCUMENT_TYPE.DRIVING_LICENSE },
+  { label: DOCUMENT_TYPE.PHOTO_CARD_DRIVING_LICENSE, value: DOCUMENT_TYPE.PHOTO_CARD_DRIVING_LICENSE },
+  { label: DOCUMENT_TYPE.INSURANCE_CERTIFICATE, value: DOCUMENT_TYPE.INSURANCE_CERTIFICATE },
+  { label: DOCUMENT_TYPE.STATE_PENSION, value: DOCUMENT_TYPE.STATE_PENSION },
+  { label: DOCUMENT_TYPE.CURRENT_BENEFIT, value: DOCUMENT_TYPE.CURRENT_BENEFIT },
+  { label: DOCUMENT_TYPE.BANK_STATEMENT, value: DOCUMENT_TYPE.BANK_STATEMENT },
+  { label: DOCUMENT_TYPE.HOUSE_PURCHASE, value: DOCUMENT_TYPE.HOUSE_PURCHASE },
+  { label: DOCUMENT_TYPE.CREDIT_STATEMENT, value: DOCUMENT_TYPE.CREDIT_STATEMENT },
+  { label: DOCUMENT_TYPE.TAX_NOTIFICATION, value: DOCUMENT_TYPE.TAX_NOTIFICATION },
+  { label: DOCUMENT_TYPE.ACCOUNT_DOCUMENT, value: DOCUMENT_TYPE.ACCOUNT_DOCUMENT },
+  { label: DOCUMENT_TYPE.LETTER_FROM_COUNCIL, value: DOCUMENT_TYPE.LETTER_FROM_COUNCIL },
+  { label: DOCUMENT_TYPE.SMART_SEARCH_CCD_REPORT, value: DOCUMENT_TYPE.SMART_SEARCH_CCD_REPORT },
+]
+
+const generateOptionDocumentType = () => {
+  return optionsDocumentType.map((v) => (
+    <option key={v.label} value={v.value}>
+      {v.label}
+    </option>
+  ))
+}
 
 interface FormFieldProps {
   identity: 'primaryAddress' | 'secondaryAddress'
@@ -32,7 +97,7 @@ interface FormFieldProps {
   rhfProps: UseFormReturn<ValuesType, any>
 }
 
-const FormField: FC<FormFieldProps> = ({ identity, rhfProps }): ReactElement => {
+const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.ReactElement => {
   const [isModalDocumentAOpen, setIsModalDocumentAOpen] = React.useState<boolean>(false)
 
   const {
@@ -51,6 +116,9 @@ const FormField: FC<FormFieldProps> = ({ identity, rhfProps }): ReactElement => 
     line4Field,
     postcodeField,
     documentImageField,
+    monthField,
+    yearField,
+    documentTypeField,
   } = formFields(identity)
 
   return (
@@ -101,27 +169,27 @@ const FormField: FC<FormFieldProps> = ({ identity, rhfProps }): ReactElement => 
         <div className={elW4}>
           <InputGroup className={elWFull}>
             <Label>Line 4</Label>
-            <Input type="text" placeholder={line4Field.name} {...register(line4Field.name)} />
+            <Input type="text" placeholder={line4Field.label} {...register(line4Field.name)} />
           </InputGroup>
         </div>
       </FlexContainer>
       <FlexContainer className={cx(elWFull, elMt8)} isFlexJustifyBetween>
         <div className={elW3}>
           <Label>Number of Years at Address</Label>
-          <Select className={elW11} name={`${identity}-address-number-of-years`}>
-            <option>1</option>
+          <Select className={elW11} {...register(yearField.name)} placeholder={yearField.label}>
+            {generateOptions('years')}
           </Select>
         </div>
         <div className={elW3}>
           <Label>Number of Months at Address</Label>
-          <Select className={elW11} name={`${identity}-address-number-of-months` ?? '-'}>
-            <option>1</option>
+          <Select className={elW11} {...register(monthField.name)} placeholder={monthField.label}>
+            {generateOptions('months')}
           </Select>
         </div>
         <div className={elW5}>
           <Label>Document Type</Label>
-          <Select className={elW11} name={`${identity}-address-document-type`}>
-            <option>1</option>
+          <Select className={elW11} {...register(documentTypeField.name)} placeholder={documentTypeField.label}>
+            {generateOptionDocumentType()}
           </Select>
         </div>
         <div className={elW6}>
@@ -132,7 +200,7 @@ const FormField: FC<FormFieldProps> = ({ identity, rhfProps }): ReactElement => 
             <FileInput
               {...register(documentImageField.name)}
               placeholderText={documentImageField.label}
-              defaultValue={getValues('metadata.primaryAddress.documentImage')}
+              defaultValue={getValues(documentImageField.name)}
               onFileView={() => setIsModalDocumentAOpen(true)}
             />
             {errors.metadata?.primaryAddress && (
