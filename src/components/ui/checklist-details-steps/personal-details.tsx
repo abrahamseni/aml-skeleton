@@ -29,45 +29,45 @@ const PersonalDetails = ({ data }: Props) => {
   }
   return (
     <form onSubmit={handleSubmit(onSubmitHandler)}>
-      <div className="el-mt8 el-flex el-flex-row el-flex-wrap">
-        <InputGroup>
+      <div className="el-flex el-flex-row el-flex-wrap">
+        <InputGroup className="el-flex1">
           <Input id="title" type="text" {...register('personalDetails.title')} />
           <Label htmlFor="name">Title</Label>
         </InputGroup>
-        <InputGroup className="el-ml6">
+        <InputGroup className="el-ml6 el-flex1">
           <Input id="forename" type="text" {...register('personalDetails.forename')} />
           <Label htmlFor="name">Forename</Label>
         </InputGroup>
-        <InputGroup className="el-ml6">
+        <InputGroup className="el-ml6 el-flex1">
           <Input id="surname" type="text" {...register('personalDetails.surname')} />
           <Label htmlFor="name">Surname</Label>
         </InputGroup>
       </div>
-      <div className="el-mt8 el-flex el-flex-row el-flex-wrap">
-        <InputGroup>
+      <div className="el-mt10 el-flex el-flex-row el-flex-wrap el-w6">
+        <InputGroup className="el-flex1">
           <Input id="dob" type="date" {...register('personalDetails.dob')} />
           <Label htmlFor="name">Date Of Birth</Label>
         </InputGroup>
-        <InputGroup className="el-ml6">
+        <InputGroup className="el-ml6 el-flex1">
           <Input id="email" type="email" {...register('personalDetails.email')} />
           <Label htmlFor="name">Email</Label>
           <p>{errors.email?.message}</p>
         </InputGroup>
       </div>
-      <div className="el-mt8">
+      <div className="el-mt10">
         <SmallText hasNoMargin hasGreyText>
           *At least one telephone number is required
         </SmallText>
         <div className=" el-flex el-flex-row el-flex-wrap">
-          <InputGroup>
+          <InputGroup className="el-flex1">
             <Input id="home" type="text" {...register('personalDetails.home')} />
             <Label htmlFor="name">Home</Label>
           </InputGroup>
-          <InputGroup className="el-ml6">
+          <InputGroup className="el-ml6 el-flex1">
             <Input id="mobile" type="text" {...register('personalDetails.mobile')} />
             <Label htmlFor="name">Mobile</Label>
           </InputGroup>
-          <InputGroup className="el-ml6">
+          <InputGroup className="el-ml6 el-flex1">
             <Input id="work" type="text" {...register('personalDetails.work')} />
             <Label htmlFor="name">Work</Label>
           </InputGroup>
