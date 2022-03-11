@@ -119,7 +119,6 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
     documentTypeField,
   } = formFields(identity)
 
-  console.log(watch(monthField.name))
   return (
     <>
       <FlexContainer>
