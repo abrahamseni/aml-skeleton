@@ -1,8 +1,8 @@
 import { AddressModel } from '@reapit/foundations-ts-definitions'
 
 export interface ValuesType {
-  primaryAddress?: Omit<AddressModel, 'countryId'>
-  secondaryAddress?: Omit<AddressModel, 'countryId'>
+  primaryAddress?: AddressModel
+  secondaryAddress?: AddressModel
   metadata: {
     primaryAddress: {
       documentImage?: string
@@ -19,60 +19,94 @@ export interface ValuesType {
   }
 }
 
-export interface FormFieldType {
+export type AvailableFormFieldType =
+  | 'primaryAddress.typeField'
+  | 'secondaryAddress.typeField'
+  | 'primaryAddress.buildingName'
+  | 'secondaryAddress.buildingName'
+  | 'primaryAddress.buildingNumber'
+  | 'secondaryAddress.buildingNumber'
+  | 'primaryAddress.line1'
+  | 'secondaryAddress.line1'
+  | 'primaryAddress.line2'
+  | 'secondaryAddress.line2'
+  | 'primaryAddress.line2'
+  | 'secondaryAddress.line2'
+  | 'primaryAddress.line3'
+  | 'secondaryAddress.line3'
+  | 'primaryAddress.line4'
+  | 'secondaryAddress.line4'
+  | 'primaryAddress.postcode'
+  | 'secondaryAddress.postcode'
+  | 'metadata.primaryAddress.year'
+  | 'metadata.secondaryAddress.year'
+  | 'metadata.primaryAddress.month'
+  | 'metadata.secondaryAddress.month'
+  | 'metadata.primaryAddress.documentType'
+  | 'metadata.secondaryAddress.documentType'
+  | 'metadata.primaryAddress.documentImage'
+  | 'metadata.secondaryAddress.documentImage'
+
+interface FormFieldType {
   typeField: {
-    name: 'primaryAddressTypeField' | 'secondaryAddressTypeField'
+    name: Extract<AvailableFormFieldType, 'primaryAddress.typeField' | 'secondaryAddress.typeField'>
     label: string
   }
   buildingNameField: {
-    name: 'primaryAddress.buildingName' | 'secondaryAddress.buildingName'
+    name: Extract<AvailableFormFieldType, 'primaryAddress.buildingName' | 'secondaryAddress.buildingName'>
     label: string
   }
   buildingNumberField: {
-    name: 'primaryAddress.buildingNumber' | 'secondaryAddress.buildingNumber'
+    name: Extract<AvailableFormFieldType, 'primaryAddress.buildingNumber' | 'secondaryAddress.buildingNumber'>
     label: string
   }
   line1Field: {
-    name: 'primaryAddress.line1' | 'secondaryAddress.line1'
+    name: Extract<AvailableFormFieldType, 'primaryAddress.line1' | 'secondaryAddress.line1'>
     label: string
   }
   line2Field: {
-    name: 'primaryAddress.line2' | 'secondaryAddress.line2'
+    name: Extract<AvailableFormFieldType, 'primaryAddress.line2' | 'secondaryAddress.line2'>
     label: string
   }
   line3Field: {
-    name: 'primaryAddress.line3' | 'secondaryAddress.line3'
+    name: Extract<AvailableFormFieldType, 'primaryAddress.line3' | 'secondaryAddress.line3'>
     label: string
   }
   line4Field: {
-    name: 'primaryAddress.line4' | 'secondaryAddress.line4'
+    name: Extract<AvailableFormFieldType, 'primaryAddress.line4' | 'secondaryAddress.line4'>
     label: string
   }
   postcodeField: {
-    name: 'primaryAddress.postcode' | 'secondaryAddress.postcode'
+    name: Extract<AvailableFormFieldType, 'primaryAddress.postcode' | 'secondaryAddress.postcode'>
     label: string
   }
   yearField: {
-    name: 'metadata.primaryAddress.year' | 'metadata.secondaryAddress.year'
+    name: Extract<AvailableFormFieldType, 'metadata.primaryAddress.year' | 'metadata.secondaryAddress.year'>
     label: string
   }
   monthField: {
-    name: 'metadata.primaryAddress.month' | 'metadata.secondaryAddress.month'
+    name: Extract<AvailableFormFieldType, 'metadata.primaryAddress.month' | 'metadata.secondaryAddress.month'>
     label: string
   }
   documentTypeField: {
-    name: 'metadata.primaryAddress.documentType' | 'metadata.secondaryAddress.documentType'
+    name: Extract<
+      AvailableFormFieldType,
+      'metadata.primaryAddress.documentType' | 'metadata.secondaryAddress.documentType'
+    >
     label: string
   }
   documentImageField: {
-    name: 'metadata.primaryAddress.documentImage' | 'metadata.secondaryAddress.documentImage'
+    name: Extract<
+      AvailableFormFieldType,
+      'metadata.primaryAddress.documentImage' | 'metadata.secondaryAddress.documentImage'
+    >
     label: string
   }
 }
 
 export const formFields = (formType: 'primaryAddress' | 'secondaryAddress'): FormFieldType => ({
   typeField: {
-    name: `${formType}TypeField`,
+    name: `${formType}.typeField`,
     label: 'Type',
   },
   buildingNameField: {
@@ -113,10 +147,10 @@ export const formFields = (formType: 'primaryAddress' | 'secondaryAddress'): For
   },
   documentTypeField: {
     name: `metadata.${formType}.documentType`,
-    label: `Document ${formType} Type`,
+    label: `Document ${formType === 'primaryAddress' ? 'Primary Address' : 'Secondary Address'} Type`,
   },
   documentImageField: {
     name: `metadata.${formType}.documentImage`,
-    label: `Upload  ${formType} File`,
+    label: `Upload  ${formType === 'primaryAddress' ? 'Primary Address' : 'Secondary Address'} File`,
   },
 })

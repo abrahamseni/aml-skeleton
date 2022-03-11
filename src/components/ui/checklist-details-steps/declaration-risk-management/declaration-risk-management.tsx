@@ -3,10 +3,7 @@ import {
   Button,
   ButtonGroup,
   elMb2,
-  elMt6,
-  elMt8,
-  elW11,
-  elW6,
+  elW8,
   elWFull,
   FlexContainer,
   InputGroup,
@@ -15,34 +12,21 @@ import {
   Select,
   TextArea,
   FileInput,
-  InputError,
+  FormLayout,
+  InputWrapFull,
+  InputWrap,
+  elMy6,
+  elMt6,
+  elMb6,
 } from '@reapit/elements'
 import { cx } from '@linaria/core'
-import { SubmitHandler, useForm } from 'react-hook-form'
-import { formField, ValuesType } from './form-schema/form-field'
-
-import validationSchema from './form-schema/validation-schema'
+import { SubmitHandler, useForm, UseFormWatch } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { RISK_ASSESSMENT_TYPE } from '../../../../constants/appointment-details'
-
 import { ContactModelMock } from '../__mocks__'
-
-// available options risk assessment type
-const optionsRiskAssessmentType = [
-  { label: 'Please select...', value: '' },
-  { label: RISK_ASSESSMENT_TYPE.SIMPLIFIED, value: RISK_ASSESSMENT_TYPE.SIMPLIFIED },
-  { label: RISK_ASSESSMENT_TYPE.NORMAL, value: RISK_ASSESSMENT_TYPE.NORMAL },
-  { label: RISK_ASSESSMENT_TYPE.ENHANCED, value: RISK_ASSESSMENT_TYPE.ENHANCED },
-]
-
-// generate OptionRiskAssessmentType
-const generateOptionRiskAssessmentType = () => {
-  return optionsRiskAssessmentType.map((v) => (
-    <option key={v.label} value={v.value}>
-      {v.label}
-    </option>
-  ))
-}
+import { generateOptionsType } from '../../../../utils/generator'
+import { formField, ValuesType, validationSchema, FormFieldType } from './form-schema'
+import { order0 } from './__styles__'
+import { displayErrorMessage } from './error-message'
 
 interface DeclarationRiskManagementProps {}
 // render view
@@ -50,8 +34,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = (): 
   const [isModalDeclarationFileOpen, setIsModalDeclarationFileOpen] = React.useState<boolean>(false)
   const [isModalRiskAssessmentFileOpen, setIsRiskAssessmentFileOpen] = React.useState<boolean>(false)
 
-  const contactMetadata = ContactModelMock.metadata ?? {}
-  const { declarationForm, reason, riskAssessmentForm, type } = contactMetadata.declarationRisk
+  const { declarationForm, reason, riskAssessmentForm, type } = ContactModelMock?.metadata?.declarationRisk ?? {}
 
   // setup initial values from context
   const INITIAL_VALUES: ValuesType = {
@@ -62,12 +45,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = (): 
   }
 
   // setup and integrate with initial value
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm<ValuesType>({
+  const { register, handleSubmit, watch, formState } = useForm<ValuesType>({
     defaultValues: INITIAL_VALUES,
     resolver: yupResolver(validationSchema),
     mode: 'onChange',
@@ -84,78 +62,70 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = (): 
   return (
     <>
       <form onSubmit={handleSubmit<ValuesType>(onSubmit)}>
-        <FlexContainer className={elWFull} isFlexJustifyBetween>
-          <FlexContainer className={elW6} isFlexAlignCenter>
-            <InputGroup className={elW11}>
-              <Label style={{ order: 0 }} className={elMb2}>
-                Declaration Form
-              </Label>
-              <FileInput
-                {...register(declarationFormField.name)}
-                placeholderText={declarationFormField.label}
-                defaultValue={declarationForm}
-                onFileView={() => setIsModalDeclarationFileOpen(true)}
-              />
-              {errors.declarationForm?.message && (
-                <>
-                  <InputError message={errors.declarationForm.message} />
-                </>
-              )}
-            </InputGroup>
-          </FlexContainer>
-          <div className={elW6}>
-            <InputGroup className={elW11}>
-              <Select {...register(typeField.name)} placeholder={typeField.label}>
-                {generateOptionRiskAssessmentType()}
-              </Select>
-              <Label>Risk Assessment Type</Label>
-              {errors.type?.message && (
-                <>
-                  <InputError message={errors.type.message} />
-                </>
-              )}
-            </InputGroup>
-          </div>
-          <FlexContainer className={elW6} isFlexAlignCenter>
-            <InputGroup className={elW11}>
-              <Label style={{ order: 0 }} className={elMb2}>
-                Risk Assessment Form
-              </Label>
-              <FileInput
-                {...register(riskAssessmentFormField.name)}
-                placeholderText={riskAssessmentFormField.label}
-                defaultValue={riskAssessmentForm}
-                onFileView={() => setIsRiskAssessmentFileOpen(true)}
-              />
-              {errors.riskAssessmentForm?.message && (
-                <>
-                  <InputError message={errors.riskAssessmentForm.message} />
-                </>
-              )}
-            </InputGroup>
-          </FlexContainer>
-        </FlexContainer>
-        <FlexContainer className={cx(elWFull, elMt6)} isFlexJustifyBetween>
-          <div className={elWFull}>
+        <FormLayout hasMargin>
+          <InputWrapFull>
+            <InputWrap className={cx(elW8, elMb6)}>
+              <InputGroup>
+                <Label className={cx(order0, elMb2)}>{declarationFormField.label}</Label>
+                <FileInput
+                  {...register(declarationFormField.name)}
+                  placeholderText={declarationFormField.label}
+                  defaultValue={declarationForm}
+                  onFileView={() => setIsModalDeclarationFileOpen(true)}
+                />
+                {displayErrorMessage({
+                  fieldName: declarationFormField.name,
+                  formState,
+                })}
+              </InputGroup>
+            </InputWrap>
+            <InputWrap className={cx(elW8, elMy6)}>
+              <InputGroup>
+                <Select {...register(typeField.name)} placeholder={typeField.label}>
+                  {generateOptionsType('riskAssessmentType')}
+                </Select>
+                <Label className={cx(order0, elMb2)}>{typeField.label}</Label>
+                {displayErrorMessage({
+                  fieldName: typeField.name,
+                  formState,
+                })}
+              </InputGroup>
+            </InputWrap>
+            <InputWrap className={cx(elW8, elMt6)}>
+              <InputGroup>
+                <Label className={cx(order0, elMb2)}>{riskAssessmentFormField.label}</Label>
+                <FileInput
+                  {...register(riskAssessmentFormField.name)}
+                  placeholderText={riskAssessmentFormField.label}
+                  defaultValue={riskAssessmentForm}
+                  onFileView={() => setIsRiskAssessmentFileOpen(true)}
+                />
+                {displayErrorMessage({
+                  fieldName: riskAssessmentFormField.name,
+                  formState,
+                })}
+              </InputGroup>
+            </InputWrap>
+          </InputWrapFull>
+          <InputWrapFull className={cx(elWFull)}>
             <InputGroup className={elWFull}>
               <TextArea {...register(reasonField.name)} placeholder={reasonField.label} />
               <Label>Reason For Type</Label>
-              {errors.reason?.message && (
-                <>
-                  <InputError message={errors.reason.message} />
-                </>
-              )}
+              {displayErrorMessage({
+                fieldName: reasonField.name,
+                formState,
+              })}
             </InputGroup>
-          </div>
-        </FlexContainer>
-        <FlexContainer isFlexJustifyBetween className={elMt8}>
+          </InputWrapFull>
+        </FormLayout>
+        <FlexContainer isFlexJustifyBetween>
           <ButtonGroup>
             <Button intent="secondary" chevronLeft>
               Previous
             </Button>
           </ButtonGroup>
           <ButtonGroup>
-            <Button intent="success" type="submit" disabled={Object.keys(errors).length !== 0 ? true : false}>
+            <Button intent="success" type="submit" disabled={Object.keys(formState.errors).length !== 0 ? true : false}>
               Save
             </Button>
             <Button intent="primary" chevronRight>
@@ -164,32 +134,46 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = (): 
           </ButtonGroup>
         </FlexContainer>
       </form>
-      {/* Declaration Form */}
-      <Modal
-        isOpen={isModalDeclarationFileOpen}
-        title="Image Preview"
-        onModalClose={() => setIsModalDeclarationFileOpen(false)}
-      >
+      {/* Modal Declaration Form */}
+      <ModalDocument
+        status={isModalDeclarationFileOpen}
+        handler={setIsModalDeclarationFileOpen}
+        watchFormField={watch}
+        selectedFormField={declarationFormField.name}
+      />
+      {/* Modal Risk Assessment Form */}
+      <ModalDocument
+        status={isModalRiskAssessmentFileOpen}
+        handler={setIsRiskAssessmentFileOpen}
+        watchFormField={watch}
+        selectedFormField={riskAssessmentFormField.name}
+      />
+    </>
+  )
+}
+
+export default DeclarationRiskManagement
+
+interface ModalDocumentProps {
+  status: boolean
+  handler: React.Dispatch<React.SetStateAction<boolean>>
+  watchFormField: UseFormWatch<ValuesType>
+  selectedFormField: FormFieldType['declarationFormField']['name'] | FormFieldType['riskAssessmentFormField']['name']
+}
+const ModalDocument: React.FC<ModalDocumentProps> = ({
+  status,
+  handler,
+  watchFormField,
+  selectedFormField,
+}): React.ReactElement => {
+  return (
+    <>
+      <Modal isOpen={status} title="Image Preview" onModalClose={() => handler(false)}>
         <FlexContainer isFlexAlignCenter isFlexJustifyCenter>
-          {watch('declarationForm') && <img src={watch('declarationForm')} height="auto" width="150px" />}
+          <img src={watchFormField(selectedFormField)} height="auto" width="150px" />
         </FlexContainer>
         <ButtonGroup alignment="right">
-          <Button intent="low" onClick={() => setIsModalDeclarationFileOpen(false)}>
-            Close
-          </Button>
-        </ButtonGroup>
-      </Modal>
-      {/* Risk Assessment Form */}
-      <Modal
-        isOpen={isModalRiskAssessmentFileOpen}
-        title="Image Preview"
-        onModalClose={() => setIsRiskAssessmentFileOpen(false)}
-      >
-        <FlexContainer isFlexAlignCenter isFlexJustifyCenter>
-          {watch('riskAssessmentForm') && <img src={watch('riskAssessmentForm')} height="auto" width="150px" />}
-        </FlexContainer>
-        <ButtonGroup alignment="right">
-          <Button intent="low" onClick={() => setIsRiskAssessmentFileOpen(false)}>
+          <Button intent="low" onClick={() => handler(false)}>
             Close
           </Button>
         </ButtonGroup>
@@ -197,5 +181,3 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = (): 
     </>
   )
 }
-
-export default DeclarationRiskManagement

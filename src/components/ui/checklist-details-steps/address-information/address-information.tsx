@@ -1,13 +1,11 @@
 import React from 'react'
-import { FlexContainer, Button, elMl4, elMt8, elMy4 } from '@reapit/elements'
-
-import FormField from './form-field'
-import validationSchema from './form-schema/validation-schema'
-import { ValuesType } from './form-schema/form-field'
-import { AddressModel } from '@reapit/foundations-ts-definitions'
+import { BodyText, Button, elMl4, elMt6, elW8, FlexContainer, FormLayout, InputWrapFull } from '@reapit/elements'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { FormField } from './form-field'
+import { validationSchema, ValuesType } from './form-schema'
 import { ContactModelMock } from '../__mocks__'
+import { RightSideContainer } from './__styles__'
 
 const AddressInformation: React.FC = (): React.ReactElement => {
   const [isSecondaryFormActive, setIsSecondaryFormActive] = React.useState<boolean>(false)
@@ -19,17 +17,21 @@ const AddressInformation: React.FC = (): React.ReactElement => {
     primaryAddress: {
       documentImage: metadata?.primaryAddress?.documentImage ?? '',
       documentType: metadata?.primaryAddress?.documentType ?? '',
+      month: metadata?.primaryAddress?.month ?? '',
+      year: metadata?.primaryAddress?.year ?? '',
     },
     secondaryAddress: {
       documentImage: metadata?.secondaryAddress?.documentImage ?? '',
       documentType: metadata?.secondaryAddress?.documentType ?? '',
+      month: metadata?.secondaryAddress?.month ?? '',
+      year: metadata?.secondaryAddress?.year ?? '',
     },
   }
 
   // setup value
   const INITIAL_VALUES: ValuesType = {
-    primaryAddress: primaryAddress as AddressModel,
-    secondaryAddress: secondaryAddress as AddressModel,
+    primaryAddress,
+    secondaryAddress,
     metadata: formattedMetadata,
   }
 
@@ -48,21 +50,19 @@ const AddressInformation: React.FC = (): React.ReactElement => {
   return (
     <>
       <form onSubmit={currentForm.handleSubmit(onSubmit)}>
-        <div>
+        <FormLayout hasMargin>
           <FormField identity="primaryAddress" rhfProps={currentForm} />
-        </div>
-        <FlexContainer isFlexJustifyEnd className={elMy4}>
-          <Button intent="secondary" type="button" onClick={() => setIsSecondaryFormActive(!isSecondaryFormActive)}>
-            Less than 3 Years?
-          </Button>
-        </FlexContainer>
-        {isSecondaryFormActive && (
-          <div>
-            <FormField identity="secondaryAddress" rhfProps={currentForm} />
-          </div>
-        )}
-        <FlexContainer isFlexJustifyBetween className={elMt8}>
-          <div>
+          <InputWrapFull>
+            <RightSideContainer className={elW8}>
+              <Button intent="neutral" type="button" onClick={() => setIsSecondaryFormActive(!isSecondaryFormActive)}>
+                Less than 3 Years ?
+              </Button>
+            </RightSideContainer>
+          </InputWrapFull>
+          {isSecondaryFormActive && <FormField identity="secondaryAddress" rhfProps={currentForm} />}
+        </FormLayout>
+        <FlexContainer isFlexJustifyBetween className={elW8}>
+          <div className="el-col">
             <Button chevronLeft intent="secondary" type="submit">
               Previous
             </Button>
@@ -81,6 +81,11 @@ const AddressInformation: React.FC = (): React.ReactElement => {
           </div>
         </FlexContainer>
       </form>
+      <div className={elMt6}>
+        <BodyText hasNoMargin>
+          * Indicates fields that are required in order to &apos;Complete&apos; this section.
+        </BodyText>
+      </div>
     </>
   )
 }
