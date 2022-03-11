@@ -18,11 +18,12 @@ const AddressInformation: React.FC = (): React.ReactElement => {
   const formattedMetadata = {
     primaryAddress: {
       documentImage: metadata?.primaryAddress?.documentImage ?? '',
+      documentType: metadata?.primaryAddress?.documentType ?? '',
     },
     secondaryAddress: {
-      documentImage: metadata?.primaryAddress?.documentImage ?? '',
+      documentImage: metadata?.secondaryAddress?.documentImage ?? '',
+      documentType: metadata?.secondaryAddress?.documentType ?? '',
     },
-    ...metadata,
   }
 
   // setup value
@@ -51,7 +52,7 @@ const AddressInformation: React.FC = (): React.ReactElement => {
           <FormField identity="primaryAddress" rhfProps={currentForm} />
         </div>
         <FlexContainer isFlexJustifyEnd className={elMy4}>
-          <Button intent="secondary" onClick={() => setIsSecondaryFormActive(!isSecondaryFormActive)}>
+          <Button intent="secondary" type="button" onClick={() => setIsSecondaryFormActive(!isSecondaryFormActive)}>
             Less than 3 Years?
           </Button>
         </FlexContainer>
@@ -67,7 +68,11 @@ const AddressInformation: React.FC = (): React.ReactElement => {
             </Button>
           </div>
           <div>
-            <Button intent="success" type="submit">
+            <Button
+              intent="success"
+              type="submit"
+              disabled={Object.keys(currentForm.formState.errors).length !== 0 ? true : false}
+            >
               Save
             </Button>
             <Button chevronRight intent="primary" className={elMl4} type="submit">
