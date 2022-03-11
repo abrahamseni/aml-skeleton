@@ -5,7 +5,6 @@ import {
   ButtonGroup,
   elMb2,
   elMt8,
-  elWFull,
   FlexContainer,
   InputGroup,
   Label,
@@ -16,8 +15,8 @@ import {
   InputWrapFull,
   elW8,
 } from '@reapit/elements'
-import { formFields, ValuesType } from './form-schema'
-import { UseFormReturn } from 'react-hook-form'
+import { formFields, FormFieldType, ValuesType } from './form-schema'
+import { UseFormReturn, UseFormWatch } from 'react-hook-form'
 import { displayErrorMessage } from './error-message'
 import { generateOptionsType, generateOptionsYearsOrMonths } from '../../../../utils/generator'
 
@@ -133,29 +132,29 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
         </InputWrap>
       </InputWrapFull>
       <InputWrapFull className={cx(elMt8)}>
-        <InputWrap className={elWFull}>
+        <InputWrap>
           <Label>{`${yearField.label} *`}</Label>
           <Select className={elW8} {...register(yearField.name)} placeholder={yearField.label}>
             {generateOptionsYearsOrMonths('years')}
           </Select>
           {displayErrorMessage({ fieldName: yearField.name, formState })}
         </InputWrap>
-        <InputWrap className={elWFull}>
+        <InputWrap>
           <Label>{`${monthField.label} *`}</Label>
           <Select className={elW8} {...register(monthField.name)} placeholder={monthField.label}>
             {generateOptionsYearsOrMonths('months')}
           </Select>
           {displayErrorMessage({ fieldName: monthField.name, formState })}
         </InputWrap>
-        <InputWrap className={elWFull}>
+        <InputWrap>
           <Label>{`${documentTypeField.label} *`}</Label>
           <Select className={elW8} {...register(documentTypeField.name)} placeholder={documentTypeField.label}>
             {generateOptionsType('documentType')}
           </Select>
           {displayErrorMessage({ fieldName: documentTypeField.name, formState })}
         </InputWrap>
-        <InputWrap className={elWFull}>
-          <InputGroup className={elWFull}>
+        <InputWrap>
+          <InputGroup>
             <Label style={{ order: 0 }} className={elMb2}>
               {`${documentImageField.label} *`}
             </Label>
@@ -172,23 +171,44 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
         </InputWrap>
       </InputWrapFull>
       {/* Document Image Primary Address */}
-      <Modal isOpen={isModalDocumentAOpen} title="Image Preview" onModalClose={() => setIsModalDocumentAOpen(false)}>
-        <FlexContainer isFlexAlignCenter isFlexJustifyCenter>
-          {watch(documentImageField.name) && <img src={watch(documentImageField.name)} height="auto" width="150px" />}
-        </FlexContainer>
-        <ButtonGroup alignment="right">
-          <Button intent="low" onClick={() => setIsModalDocumentAOpen(false)}>
-            Close
-          </Button>
-        </ButtonGroup>
-      </Modal>
+      <ModalDocument
+        status={isModalDocumentAOpen}
+        handler={setIsModalDocumentAOpen}
+        watchFormField={watch}
+        selectedFormField={documentImageField.name}
+      />
       {/* Document Image Secondary Address */}
-      <Modal isOpen={isModalDocumentBOpen} title="Image Preview" onModalClose={() => setIsModalDocumentBOpen(false)}>
+      <ModalDocument
+        status={isModalDocumentBOpen}
+        handler={setIsModalDocumentBOpen}
+        watchFormField={watch}
+        selectedFormField={documentImageField.name}
+      />
+    </>
+  )
+}
+
+interface ModalDocumentProps {
+  status: boolean
+  handler: React.Dispatch<React.SetStateAction<boolean>>
+  watchFormField: UseFormWatch<ValuesType>
+  selectedFormField: FormFieldType['documentImageField']['name']
+}
+
+const ModalDocument: React.FC<ModalDocumentProps> = ({
+  status,
+  handler,
+  watchFormField,
+  selectedFormField,
+}): React.ReactElement => {
+  return (
+    <>
+      <Modal isOpen={status} title="Image Preview" onModalClose={() => handler(false)}>
         <FlexContainer isFlexAlignCenter isFlexJustifyCenter>
-          {watch(documentImageField.name) && <img src={watch(documentImageField.name)} height="auto" width="150px" />}
+          <img src={watchFormField(selectedFormField)} height="auto" width="150px" />
         </FlexContainer>
         <ButtonGroup alignment="right">
-          <Button intent="low" onClick={() => setIsModalDocumentBOpen(false)}>
+          <Button intent="low" onClick={() => handler(false)}>
             Close
           </Button>
         </ButtonGroup>

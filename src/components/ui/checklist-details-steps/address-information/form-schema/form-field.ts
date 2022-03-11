@@ -47,7 +47,7 @@ export type AvailableFormFieldType =
   | 'metadata.primaryAddress.documentImage'
   | 'metadata.secondaryAddress.documentImage'
 
-interface FormFieldType {
+export interface FormFieldType {
   typeField: {
     name: Extract<AvailableFormFieldType, 'primaryAddress.typeField' | 'secondaryAddress.typeField'>
     label: string
