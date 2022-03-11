@@ -13,19 +13,12 @@ import {
   Label,
   Select,
   Subtitle,
-  Table,
-  TableHeadersRow,
-  TableHeader,
-  TableRowContainer,
-  TableRow,
-  TableCell,
-  StatusIndicator,
-  TableCtaTriggerCell,
 } from '@reapit/elements'
 import { cx } from '@linaria/core'
 import { ID_STATUS } from '../../../constants/id-status'
 import { useForm } from 'react-hook-form'
 import { SearchContactParam, useFetchContactsBy } from '../../../platform-api/contact-api'
+import { TableResult } from '../table/table'
 
 export type SearchableDropdownKey = {
   id: string
@@ -49,7 +42,7 @@ export const SearchPage: FC = () => {
     })
   const result = useFetchContactsBy(searchParams)
   console.log(result)
-  console.log(result?.data?._embedded)
+  console.log(searchParams)
 
   return (
     <FlexContainer isFlexAuto isFlexColumn className={cx(elRowGap6)}>
@@ -101,36 +94,7 @@ export const SearchPage: FC = () => {
         </form>
       </FlexContainer>
       <FlexContainer>
-        <Table data-num-columns-excl-action-col="4" data-has-call-to-action>
-          <TableHeadersRow>
-            <TableHeader>Name</TableHeader>
-            <TableHeader>Address</TableHeader>
-            <TableHeader>Postcode</TableHeader>
-            <TableHeader>Status</TableHeader>
-            <TableHeader>Action</TableHeader>
-          </TableHeadersRow>
-          <TableRowContainer>
-            {result?.data?._embedded.map((contact)=>{
-              return(
-                <TableRow>
-                  <TableCell narrowLabel="Name" icon="usernameSystem">
-                    {contact.forename}
-                  </TableCell>
-                  <TableCell narrowLabel="Address" icon="homeSystem" narrowIsFullWidth>
-                    {contact.primaryAddress?.buildingName}
-                  </TableCell>
-                  <TableCell narrowLabel="Postcode">{contact.primaryAddress?.postcode}</TableCell>
-                  <TableCell narrowLabel="Status">
-                    <StatusIndicator intent="critical" /> {contact.identityCheck}
-                  </TableCell>
-                  <TableCtaTriggerCell>
-                    <Button>Edit</Button>
-                  </TableCtaTriggerCell>
-                </TableRow>
-              )
-            })}
-          </TableRowContainer>
-        </Table>
+        <TableResult items={result?.data?._embedded} />
       </FlexContainer>
     </FlexContainer>
   )
