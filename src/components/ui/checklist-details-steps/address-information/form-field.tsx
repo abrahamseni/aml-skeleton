@@ -13,7 +13,6 @@ import {
   elWFull,
   FlexContainer,
   Input,
-  InputAddOn,
   InputGroup,
   Label,
   Modal,
@@ -31,8 +30,12 @@ const MAX_NUMBER_OF_YEARS = 100
 const MIN_NUMBER_OF_MONTHS = 1
 const MAX_NUMBER_OF_MONTHS = 12
 
+interface GenerateOptionsType {
+  name: string
+  label: string
+}
 // generate years value
-const generateOptions = (type: 'months' | 'years'): React.ReactNode[] => {
+const generateOptions = (type: 'months' | 'years'): GenerateOptionsType[] => {
   let min: number
   let max: number
   switch (type) {
@@ -46,15 +49,9 @@ const generateOptions = (type: 'months' | 'years'): React.ReactNode[] => {
       break
   }
 
-  const optionArr: React.ReactNode[] = []
+  const optionArr: GenerateOptionsType[] = []
   while (min <= max) {
-    const option = (
-      <>
-        <option key={min} value={min}>
-          {min}
-        </option>
-      </>
-    )
+    const option = { name: min.toString(), label: min.toString() } as GenerateOptionsType
     optionArr.push(option)
     min++
   }
@@ -122,6 +119,7 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
     documentTypeField,
   } = formFields(identity)
 
+  console.log(watch(monthField.name))
   return (
     <>
       <FlexContainer>
@@ -130,20 +128,27 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
             <Input type="text" {...register(buildingNameField.name)} placeholder={buildingNameField.label} />
             <Label>Building Name</Label>
           </InputGroup>
-          {errors.primaryAddress?.buildingName && <InputError message={errors.primaryAddress?.buildingName.message!} />}
+          {identity === 'primaryAddress' ? (
+            <InputError message={errors.primaryAddress?.buildingName?.message!} />
+          ) : (
+            <InputError message={errors.secondaryAddress?.buildingName?.message!} />
+          )}
         </div>
         <div className={elW4}>
           <InputGroup className={elW11}>
             <Label>Building Number</Label>
             <Input type="text" {...register(buildingNumberField.name)} placeholder={buildingNumberField.label} />
           </InputGroup>
+          {errors.primaryAddress?.buildingNumber && (
+            <InputError message={errors.primaryAddress?.buildingNumber.message!} />
+          )}
         </div>
         <div className={elW4}>
           <InputGroup className={elWFull}>
             <Label>Post Code</Label>
             <Input type="text" {...register(postcodeField.name)} placeholder={postcodeField.label} />
-            <InputAddOn>Required</InputAddOn>
           </InputGroup>
+          {errors.primaryAddress?.postcode && <InputError message={errors.primaryAddress?.postcode.message!} />}
         </div>
       </FlexContainer>
       <FlexContainer className={cx(elWFull, elMt8)} isFlexJustifyBetween>
@@ -151,52 +156,97 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
           <InputGroup className={elW11}>
             <Label>Line 1</Label>
             <Input type="text" {...register(line1Field.name)} placeholder={line1Field.label} />
-            <InputAddOn>Required</InputAddOn>
           </InputGroup>
+          {identity === 'primaryAddress' ? (
+            <InputError message={errors.primaryAddress?.line1?.message!} />
+          ) : (
+            <InputError message={errors.secondaryAddress?.line1?.message!} />
+          )}
         </div>
         <div className={elW4}>
           <InputGroup className={elW11}>
             <Label>Line 2</Label>
             <Input type="text" placeholder={line2Field.label} {...register(line2Field.name)} />
           </InputGroup>
+          {identity === 'primaryAddress' ? (
+            <InputError message={errors.primaryAddress?.line2?.message!} />
+          ) : (
+            <InputError message={errors.secondaryAddress?.line2?.message!} />
+          )}
         </div>
         <div className={elW4}>
           <InputGroup className={elW11}>
             <Label>Line 3</Label>
             <Input type="text" placeholder={line3Field.label} {...register(line3Field.name)} />
-            <InputAddOn>Required</InputAddOn>
           </InputGroup>
+          {identity === 'primaryAddress' ? (
+            <InputError message={errors.primaryAddress?.line3?.message!} />
+          ) : (
+            <InputError message={errors.secondaryAddress?.line3?.message!} />
+          )}
         </div>
         <div className={elW4}>
           <InputGroup className={elWFull}>
             <Label>Line 4</Label>
             <Input type="text" placeholder={line4Field.label} {...register(line4Field.name)} />
           </InputGroup>
+          {identity === 'primaryAddress' ? (
+            <InputError message={errors.primaryAddress?.line4?.message!} />
+          ) : (
+            <InputError message={errors.secondaryAddress?.line4?.message!} />
+          )}
         </div>
       </FlexContainer>
       <FlexContainer className={cx(elWFull, elMt8)} isFlexJustifyBetween>
         <div className={elW3}>
           <Label>Number of Years at Address</Label>
           <Select className={elW11} {...register(yearField.name)} placeholder={yearField.label}>
-            {generateOptions('years')}
+            {generateOptions('years').map((v) => {
+              return (
+                <option key={v.label} value={v.label}>
+                  {v.label}
+                </option>
+              )
+            })}
           </Select>
+          {identity === 'primaryAddress' ? (
+            <InputError message={errors.metadata?.primaryAddress?.year?.message!} />
+          ) : (
+            <InputError message={errors.metadata?.secondaryAddress?.year?.message!} />
+          )}
         </div>
         <div className={elW3}>
           <Label>Number of Months at Address</Label>
           <Select className={elW11} {...register(monthField.name)} placeholder={monthField.label}>
-            {generateOptions('months')}
+            {generateOptions('months').map((v) => {
+              return (
+                <option key={v.label} value={v.label}>
+                  {v.label}
+                </option>
+              )
+            })}
           </Select>
+          {identity === 'primaryAddress' ? (
+            <InputError message={errors.metadata?.primaryAddress?.month?.message!} />
+          ) : (
+            <InputError message={errors.metadata?.secondaryAddress?.month?.message!} />
+          )}
         </div>
         <div className={elW5}>
           <Label>Document Type</Label>
           <Select className={elW11} {...register(documentTypeField.name)} placeholder={documentTypeField.label}>
             {generateOptionDocumentType()}
           </Select>
+          {identity === 'primaryAddress' ? (
+            <InputError message={errors.metadata?.primaryAddress?.documentType?.message!} />
+          ) : (
+            <InputError message={errors.metadata?.secondaryAddress?.documentType?.message!} />
+          )}
         </div>
         <div className={elW6}>
           <InputGroup className={elWFull}>
             <Label style={{ order: 0 }} className={elMb2}>
-              Document Image Primary Address
+              {documentImageField.label}
             </Label>
             <FileInput
               {...register(documentImageField.name)}
@@ -206,10 +256,10 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
                 identity === 'primaryAddress' ? setIsModalDocumentAOpen(true) : setIsModalDocumentBOpen(true)
               }}
             />
-            {errors.metadata?.primaryAddress && (
-              <>
-                <InputError message={errors.metadata?.primaryAddress.documentImage?.message!} />
-              </>
+            {identity === 'primaryAddress' ? (
+              <InputError message={errors.metadata?.primaryAddress?.documentImage?.message!} />
+            ) : (
+              <InputError message={errors.metadata?.secondaryAddress?.documentImage?.message!} />
             )}
           </InputGroup>
         </div>

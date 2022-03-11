@@ -1,8 +1,8 @@
 import { AddressModel } from '@reapit/foundations-ts-definitions'
 
 export interface ValuesType {
-  primaryAddress: AddressModel
-  secondaryAddress: AddressModel
+  primaryAddress?: Omit<AddressModel, 'countryId'>
+  secondaryAddress?: Omit<AddressModel, 'countryId'>
   metadata: {
     primaryAddress: {
       documentImage?: string
@@ -113,10 +113,10 @@ export const formFields = (formType: 'primaryAddress' | 'secondaryAddress'): For
   },
   documentTypeField: {
     name: `metadata.${formType}.documentType`,
-    label: 'Document Type',
+    label: `Document ${formType} Type`,
   },
   documentImageField: {
     name: `metadata.${formType}.documentImage`,
-    label: 'Upload File',
+    label: `Upload  ${formType} File`,
   },
 })
