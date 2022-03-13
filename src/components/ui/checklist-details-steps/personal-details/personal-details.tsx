@@ -1,3 +1,4 @@
+/* eslint-disable no-confusing-arrow */
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react'
@@ -11,12 +12,27 @@ type Props = {
 }
 
 const schema = yup.object().shape({
-  email: yup.string().email(),
-  // password: yup.string().min(8).max(32).required(),
+  personalDetails: yup.object().shape({
+    email: yup.string().email('Please enter a valid email format!'),
+    home: yup
+      .number()
+      .typeError('you must specify a number')
+      .nullable()
+      .transform((value: string, originalValue: string) => (originalValue.trim() === '' ? null : value)),
+    mobile: yup
+      .number()
+      .typeError('you must specify a number')
+      .nullable()
+      .transform((value: string, originalValue: string) => (originalValue.trim() === '' ? null : value)),
+    work: yup
+      .number()
+      .typeError('you must specify a number')
+      .nullable()
+      .transform((value: string, originalValue: string) => (originalValue.trim() === '' ? null : value)),
+  }),
 })
 
 const PersonalDetails = ({ data }: Props) => {
-  console.log({ data })
   const {
     register,
     handleSubmit,
@@ -29,49 +45,53 @@ const PersonalDetails = ({ data }: Props) => {
     // reset();
   }
 
+  console.log({ errors })
   return (
     <form onSubmit={handleSubmit(onSubmitHandler)}>
-      <div className="el-flex el-flex-row el-flex-wrap">
+      <div className="el-flex el-flex-column el-flex-wrap">
         <InputGroup className="el-flex1">
           <Input id="title" type="text" {...register('personalDetails.title')} />
           <Label htmlFor="name">Title</Label>
         </InputGroup>
-        <InputGroup className="el-ml8 el-flex1">
+        <InputGroup className="el-mt6 el-flex1">
           <Input id="forename" type="text" {...register('personalDetails.forename')} />
           <Label htmlFor="name">Forename</Label>
         </InputGroup>
-        <InputGroup className="el-ml8 el-flex1">
+        <InputGroup className="el-mt6 el-flex1">
           <Input id="surname" type="text" {...register('personalDetails.surname')} />
           <Label htmlFor="name">Surname</Label>
         </InputGroup>
       </div>
-      <div className="el-mt10 el-flex el-flex-row el-flex-wrap el-w6">
+      <div className="el-mt6 el-flex el-flex-column el-flex-wrap el-w6">
         <InputGroup className="el-flex1">
           <Input id="dob" type="date" {...register('personalDetails.dob')} />
           <Label htmlFor="name">Date Of Birth</Label>
         </InputGroup>
-        <InputGroup className="el-ml8 el-flex1">
+        <InputGroup className="el-mt6 el-flex1">
           <Input id="email" type="email" {...register('personalDetails.email')} />
           <Label htmlFor="name">Email</Label>
-          <p>{errors.email?.message}</p>
+          <p>{errors.personalDetails?.email?.message}</p>
         </InputGroup>
       </div>
-      <div className="el-mt10">
+      <div className="el-mt8">
         <SmallText hasNoMargin hasGreyText>
           *At least one telephone number is required
         </SmallText>
-        <div className=" el-flex el-flex-row el-flex-wrap">
+        <div className=" el-flex el-flex-column el-flex-wrap">
           <InputGroup className="el-flex1">
             <Input id="home" type="text" {...register('personalDetails.home')} />
             <Label htmlFor="name">Home</Label>
+            <p>{errors.personalDetails?.home?.message}</p>
           </InputGroup>
-          <InputGroup className="el-ml8 el-flex1">
+          <InputGroup className="el-mt6 el-flex1">
             <Input id="mobile" type="text" {...register('personalDetails.mobile')} />
             <Label htmlFor="name">Mobile</Label>
+            <p>{errors.personalDetails?.mobile?.message}</p>
           </InputGroup>
-          <InputGroup className="el-ml8 el-flex1">
+          <InputGroup className="el-mt6 el-flex1">
             <Input id="work" type="text" {...register('personalDetails.work')} />
             <Label htmlFor="name">Work</Label>
+            <p>{errors.personalDetails?.work?.message}</p>
           </InputGroup>
         </div>
       </div>
