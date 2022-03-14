@@ -22,12 +22,13 @@ export interface ModalDocumentProps<T> {
  * @description temporary for integrate with FileInput Component
  */
 const ModalDocument = React.forwardRef<ModalDocumentHandle, ModalDocumentProps<any>>(
-  ({ watchFormField, selectedFormField }, forwardedRef): React.ReactElement => {
+  (props, ref): React.ReactElement => {
+    const { watchFormField, selectedFormField } = props
     // local state - identify the modal, is open / closed
     const [selectedFormFieldModal, setSelectedFormFieldModal] = React.useState<boolean>(false)
 
     // throw available function to parent
-    React.useImperativeHandle(forwardedRef, () => ({
+    React.useImperativeHandle(ref, () => ({
       openModal() {
         setSelectedFormFieldModal(true)
       },

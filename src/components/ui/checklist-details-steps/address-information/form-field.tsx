@@ -165,12 +165,14 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
       </InputWrapFull>
       {/* Document Image Primary Address */}
       <ModalDocument
+        ref={documentImagePrimaryModalHandler}
         watchFormField={watch}
         forwardedRef={documentImagePrimaryModalHandler}
         selectedFormField={documentImageField.name}
       />
       {/* Document Image Secondary Address */}
       <ModalDocument
+        ref={documentImageSecondaryModalHandler}
         watchFormField={watch}
         forwardedRef={documentImageSecondaryModalHandler}
         selectedFormField={documentImageField.name}

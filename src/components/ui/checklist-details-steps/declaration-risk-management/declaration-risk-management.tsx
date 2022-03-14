@@ -124,12 +124,14 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = (): 
       </form>
       {/* Modal Declaration Form */}
       <ModalDocument
+        ref={declarationFormModal}
         watchFormField={watch}
         forwardedRef={declarationFormModal}
         selectedFormField={declarationFormField.name}
       />
       {/* Modal Risk Assessment Form */}
       <ModalDocument
+        ref={riskAssessmentFormModal}
         watchFormField={watch}
         forwardedRef={riskAssessmentFormModal}
         selectedFormField={riskAssessmentFormField.name}
