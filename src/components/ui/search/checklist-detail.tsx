@@ -1,6 +1,8 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { FC, useState } from 'react'
+import { reapitConnectBrowserSession } from '../../../core/connect-session'
+import { useReapitConnect } from '@reapit/connect-session'
 import { Subtitle, Title, Tabs, Icon, ProgressBarSteps, Modal, BodyText, InputGroup } from '@reapit/elements'
 import { useParams } from 'react-router'
 
@@ -10,20 +12,23 @@ import SecondaryId from '../checklist-details-steps/secondary-id'
 import { DeclarationRiskManagement } from '../checklist-details-steps/declaration-risk-management'
 import { AddressInformation } from '../checklist-details-steps/address-information'
 
+import { useSingleContact } from '../../../platform-api/hooks/useSIngleContact'
+
 export const ChecklistDetailPage: FC = () => {
+  const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
   const { id } = useParams<{ id: string }>()
-  const data = {} // we will get data state from API
+  const { data: userData } = useSingleContact(connectSession, id)
   const [tab, setTab] = useState<boolean[]>([true, false, false, false, false])
   const [isModalStatusOpen, setModalStatusOpen] = useState<boolean>(false)
   const [userStatus, setUserStatus] = useState<string>('passed')
 
   const renderTabContent = () => {
-    if (data) {
+    if (userData) {
       return (
         <>
-          {tab[0] && <PersonalDetails data={data} />}
-          {tab[1] && <PrimaryId data={data} />}
-          {tab[2] && <SecondaryId data={data} />}
+          {tab[0] && <PersonalDetails data={userData} />}
+          {tab[1] && <PrimaryId data={userData} />}
+          {tab[2] && <SecondaryId data={userData} />}
           {tab[3] && <AddressInformation />}
           {tab[4] && <DeclarationRiskManagement />}
         </>
@@ -33,10 +38,10 @@ export const ChecklistDetailPage: FC = () => {
 
   return (
     <main>
-      <Title hasNoMargin>Name of User</Title>
+      <Title hasNoMargin>{`${userData?.forename} ${userData?.surname}`}</Title>
       <div className="el-flex el-flex-row">
         <Subtitle hasGreyText hasBoldText>
-          Status: PASS
+          Status: {userData?.identityCheck?.toUpperCase()}
         </Subtitle>
         <Icon icon="editSolidSystem" iconSize="smallest" className="el-ml2" onClick={() => setModalStatusOpen(true)} />
       </div>

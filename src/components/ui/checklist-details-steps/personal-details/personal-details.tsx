@@ -2,47 +2,82 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react'
+import { reapitConnectBrowserSession } from '../../../../core/connect-session'
+import { useReapitConnect } from '@reapit/connect-session'
 import { Input, InputGroup, Label, Button, SmallText } from '@reapit/elements'
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useMutation, useQueryClient } from 'react-query'
+import axios from 'axios'
+
+import { ContactModel } from '@reapit/foundations-ts-definitions'
+import { BASE_HEADERS } from '../../../../constants/api'
 
 type Props = {
-  data: {}
+  data: ContactModel
 }
+
+type FormPersonalDetailsType = {}
 
 const schema = yup.object().shape({
   personalDetails: yup.object().shape({
     email: yup.string().email('Please enter a valid email format!'),
-    home: yup
-      .number()
-      .typeError('you must specify a number')
-      .nullable()
-      .transform((value: string, originalValue: string) => (originalValue.trim() === '' ? null : value)),
-    mobile: yup
-      .number()
-      .typeError('you must specify a number')
-      .nullable()
-      .transform((value: string, originalValue: string) => (originalValue.trim() === '' ? null : value)),
-    work: yup
-      .number()
-      .typeError('you must specify a number')
-      .nullable()
-      .transform((value: string, originalValue: string) => (originalValue.trim() === '' ? null : value)),
+    home: yup.number().typeError('you must specify a number').nullable(),
+    // .transform((value: string, originalValue: string) => (originalValue.trim() === '' ? null : value))
+    mobile: yup.number().typeError('you must specify a number').nullable(),
+    work: yup.number().typeError('you must specify a number').nullable(),
   }),
 })
 
 const PersonalDetails = ({ data }: Props) => {
+  const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm({ resolver: yupResolver(schema) })
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      personalDetails: {
+        title: data?.title,
+        forename: data?.forename,
+        surname: data?.surname,
+        dob: data?.dateOfBirth,
+        email: data?.email,
+        home: data?.homePhone,
+        mobile: data?.mobilePhone,
+        work: data?.workPhone,
+      },
+    },
+  })
 
-  const onSubmitHandler = (dataInput) => {
-    console.log({ dataInput })
+  const onSubmitHandler = ({ personalDetails }: { personalDetails: object }) => {
+    console.log({ personalDetails })
     // reset();
+
+    // const queryClient = useQueryClient()
+
+    // return useMutation(
+    //   () =>
+    //     axios.patch(
+    //       `${window.reapit.config.platformApiUrl}/contacts/${data?.id}`,
+    //       { ...personalDetails },
+    //       {
+    //         headers: {
+    //           ...BASE_HEADERS,
+    //           Authorization: `Bearer ${connectSession?.accessToken}`,
+    //         },
+    //       },
+    //     ),
+    //   {
+    //     onSuccess: () => {
+    //       // ✅ refetch the comments list for our blog post
+    //       queryClient.invalidateQueries(['contact', data?.id])
+    //     },
+    //   },
+    // )
   }
 
   console.log({ errors })
@@ -80,17 +115,17 @@ const PersonalDetails = ({ data }: Props) => {
         <div className=" el-flex el-flex-column el-flex-wrap">
           <InputGroup className="el-flex1">
             <Input id="home" type="text" {...register('personalDetails.home')} />
-            <Label htmlFor="name">Home</Label>
+            <Label htmlFor="name">Home Phone</Label>
             <p>{errors.personalDetails?.home?.message}</p>
           </InputGroup>
           <InputGroup className="el-mt6 el-flex1">
             <Input id="mobile" type="text" {...register('personalDetails.mobile')} />
-            <Label htmlFor="name">Mobile</Label>
+            <Label htmlFor="name">Mobile Phone</Label>
             <p>{errors.personalDetails?.mobile?.message}</p>
           </InputGroup>
           <InputGroup className="el-mt6 el-flex1">
             <Input id="work" type="text" {...register('personalDetails.work')} />
-            <Label htmlFor="name">Work</Label>
+            <Label htmlFor="name">Work Phone</Label>
             <p>{errors.personalDetails?.work?.message}</p>
           </InputGroup>
         </div>
