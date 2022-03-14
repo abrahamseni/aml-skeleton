@@ -26,13 +26,13 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
 
   const documentImageModalHandler =
     identity === 'primaryAddress' ? documentImagePrimaryModalHandler : documentImageSecondaryModalHandler
-  // local state - modal A (soon will refactor)
 
   // passed useForm hook from parent
   const { register, watch, getValues, formState } = rhfProps
 
   // adjusting field name and field label with initialized value
   const {
+    typeField,
     buildingNameField,
     buildingNumberField,
     line1Field,
@@ -49,6 +49,14 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
   return (
     <>
       <InputWrapFull>
+        <InputWrap>
+          <InputGroup
+            type="hidden"
+            defaultValue="primary"
+            placeholder={typeField.label}
+            {...register(typeField.name)}
+          />
+        </InputWrap>
         <InputWrap>
           <InputGroup
             type="text"

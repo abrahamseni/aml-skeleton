@@ -18,23 +18,36 @@ import {
   elMb6,
 } from '@reapit/elements'
 import { cx } from '@linaria/core'
-import { SubmitHandler, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { ContactModelMock } from '../__mocks__'
 import { generateLabelField, generateOptionsType } from '../../../../utils/generator'
 import { formField, ValuesType, validationSchema, AvailableFormFieldType } from './form-schema'
 import { order0 } from './__styles__'
 import { displayErrorMessage } from '../../../../utils/error-message'
 import { ModalDocument } from '../../modal-document'
+import { ContactModel } from '@reapit/foundations-ts-definitions'
+import { UpdateContactDataType, useUpdateContactData } from '../../../../platform-api/contact-api'
+import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from 'react-query'
 
-interface DeclarationRiskManagementProps {}
+interface DeclarationRiskManagementProps {
+  userData: ContactModel | undefined
+  userDataRefetch: (
+    options?: (RefetchOptions & RefetchQueryFilters) | undefined,
+  ) => Promise<QueryObserverResult<ContactModel, Error>>
+}
+
 // render view
-const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = (): React.ReactElement => {
+const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
+  userData,
+  userDataRefetch,
+}): React.ReactElement => {
+  // local state - state to manage available  user if user already clicked the button
+  const [isButtonLoading, setIsButtonLoading] = React.useState<boolean>(false)
   // modal handler
   const declarationFormModal = React.useRef<React.ElementRef<typeof ModalDocument>>(null)
   const riskAssessmentFormModal = React.useRef<React.ElementRef<typeof ModalDocument>>(null)
 
-  const { declarationForm, reason, riskAssessmentForm, type } = ContactModelMock?.metadata?.declarationRisk ?? {}
+  const { declarationForm, reason, riskAssessmentForm, type } = userData?.metadata?.declarationRisk ?? {}
 
   // setup initial values from context
   const INITIAL_VALUES: ValuesType = {
@@ -45,7 +58,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = (): 
   }
 
   // setup and integrate with initial value
-  const { register, handleSubmit, watch, formState } = useForm<ValuesType>({
+  const { register, handleSubmit, watch, formState, getValues } = useForm<ValuesType>({
     defaultValues: INITIAL_VALUES,
     resolver: yupResolver(validationSchema),
     mode: 'all',
@@ -54,14 +67,48 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = (): 
   // declare form
   const { declarationFormField, riskAssessmentFormField, typeField, reasonField } = formField()
 
-  // submit handler
-  const onSubmit: SubmitHandler<ValuesType> = (data) => {
-    console.log(data)
+  // temporary applied method for update data #1
+  const updateFormData: UpdateContactDataType = {
+    contactId: userData!.id!,
+    _eTag: userData!._eTag!,
+    bodyData: {
+      metadata: {
+        ...userData?.metadata,
+        declarationRisk: getValues(),
+      },
+    },
   }
+
+  // temporary applied method for update data #2
+  const updateContactData = useUpdateContactData<typeof userDataRefetch>(updateFormData, userDataRefetch)
+
+  // button handler - submit
+  const onSubmitHandler = (): void => {
+    updateContactData.mutate()
+    setIsButtonLoading(true)
+  }
+
+  // button handler - next
+  const onNextHandler = (): void => {
+    onSubmitHandler()
+    console.log('next')
+    // will replace with fn handler to the next section
+  }
+
+  // button handler - previous
+  const onPreviousHandler = (): void => {
+    console.log('previous')
+    // will replace with fn handler to the previous section
+  }
+
+  // turn off disabled attribute, if mutate UpdateContactData state is success
+  React.useMemo<void>((): void => {
+    isButtonLoading && updateContactData.isSuccess && (setIsButtonLoading(false), console.log('appear notification'))
+  }, [updateContactData.isSuccess])
 
   return (
     <>
-      <form onSubmit={handleSubmit<ValuesType>(onSubmit)}>
+      <form onSubmit={handleSubmit<ValuesType>(onSubmitHandler)}>
         <FormLayout hasMargin className={elW8}>
           <InputWrapFull>
             <InputWrap className={elMb6}>
@@ -108,15 +155,20 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = (): 
         </FormLayout>
         <FlexContainer isFlexJustifyBetween className={elW8}>
           <ButtonGroup>
-            <Button intent="secondary" chevronLeft>
+            <Button intent="secondary" onClick={onPreviousHandler} type="button" disabled={isButtonLoading} chevronLeft>
               Previous
             </Button>
           </ButtonGroup>
           <ButtonGroup>
-            <Button intent="success" type="submit" disabled={Object.keys(formState.errors).length !== 0 ? true : false}>
+            <Button
+              intent="success"
+              type="submit"
+              disabled={Object.keys(formState.errors).length !== 0 ? true : false || isButtonLoading}
+              loading={updateContactData.isLoading}
+            >
               Save
             </Button>
-            <Button intent="primary" chevronRight>
+            <Button intent="primary" onClick={onNextHandler} type="button" disabled={isButtonLoading} chevronRight>
               Finish
             </Button>
           </ButtonGroup>

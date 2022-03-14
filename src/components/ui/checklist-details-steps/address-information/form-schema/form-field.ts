@@ -1,8 +1,11 @@
 import { AddressModel } from '@reapit/foundations-ts-definitions'
 
+type UpdatedAddressModel = {
+  type?: string
+} & Omit<AddressModel, 'countryId'>
 export interface ValuesType {
-  primaryAddress?: Omit<AddressModel, 'countryId'>
-  secondaryAddress?: Omit<AddressModel, 'countryId'>
+  primaryAddress?: UpdatedAddressModel
+  secondaryAddress?: UpdatedAddressModel
   metadata: {
     primaryAddress?: {
       documentImage?: string
@@ -20,8 +23,8 @@ export interface ValuesType {
 }
 
 export type AvailableFormFieldType =
-  | 'primaryAddress.typeField'
-  | 'secondaryAddress.typeField'
+  | 'primaryAddress.type'
+  | 'secondaryAddress.type'
   | 'primaryAddress.buildingName'
   | 'secondaryAddress.buildingName'
   | 'primaryAddress.buildingNumber'
@@ -49,7 +52,7 @@ export type AvailableFormFieldType =
 
 export interface FormFieldType {
   typeField: {
-    name: Extract<AvailableFormFieldType, 'primaryAddress.typeField' | 'secondaryAddress.typeField'>
+    name: Extract<AvailableFormFieldType, 'primaryAddress.type' | 'secondaryAddress.type'>
     label: string
   }
   buildingNameField: {
@@ -106,7 +109,7 @@ export interface FormFieldType {
 
 export const formFields = (formType: 'primaryAddress' | 'secondaryAddress'): FormFieldType => ({
   typeField: {
-    name: `${formType}.typeField`,
+    name: `${formType}.type`,
     label: 'Type',
   },
   buildingNameField: {

@@ -17,7 +17,7 @@ import { useSingleContact } from '../../../platform-api/hooks/useSIngleContact'
 export const ChecklistDetailPage: FC = () => {
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
   const { id } = useParams<{ id: string }>()
-  const { data: userData } = useSingleContact(connectSession, id)
+  const { data: userData, refetch: userDataRefetch } = useSingleContact(connectSession, id)
   const [tab, setTab] = useState<boolean[]>([true, false, false, false, false])
   const [isModalStatusOpen, setModalStatusOpen] = useState<boolean>(false)
   const [userStatus, setUserStatus] = useState<string>('passed')
@@ -29,8 +29,8 @@ export const ChecklistDetailPage: FC = () => {
           {tab[0] && <PersonalDetails data={userData} />}
           {tab[1] && <PrimaryId data={userData} />}
           {tab[2] && <SecondaryId data={userData} />}
-          {tab[3] && <AddressInformation />}
-          {tab[4] && <DeclarationRiskManagement />}
+          {tab[3] && <AddressInformation userData={userData} userDataRefetch={userDataRefetch} />}
+          {tab[4] && <DeclarationRiskManagement userData={userData} userDataRefetch={userDataRefetch} />}
         </>
       )
     }
