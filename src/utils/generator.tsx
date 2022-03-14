@@ -80,9 +80,14 @@ export const generateOptionsType = (type: 'documentType' | 'riskAssessmentType')
 
   return currentTypeArray.map((v) => {
     return (
-      <option key={v.label} value={v.value}>
+      <option key={v.value} value={v.value}>
         {v.label}
       </option>
     )
   })
+}
+
+export const generateLabelField = (text: string, isRequired: boolean = false): string => {
+  if (isRequired) return `${text} *`
+  return text
 }
