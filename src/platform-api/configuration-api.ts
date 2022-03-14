@@ -1,29 +1,35 @@
-import { ReapitConnectSession } from '@reapit/connect-session'
+import { ReapitConnectSession, useReapitConnect } from '@reapit/connect-session'
 import { ListItemModel } from '@reapit/foundations-ts-definitions'
 import { URLS, BASE_HEADERS } from '../constants/api'
+import axios from '../axios/axios'
+import { reapitConnectBrowserSession } from '../core/connect-session'
+import { useQuery, UseQueryResult } from 'react-query'
 
-export const configurationDocumentsApiService = async (
+export const getIdentityDocumentTypes = async (
   session: ReapitConnectSession | null,
-): Promise<ListItemModel[] | undefined> => {
+): Promise<Required<ListItemModel>[] | undefined> => {
   try {
     if (!session) return
 
-    const response = await fetch(`${window.reapit.config.platformApiUrl}${URLS.CONFIGURATION_DOCUMENT_TYPES}`, {
-      method: 'GET',
+    const response = await axios.get(`${window.reapit.config.platformApiUrl}${URLS.CONFIGURATION_DOCUMENT_TYPES}`, {
       headers: {
         ...BASE_HEADERS,
         Authorization: `Bearer ${session?.accessToken}`,
       },
     })
 
-    if (response.ok) {
-      const responseJson: Promise<ListItemModel[] | undefined> = response.json()
-      return responseJson
-    }
-
-    throw new Error('No response returned by API')
+    return response.data
   } catch (err) {
     const error = err as Error
-    console.error('Error fetching Configuration Appointment Types', error.message)
+    console.error('Error fetching Identity Document Types', error.message)
+
   }
+}
+
+export const useGetIdentityDocumentTypes = (): UseQueryResult<Required<ListItemModel>[] | undefined> => {
+  const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
+
+  return useQuery(['getIdentityDocumentTypes'], () => getIdentityDocumentTypes(connectSession!), {
+    enabled: !!connectSession,
+  })
 }
