@@ -34,12 +34,14 @@ interface DeclarationRiskManagementProps {
   userDataRefetch: (
     options?: (RefetchOptions & RefetchQueryFilters) | undefined,
   ) => Promise<QueryObserverResult<ContactModel, Error>>
+  switchTabContent: (type: 'forward' | 'backward') => void | undefined
 }
 
 // render view
 const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   userData,
   userDataRefetch,
+  switchTabContent,
 }): React.ReactElement => {
   // local state - state to manage available  user if user already clicked the button
   const [isButtonLoading, setIsButtonLoading] = React.useState<boolean>(false)
@@ -97,7 +99,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
 
   // button handler - previous
   const onPreviousHandler = (): void => {
-    console.log('previous')
+    switchTabContent('backward')
     // will replace with fn handler to the previous section
   }
 

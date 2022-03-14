@@ -14,9 +14,14 @@ interface AddressInformationProps {
   userDataRefetch: (
     options?: (RefetchOptions & RefetchQueryFilters) | undefined,
   ) => Promise<QueryObserverResult<ContactModel, Error>>
+  switchTabContent: (type: 'forward' | 'backward') => void | undefined
 }
 
-const AddressInformation: React.FC<AddressInformationProps> = ({ userData, userDataRefetch }): React.ReactElement => {
+const AddressInformation: React.FC<AddressInformationProps> = ({
+  userData,
+  userDataRefetch,
+  switchTabContent,
+}): React.ReactElement => {
   const [isSecondaryFormActive, setIsSecondaryFormActive] = React.useState<boolean>(false)
   // local state - state to manage available  user if user already clicked the button
   const [isButtonLoading, setIsButtonLoading] = React.useState<boolean>(false)
@@ -86,14 +91,13 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData, userD
   // button handler - next
   const onNextHandler = (): void => {
     onSubmitHandler()
-    console.log('next')
-    // will replace with fn handler to the next section
+    // switchTabContent('forward')
+    // later will solve this issue
   }
 
   // button handler - previous
   const onPreviousHandler = (): void => {
-    console.log('previous')
-    // will replace with fn handler to the previous section
+    switchTabContent('backward')
   }
 
   // turn off disabled attribute, if mutate UpdateContactData state is success
