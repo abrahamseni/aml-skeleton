@@ -1,17 +1,40 @@
 import React from 'react'
 import { InputError } from '@reapit/elements'
 import { FormState } from 'react-hook-form'
-import { AvailableFormFieldType, ValuesType } from './form-schema/form-field'
 
-interface DisplayErrorMessageProps {
-  fieldName: AvailableFormFieldType
-  formState: FormState<ValuesType>
-}
+import {
+  AvailableFormFieldType as AddressFields,
+  ValuesType as AddressValuesType,
+} from '../components/ui/checklist-details-steps/address-information/form-schema'
+import {
+  AvailableFormFieldType as DRMFields,
+  ValuesType as DRMValuesType,
+} from '../components/ui/checklist-details-steps/declaration-risk-management/form-schema'
 
-export const displayErrorMessage = ({ fieldName, formState }: DisplayErrorMessageProps): React.ReactNode => {
+type AvailableFieldNameType = AddressFields | DRMFields
+
+interface AvailableFieldValueType extends Partial<AddressValuesType>, Partial<DRMValuesType> {}
+
+/**
+ * Display Error Message with React Hook Form
+ * @param {string} fieldName - adapting to existing type `AvailableFieldNameType`
+ * @param {ValueType}formState - you can get from react hook form library hook >> `{formState} = useForm<T>()`
+ * @returns React.Node | undefined
+ * @example displayErrorMessage<AvailableFormFieldType, ValuesType>(buildingNameField.name, formState)
+ */
+
+export const displayErrorMessage = <T extends AvailableFieldNameType, U extends AvailableFieldValueType>(
+  fieldName: T,
+  formState: FormState<U>,
+): React.ReactNode | undefined => {
   const { errors } = formState
+
   let errorMessage: string | undefined
+
   switch (fieldName) {
+    /**
+     * Address Information Form
+     */
     case 'primaryAddress.buildingName':
       errorMessage = errors.primaryAddress?.buildingName?.message
       break
@@ -78,9 +101,26 @@ export const displayErrorMessage = ({ fieldName, formState }: DisplayErrorMessag
     case 'metadata.secondaryAddress.documentType':
       errorMessage = errors.metadata?.secondaryAddress?.documentType?.message
       break
+    /**
+     * Declaration Risk Management Form
+     */
+    case 'declarationForm':
+      errorMessage = errors.declarationForm?.message
+      break
+    case 'riskAssessmentForm':
+      errorMessage = errors.riskAssessmentForm?.message
+      break
+    case 'reason':
+      errorMessage = errors.reason?.message
+      break
+    case 'type':
+      errorMessage = errors.type?.message
+      break
   }
 
   if (errorMessage) {
     return <InputError message={errorMessage} />
   }
+
+  return undefined
 }

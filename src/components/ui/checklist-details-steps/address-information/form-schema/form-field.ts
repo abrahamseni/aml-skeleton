@@ -1,16 +1,16 @@
 import { AddressModel } from '@reapit/foundations-ts-definitions'
 
 export interface ValuesType {
-  primaryAddress?: AddressModel
-  secondaryAddress?: AddressModel
+  primaryAddress?: Omit<AddressModel, 'countryId'>
+  secondaryAddress?: Omit<AddressModel, 'countryId'>
   metadata: {
-    primaryAddress: {
+    primaryAddress?: {
       documentImage?: string
       documentType?: string
       month?: string
       year?: string
     }
-    secondaryAddress: {
+    secondaryAddress?: {
       documentImage?: string
       documentType?: string
       month?: string
