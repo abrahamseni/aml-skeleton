@@ -1,8 +1,99 @@
 import React, { FC } from 'react'
-import { FlexContainer } from '@reapit/elements'
+import {
+  Button,
+  ButtonGroup,
+  elFlexJustifyCenter,
+  elRowGap6,
+  elWFull,
+  FlexContainer,
+  FormLayout,
+  InputGroup,
+  InputWrap,
+  InputWrapFull,
+  Label,
+  Select,
+  Subtitle,
+} from '@reapit/elements'
+import { cx } from '@linaria/core'
+import { ID_STATUS } from '../../../constants/id-status'
+import { useForm } from 'react-hook-form'
+import { SearchContactParam, useFetchContactsBy } from '../../../platform-api/contact-api'
+
+export type SearchableDropdownKey = {
+  id: string
+  name: string
+}
+
+export type SearchFieldValue = {
+  searchName: string
+  searchAddress: string
+  searchIdStatus: string
+}
 
 export const SearchPage: FC = () => {
-  return <FlexContainer isFlexAuto>search</FlexContainer>
+  const [searchParams, setSearchParams] = React.useState<SearchContactParam | {}>({})
+  const { register, handleSubmit } = useForm<SearchFieldValue>()
+  const onSubmit = (e: SearchFieldValue) =>
+    setSearchParams({
+      name: e.searchName,
+      address: e.searchAddress,
+      identityCheck: e.searchIdStatus,
+    })
+  const result = useFetchContactsBy(searchParams)
+  console.log(result)
+
+  return (
+    <FlexContainer isFlexAuto isFlexColumn className={cx(elRowGap6)}>
+      <Subtitle>Client Search</Subtitle>
+      <FlexContainer className={cx(elWFull)}>
+        <form className={cx(elWFull, elFlexJustifyCenter)} onSubmit={handleSubmit(onSubmit)}>
+          <FormLayout hasMargin>
+            <InputWrap>
+              <InputGroup
+                label="Search by name"
+                type="text"
+                id="name"
+                placeholder="Firstname or Surname"
+                {...register('searchName')}
+              />
+            </InputWrap>
+            <InputWrap>
+              <InputGroup
+                label="Search by address"
+                type="text"
+                id="address"
+                placeholder="Streetnam, Village, Town or Postcode"
+                {...register('searchAddress')}
+              />
+            </InputWrap>
+            <InputWrap>
+              <Label>Search by ID Status</Label>
+              <Select placeholder="Please select..." defaultValue="" {...register('searchIdStatus')}>
+                {ID_STATUS.map((status, index) => {
+                  return (
+                    <option key={status.value} value={status.value} disabled={index === 0}>
+                      {status.label}
+                    </option>
+                  )
+                })}
+              </Select>
+            </InputWrap>
+            <InputWrapFull>
+              <ButtonGroup alignment="right">
+                <Button type="reset" intent="low">
+                  Reset form
+                </Button>
+                <Button type="submit" intent="primary" chevronRight>
+                  Search
+                </Button>
+              </ButtonGroup>
+            </InputWrapFull>
+          </FormLayout>
+        </form>
+      </FlexContainer>
+      <FlexContainer>Table</FlexContainer>
+    </FlexContainer>
+  )
 }
 
 export default SearchPage
