@@ -1,5 +1,5 @@
 import React from 'react'
-import { BodyText, Button, elMl4, elMt6, elW8, FlexContainer, FormLayout, InputWrapFull } from '@reapit/elements'
+import { BodyText, Button, ButtonGroup, elMt6, elW8, FlexContainer, FormLayout, InputWrapFull } from '@reapit/elements'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { FormField } from './form-field'
@@ -10,10 +10,11 @@ import { RightSideContainer } from './__styles__'
 const AddressInformation: React.FC = (): React.ReactElement => {
   const [isSecondaryFormActive, setIsSecondaryFormActive] = React.useState<boolean>(false)
 
+  // temporary data with mock, soon will be replaced by react.useContext
   const { primaryAddress, secondaryAddress, metadata } = ContactModelMock ?? {}
 
   // reformat meta data
-  const formattedMetadata = {
+  const formattedMetadata: ValuesType['metadata'] = {
     primaryAddress: {
       documentImage: metadata?.primaryAddress?.documentImage ?? '',
       documentType: metadata?.primaryAddress?.documentType ?? '',
@@ -39,7 +40,7 @@ const AddressInformation: React.FC = (): React.ReactElement => {
   const currentForm = useForm<ValuesType>({
     defaultValues: INITIAL_VALUES,
     resolver: yupResolver(validationSchema),
-    mode: 'onChange',
+    mode: 'all',
   })
 
   // submit handler
@@ -50,10 +51,10 @@ const AddressInformation: React.FC = (): React.ReactElement => {
   return (
     <>
       <form onSubmit={currentForm.handleSubmit(onSubmit)}>
-        <FormLayout hasMargin>
+        <FormLayout hasMargin className={elW8}>
           <FormField identity="primaryAddress" rhfProps={currentForm} />
           <InputWrapFull>
-            <RightSideContainer className={elW8}>
+            <RightSideContainer>
               <Button intent="neutral" type="button" onClick={() => setIsSecondaryFormActive(!isSecondaryFormActive)}>
                 Less than 3 Years ?
               </Button>
@@ -62,12 +63,12 @@ const AddressInformation: React.FC = (): React.ReactElement => {
           {isSecondaryFormActive && <FormField identity="secondaryAddress" rhfProps={currentForm} />}
         </FormLayout>
         <FlexContainer isFlexJustifyBetween className={elW8}>
-          <div className="el-col">
+          <ButtonGroup>
             <Button chevronLeft intent="secondary" type="submit">
               Previous
             </Button>
-          </div>
-          <div>
+          </ButtonGroup>
+          <ButtonGroup>
             <Button
               intent="success"
               type="submit"
@@ -75,10 +76,10 @@ const AddressInformation: React.FC = (): React.ReactElement => {
             >
               Save
             </Button>
-            <Button chevronRight intent="primary" className={elMl4} type="submit">
+            <Button chevronRight intent="primary" type="submit">
               Next
             </Button>
-          </div>
+          </ButtonGroup>
         </FlexContainer>
       </form>
       <div className={elMt6}>
