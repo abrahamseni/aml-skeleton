@@ -168,7 +168,13 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
             >
               Save
             </Button>
-            <Button intent="primary" onClick={onNextHandler} type="button" disabled={isButtonLoading} chevronRight>
+            <Button
+              intent="primary"
+              onClick={onNextHandler}
+              type="button"
+              chevronRight
+              disabled={Object.keys(formState.errors).length !== 0 ? true : false || isButtonLoading}
+            >
               Finish
             </Button>
           </ButtonGroup>

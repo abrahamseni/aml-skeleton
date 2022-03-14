@@ -50,12 +50,7 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
     <>
       <InputWrapFull>
         <InputWrap>
-          <InputGroup
-            type="hidden"
-            defaultValue="primary"
-            placeholder={typeField.label}
-            {...register(typeField.name)}
-          />
+          <InputGroup type="hidden" placeholder={typeField.label} {...register(typeField.name)} />
         </InputWrap>
         <InputWrap>
           <InputGroup

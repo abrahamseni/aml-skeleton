@@ -130,7 +130,13 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData, userD
             >
               Save
             </Button>
-            <Button onClick={onNextHandler} chevronRight intent="primary" type="button" disabled={isButtonLoading}>
+            <Button
+              onClick={onNextHandler}
+              chevronRight
+              intent="primary"
+              type="button"
+              disabled={Object.keys(currentForm.formState.errors).length !== 0 ? true : false || isButtonLoading}
+            >
               Next
             </Button>
           </ButtonGroup>
