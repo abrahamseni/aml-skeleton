@@ -1,4 +1,6 @@
 import React, { FC } from 'react'
+import { QueryClient, QueryClientProvider } from 'react-query'
+
 import Router from './router'
 import ErrorBoundary from '../components/hocs/error-boundary'
 import { MediaStateProvider, NavStateProvider } from '@reapit/elements'
@@ -12,6 +14,8 @@ const queryClient = new QueryClient({
     },
   },
 })
+
+const queryClient = new QueryClient()
 
 const App: FC = () => (
   <ErrorBoundary>
