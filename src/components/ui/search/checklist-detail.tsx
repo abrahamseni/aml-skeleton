@@ -84,8 +84,12 @@ export const ChecklistDetailPage: FC = () => {
 
   const querySingleContact = useSingleContact(connectSession, id)
   const { data: userData, isFetching: userDataIsFetching } = querySingleContact
+
   const queryIdentityCheck = useFetchSingleIdentityCheckByContactId({ contactId: id })
+  const { data: identityCheck, isFetching: identityCheckIsFetching } = queryIdentityCheck
+
   const [isModalStatusOpen, setModalStatusOpen] = useState<boolean>(false)
+
   const [userStatus, setUserStatus] = useState<string>('passed')
 
   // console.log('idCheck')
@@ -94,7 +98,7 @@ export const ChecklistDetailPage: FC = () => {
   // local state - tab pagination handler
   const [activeTabs, setActiveTabs] = React.useState<number>(0)
 
-  if ((!userData && userDataIsFetching) || !userData) {
+  if ((!userData && userDataIsFetching) || (!identityCheck && identityCheckIsFetching) || !userData || !identityCheck) {
     return <Loader fullPage label="Please wait..." />
   }
 
