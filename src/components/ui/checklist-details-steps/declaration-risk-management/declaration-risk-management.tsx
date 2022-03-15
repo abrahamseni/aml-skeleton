@@ -18,6 +18,7 @@ import {
   elMb6,
   Modal,
   InputError,
+  useSnack,
 } from '@reapit/elements'
 import { cx } from '@linaria/core'
 import { useForm } from 'react-hook-form'
@@ -28,6 +29,7 @@ import { order0 } from './__styles__'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
 import { UpdateContactDataType, useUpdateContactData } from '../../../../platform-api/contact-api'
 import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from 'react-query'
+import { notificationMessage } from '../../../../constants/notification-message'
 
 interface DeclarationRiskManagementProps {
   userData: ContactModel | undefined
@@ -43,6 +45,8 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   userDataRefetch,
   switchTabContent,
 }): React.ReactElement => {
+  // snack notification - snack provider
+  const { success, error } = useSnack()
   // local state - modal handler
   const [declarationFormModalOpen, setDeclarationFormModalOpen] = React.useState<boolean>(false)
   const [riskAssessmentFormModalOpen, setRiskAssessmentFormModalOpen] = React.useState<boolean>(false)
@@ -131,11 +135,21 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   }
 
   // turn off disabled attribute, if mutate UpdateContactData state is success
+  // later will do more with optimize way :)
   React.useLayoutEffect((): void => {
-    isButtonLoading &&
-      updateContactData.isSuccess &&
-      (setIsButtonLoading(false), isGoingToNextSection && (setIsGoingToNextSection(false), switchTabContent('forward')))
-  }, [updateContactData.isSuccess])
+    if (isButtonLoading) {
+      if (updateContactData.isSuccess) {
+        setIsButtonLoading(false)
+        success(notificationMessage.DRM_SUCCESS, 2000)
+        isGoingToNextSection && (setIsGoingToNextSection(false), switchTabContent('forward'))
+      }
+      if (updateContactData.isError) {
+        setIsButtonLoading(false)
+        error(notificationMessage.DRM_ERROR, 2000)
+        isGoingToNextSection && setIsGoingToNextSection(false)
+      }
+    }
+  }, [updateContactData.status])
 
   return (
     <>

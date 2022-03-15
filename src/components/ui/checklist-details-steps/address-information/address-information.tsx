@@ -1,5 +1,15 @@
 import React from 'react'
-import { BodyText, Button, ButtonGroup, elMt6, elW8, FlexContainer, FormLayout, InputWrapFull } from '@reapit/elements'
+import {
+  BodyText,
+  Button,
+  ButtonGroup,
+  elMt6,
+  elW8,
+  FlexContainer,
+  FormLayout,
+  InputWrapFull,
+  useSnack,
+} from '@reapit/elements'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { FormField } from './form-field'
@@ -8,6 +18,7 @@ import { RightSideContainer } from './__styles__'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
 import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from 'react-query'
 import { UpdateContactDataType, useUpdateContactData } from '../../../../platform-api/contact-api'
+import { notificationMessage } from '../../../../constants/notification-message'
 
 interface AddressInformationProps {
   userData: ContactModel | undefined
@@ -22,6 +33,9 @@ const AddressInformation: React.FC<AddressInformationProps> = ({
   userDataRefetch,
   switchTabContent,
 }): React.ReactElement => {
+  // snack notification - snack provider
+  const { success, error } = useSnack()
+
   const [isSecondaryFormActive, setIsSecondaryFormActive] = React.useState<boolean>(false)
 
   // local state - state to manage available  user if user already clicked the button
@@ -110,10 +124,19 @@ const AddressInformation: React.FC<AddressInformationProps> = ({
   // turn off disabled attribute, if mutate UpdateContactData state is success
   // later will do more with optimize way :)
   React.useLayoutEffect((): void => {
-    isButtonLoading &&
-      updateContactData.isSuccess &&
-      (setIsButtonLoading(false), isGoingToNextSection && (setIsGoingToNextSection(false), switchTabContent('forward')))
-  }, [updateContactData.isSuccess])
+    if (isButtonLoading) {
+      if (updateContactData.isSuccess) {
+        setIsButtonLoading(false)
+        success(notificationMessage.AIF_SUCCESS, 2000)
+        isGoingToNextSection && (setIsGoingToNextSection(false), switchTabContent('forward'))
+      }
+      if (updateContactData.isError) {
+        setIsButtonLoading(false)
+        error(notificationMessage.AIF_ERROR, 2000)
+        isGoingToNextSection && setIsGoingToNextSection(false)
+      }
+    }
+  }, [updateContactData.status])
 
   return (
     <>
