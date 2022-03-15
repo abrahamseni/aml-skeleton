@@ -1,10 +1,22 @@
 import React from 'react'
-import { elMb2, InputGroup, Label, Select, FileInput, InputWrap, InputWrapFull, elMt4 } from '@reapit/elements'
+import {
+  elMb2,
+  InputGroup,
+  Label,
+  Select,
+  FileInput,
+  InputWrap,
+  InputWrapFull,
+  elMt4,
+  Modal,
+  FlexContainer,
+  ButtonGroup,
+  Button,
+} from '@reapit/elements'
 import { AvailableFormFieldType, formFields, ValuesType } from './form-schema'
 import { UseFormReturn } from 'react-hook-form'
 import { displayErrorMessage } from '../../../../utils/error-message'
 import { generateLabelField, generateOptionsType, generateOptionsYearsOrMonths } from '../../../../utils/generator'
-import ModalDocument from '../../modal-document/modal-document'
 import { cx } from '@linaria/core'
 import { order0 } from './__styles__'
 
@@ -20,13 +32,18 @@ interface FormFieldProps {
 }
 
 export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.ReactElement => {
-  // modal handler
-  const documentImagePrimaryModalHandler = React.useRef<React.ElementRef<typeof ModalDocument>>(null)
-  const documentImageSecondaryModalHandler = React.useRef<React.ElementRef<typeof ModalDocument>>(null)
+  // local state - modal handler
+  const [imagePrimaryAddress, setImagePrimaryAddress] = React.useState<boolean>(false)
+  const [imageSecondaryAddress, setImageSecondaryAddress] = React.useState<boolean>(false)
 
-  const documentImageModalHandler =
-    identity === 'primaryAddress' ? documentImagePrimaryModalHandler : documentImageSecondaryModalHandler
-
+  // local function - modal handler
+  const modalHandler = (option: 'open' | 'close'): void => {
+    if (identity === 'primaryAddress') {
+      setImagePrimaryAddress(option === 'open' ? true : false)
+    } else {
+      setImageSecondaryAddress(option === 'open' ? true : false)
+    }
+  }
   // passed useForm hook from parent
   const { register, watch, getValues, formState } = rhfProps
 
@@ -160,26 +177,28 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
               {...register(documentImageField.name)}
               placeholderText={documentImageField.label}
               defaultValue={getValues(documentImageField.name)}
-              onFileView={() => documentImageModalHandler.current?.openModal()}
+              onFileView={() => modalHandler('open')}
             />
             {displayErrorMessage<AvailableFormFieldType, ValuesType>(documentImageField.name, formState)}
           </InputGroup>
         </InputWrap>
       </InputWrapFull>
-      {/* Document Image Primary Address */}
-      <ModalDocument
-        ref={documentImagePrimaryModalHandler}
-        watchFormField={watch}
-        forwardedRef={documentImagePrimaryModalHandler}
-        selectedFormField={documentImageField.name}
-      />
-      {/* Document Image Secondary Address */}
-      <ModalDocument
-        ref={documentImageSecondaryModalHandler}
-        watchFormField={watch}
-        forwardedRef={documentImageSecondaryModalHandler}
-        selectedFormField={documentImageField.name}
-      />
+      {/* Document Image Address */}
+      <Modal
+        isOpen={identity === 'primaryAddress' ? imagePrimaryAddress : imageSecondaryAddress}
+        title="Image Preview"
+        onModalClose={() => modalHandler('open')}
+      >
+        <FlexContainer isFlexAlignCenter isFlexJustifyCenter>
+          {/* will be good if we can handle by file type, e.g pdf -> return pdf viewer // img -> return img tag */}
+          <img src={watch(documentImageField.name)} height="auto" width="150px" alt={watch(documentImageField.name)} />
+        </FlexContainer>
+        <ButtonGroup alignment="right">
+          <Button intent="low" onClick={() => modalHandler('open')}>
+            Close
+          </Button>
+        </ButtonGroup>
+      </Modal>
     </>
   )
 }

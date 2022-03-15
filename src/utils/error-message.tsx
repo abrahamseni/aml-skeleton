@@ -119,7 +119,7 @@ export const displayErrorMessage = <T extends AvailableFieldNameType, U extends 
   }
 
   if (errorMessage) {
-    return <InputError message={errorMessage} />
+    return <InputError data-testid={fieldName} message={errorMessage} />
   }
 
   return undefined

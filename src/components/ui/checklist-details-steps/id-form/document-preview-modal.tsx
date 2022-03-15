@@ -27,8 +27,8 @@ export const DocumentPreviewModal: FC<Props> = ({ src, isOpen, onModalClose, loa
     for (let i = 0; i < pdfNumPages; i++) {
       pages.push(
         <div key={i} style={{ backgroundColor: '#ddd', padding: padding, paddingTop: i === 0 ? padding : 0 }}>
-          <Page width={width && width - (24 * 2)} pageNumber={i + 1} />
-        </div>
+          <Page width={width && width - 24 * 2} pageNumber={i + 1} />
+        </div>,
       )
     }
     return pages
@@ -43,24 +43,21 @@ export const DocumentPreviewModal: FC<Props> = ({ src, isOpen, onModalClose, loa
   }
 
   return (
-    <Modal 
-      title="Document Preview" 
-      isOpen={isOpen} 
+    <Modal
+      title="Document Preview"
+      isOpen={isOpen}
       onModalClose={closeModal}
-      style={{ maxWidth: '80%', width: pdfPreviewIsVisible ? '80%' : 'auto'}}
+      style={{ maxWidth: '80%', width: pdfPreviewIsVisible ? '80%' : 'auto' }}
       bodyClassName={css`
         overflow-y: hidden;
       `}
     >
       <Body>
-        {loading && (
-          <Loader label="Loading" />
-        )}
-        {src && !loading && (
-          !pdfPreviewIsVisible ? (
-            <img 
-              src={src} onError={() => setPdfPreviewIsVisible(true)}
-             />
+        {loading && <Loader label="Loading" />}
+        {src &&
+          !loading &&
+          (!pdfPreviewIsVisible ? (
+            <img src={src} onError={() => setPdfPreviewIsVisible(true)} />
           ) : (
             <PdfContainer>
               <SizeMe>
@@ -71,8 +68,7 @@ export const DocumentPreviewModal: FC<Props> = ({ src, isOpen, onModalClose, loa
                 )}
               </SizeMe>
             </PdfContainer>
-          )
-        )}
+          ))}
       </Body>
       <Footer className="el-pt6">
         <FlexContainer isFlexJustifyEnd>
