@@ -1,5 +1,6 @@
 import React, { FC } from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
+import { ReactQueryDevtools } from 'react-query/devtools'
 
 import Router from './router'
 import ErrorBoundary from '../components/hocs/error-boundary'
@@ -23,6 +24,7 @@ const App: FC = () => (
           <Router />
         </MediaStateProvider>
       </NavStateProvider>
+      <ReactQueryDevtools />
     </QueryClientProvider>
   </ErrorBoundary>
 )

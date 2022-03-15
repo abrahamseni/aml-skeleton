@@ -14,11 +14,12 @@ import { AddressInformation } from '../checklist-details-steps/address-informati
 
 import { useSingleContact } from '../../../platform-api/hooks/useSIngleContact'
 import { useFetchSingleIdentityCheckByContactId } from '../../../platform-api/identity-check-api'
+import { TabsSection } from '../tab-section'
 
 export const ChecklistDetailPage: FC = () => {
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
   const { id } = useParams<{ id: string }>()
-  const { data: userData } = useSingleContact(connectSession, id)
+  const { data: userData, refetch: userDataRefetch } = useSingleContact(connectSession, id)
   const { data: idCheck, refetch: refetchIdCheck } = useFetchSingleIdentityCheckByContactId({ contactId: id })
   const [tab, setTab] = useState<boolean[]>([true, false, false, false, false])
   const [isModalStatusOpen, setModalStatusOpen] = useState<boolean>(false)
@@ -27,17 +28,67 @@ export const ChecklistDetailPage: FC = () => {
   // console.log('idCheck')
   // console.log(idCheck)
 
+  const tabSectionHandler = React.useRef<React.ElementRef<typeof TabsSection>>(null)
+
   const renderTabContent = () => {
     if (userData) {
+      /**
+       * @todo
+       * make validator each of contents here
+       */
       return (
         <>
-          {tab[0] && <PersonalDetails data={userData} />}
-          {tab[1] && <PrimaryId contact={userData} idCheck={idCheck} onSaved={refetchIdCheck} />}
-          {tab[2] && <SecondaryId contact={userData} idCheck={idCheck} onSaved={refetchIdCheck} />}
-          {tab[3] && <AddressInformation />}
-          {tab[4] && <DeclarationRiskManagement />}
+          <TabsSection
+            ref={tabSectionHandler}
+            tabName="tab-section"
+            contents={[
+              {
+                name: 'Personal',
+                content: <PersonalDetails userData={userData} userDataRefetch={userDataRefetch} />,
+              },
+              {
+                name: 'Primary ID',
+                content: <PrimaryId contact={userData} idCheck={idCheck} onSaved={refetchIdCheck} />,
+              },
+              {
+                name: 'Secondary ID',
+                content: <SecondaryId contact={userData} idCheck={idCheck} onSaved={refetchIdCheck} />,
+              },
+              {
+                name: 'Address Information',
+                content: (
+                  <AddressInformation
+                    userData={userData}
+                    userDataRefetch={userDataRefetch}
+                    switchTabContent={switchTabSection}
+                  />
+                ),
+                status: 'danger',
+              },
+              {
+                name: 'Declaration Risk Management',
+                content: (
+                  <DeclarationRiskManagement
+                    userData={userData}
+                    userDataRefetch={userDataRefetch}
+                    switchTabContent={switchTabSection}
+                  />
+                ),
+              },
+            ]}
+          />
         </>
       )
+    }
+  }
+
+  // change current active tab content with this fn
+  const switchTabSection = (type: 'forward' | 'backward'): void | undefined => {
+    switch (type) {
+      case 'forward':
+        return tabSectionHandler.current?.nextHandler()
+      case 'backward':
+        return tabSectionHandler.current?.prevHandler()
     }
   }
 
@@ -52,54 +103,9 @@ export const ChecklistDetailPage: FC = () => {
       </div>
 
       <ProgressBarSteps currentStep={3} numberSteps={5} className="el-mt6" />
-
-      <div className="el-mt3">
-        <Tabs
-          name="my-cool-tabs-full-width"
-          isFullWidth
-          options={[
-            {
-              id: '0',
-              value: '0',
-              text: 'Personal Details',
-              isChecked: tab[0],
-            },
-            {
-              id: '1',
-              value: '1',
-              text: 'Primary Id',
-              isChecked: tab[1],
-            },
-            {
-              id: '2',
-              value: '2',
-              text: 'Secondary Id',
-              isChecked: tab[2],
-            },
-            {
-              id: '3',
-              value: '3',
-              text: 'Address Information',
-              isChecked: tab[3],
-            },
-            {
-              id: '4',
-              value: '4',
-              text: 'Declaration Risk Management',
-              isChecked: tab[4],
-            },
-          ]}
-          onChange={(event: any) =>
-            setTab((prevTab) => {
-              const changeTab = prevTab.map(() => false)
-              const trueIndex = Number(event.target.value)
-              changeTab[trueIndex] = !changeTab[trueIndex]
-              return changeTab
-            })
-          }
-        />
-        {renderTabContent()}
-      </div>
+      <button onClick={() => switchTabSection('backward')}>previous | test</button>
+      <button onClick={() => switchTabSection('forward')}>next | test</button>
+      <div className="el-mt3">{renderTabContent()}</div>
       <Modal isOpen={isModalStatusOpen} onModalClose={() => setModalStatusOpen(false)} title="Update Status">
         <BodyText>
           You have completed 3 out of 5 sections for contact Test Holly Joy Phillips. Please now select one of the

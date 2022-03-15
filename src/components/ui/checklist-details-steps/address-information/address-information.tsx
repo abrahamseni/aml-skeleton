@@ -1,86 +1,156 @@
 import React from 'react'
-import { FlexContainer, Button, elMl4, elMt8, elMy4 } from '@reapit/elements'
-
-import FormField from './form-field'
-import validationSchema from './form-schema/validation-schema'
-import { ValuesType } from './form-schema/form-field'
-import { AddressModel } from '@reapit/foundations-ts-definitions'
-import { SubmitHandler, useForm } from 'react-hook-form'
+import { BodyText, Button, ButtonGroup, elMt6, elW8, FlexContainer, FormLayout, InputWrapFull } from '@reapit/elements'
+import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { ContactModelMock } from '../__mocks__'
+import { FormField } from './form-field'
+import { validationSchema, ValuesType } from './form-schema'
+import { RightSideContainer } from './__styles__'
+import { ContactModel } from '@reapit/foundations-ts-definitions'
+import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from 'react-query'
+import { UpdateContactDataType, useUpdateContactData } from '../../../../platform-api/contact-api'
 
-const AddressInformation: React.FC = (): React.ReactElement => {
+interface AddressInformationProps {
+  userData: ContactModel | undefined
+  userDataRefetch: (
+    options?: (RefetchOptions & RefetchQueryFilters) | undefined,
+  ) => Promise<QueryObserverResult<ContactModel, Error>>
+  switchTabContent: (type: 'forward' | 'backward') => void | undefined
+}
+
+const AddressInformation: React.FC<AddressInformationProps> = ({
+  userData,
+  userDataRefetch,
+  switchTabContent,
+}): React.ReactElement => {
   const [isSecondaryFormActive, setIsSecondaryFormActive] = React.useState<boolean>(false)
+  // local state - state to manage available  user if user already clicked the button
+  const [isButtonLoading, setIsButtonLoading] = React.useState<boolean>(false)
 
-  const { primaryAddress, secondaryAddress, metadata } = ContactModelMock ?? {}
+  // get user data from parent
+  const { primaryAddress, secondaryAddress, metadata } = userData ?? {}
 
-  // reformat meta data
-  const formattedMetadata = {
+  // reformat metadata
+  const formattedMetadata: ValuesType['metadata'] = {
     primaryAddress: {
       documentImage: metadata?.primaryAddress?.documentImage ?? '',
       documentType: metadata?.primaryAddress?.documentType ?? '',
+      month: metadata?.primaryAddress?.month ?? '',
+      year: metadata?.primaryAddress?.year ?? '',
     },
     secondaryAddress: {
       documentImage: metadata?.secondaryAddress?.documentImage ?? '',
       documentType: metadata?.secondaryAddress?.documentType ?? '',
+      month: metadata?.secondaryAddress?.month ?? '',
+      year: metadata?.secondaryAddress?.year ?? '',
     },
   }
 
-  // setup value
+  // setup initial values
   const INITIAL_VALUES: ValuesType = {
-    primaryAddress: primaryAddress as AddressModel,
-    secondaryAddress: secondaryAddress as AddressModel,
+    primaryAddress: {
+      type: 'primary',
+      ...primaryAddress,
+    },
+    secondaryAddress: {
+      type: 'secondary',
+      ...secondaryAddress,
+    },
     metadata: formattedMetadata,
   }
 
-  // setup and integrate with initial value
+  // setup and integrate initial value with useForm Hook
   const currentForm = useForm<ValuesType>({
     defaultValues: INITIAL_VALUES,
     resolver: yupResolver(validationSchema),
-    mode: 'onChange',
+    mode: 'all',
   })
 
-  // submit handler
-  const onSubmit: SubmitHandler<ValuesType> = (e) => {
-    console.log(e)
+  // temporary applied method for update data #1
+  const updateFormData: UpdateContactDataType = {
+    contactId: userData!.id!,
+    _eTag: userData!._eTag!,
+    bodyData: {
+      primaryAddress: currentForm.getValues('primaryAddress'),
+      secondaryAddress: currentForm.getValues('secondaryAddress'),
+      metadata: {
+        declarationRisk: userData?.metadata?.declarationRisk,
+        ...currentForm.getValues('metadata'),
+      },
+    },
   }
+
+  // temporary applied method for update data #2
+  const updateContactData = useUpdateContactData<typeof userDataRefetch>(updateFormData, userDataRefetch)
+
+  // button handler - submit
+  const onSubmitHandler = (): void => {
+    updateContactData.mutate()
+    setIsButtonLoading(true)
+  }
+
+  // button handler - next
+  const onNextHandler = (): void => {
+    onSubmitHandler()
+    // switchTabContent('forward')
+    // later will solve this issue
+  }
+
+  // button handler - previous
+  const onPreviousHandler = (): void => {
+    switchTabContent('backward')
+  }
+
+  // turn off disabled attribute, if mutate UpdateContactData state is success
+  React.useMemo<void>((): void => {
+    isButtonLoading && updateContactData.isSuccess && (setIsButtonLoading(false), console.log('appear notification'))
+  }, [updateContactData.isSuccess])
 
   return (
     <>
-      <form onSubmit={currentForm.handleSubmit(onSubmit)}>
-        <div>
+      <form onSubmit={currentForm.handleSubmit(onSubmitHandler)}>
+        <FormLayout hasMargin className={elW8}>
           <FormField identity="primaryAddress" rhfProps={currentForm} />
-        </div>
-        <FlexContainer isFlexJustifyEnd className={elMy4}>
-          <Button intent="secondary" type="button" onClick={() => setIsSecondaryFormActive(!isSecondaryFormActive)}>
-            Less than 3 Years?
-          </Button>
-        </FlexContainer>
-        {isSecondaryFormActive && (
-          <div>
-            <FormField identity="secondaryAddress" rhfProps={currentForm} />
-          </div>
-        )}
-        <FlexContainer isFlexJustifyBetween className={elMt8}>
-          <div>
-            <Button chevronLeft intent="secondary" type="submit">
+          <InputWrapFull>
+            <RightSideContainer>
+              <Button intent="neutral" type="button" onClick={() => setIsSecondaryFormActive(!isSecondaryFormActive)}>
+                Less than 3 Years ?
+              </Button>
+            </RightSideContainer>
+          </InputWrapFull>
+          {isSecondaryFormActive && <FormField identity="secondaryAddress" rhfProps={currentForm} />}
+        </FormLayout>
+        <FlexContainer isFlexJustifyBetween className={elW8}>
+          <ButtonGroup>
+            <Button onClick={onPreviousHandler} chevronLeft intent="secondary" type="button" disabled={isButtonLoading}>
               Previous
             </Button>
-          </div>
-          <div>
+          </ButtonGroup>
+          <ButtonGroup>
             <Button
               intent="success"
               type="submit"
-              disabled={Object.keys(currentForm.formState.errors).length !== 0 ? true : false}
+              disabled={Object.keys(currentForm.formState.errors).length !== 0 ? true : false || isButtonLoading}
+              loading={updateContactData.isLoading}
             >
               Save
             </Button>
-            <Button chevronRight intent="primary" className={elMl4} type="submit">
+            <Button
+              onClick={onNextHandler}
+              chevronRight
+              intent="primary"
+              type="button"
+              disabled={Object.keys(currentForm.formState.errors).length !== 0 ? true : false || isButtonLoading}
+            >
               Next
             </Button>
-          </div>
+          </ButtonGroup>
         </FlexContainer>
       </form>
+      <div className={elMt6}>
+        <BodyText hasNoMargin>
+          * Indicates fields that are required in order to &apos;Complete&apos; this section.
+        </BodyText>
+      </div>
     </>
   )
 }

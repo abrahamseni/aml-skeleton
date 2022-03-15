@@ -1,10 +1,10 @@
 import axios from '../axios/axios'
-import { useReapitConnect } from '@reapit/connect-session'
-import { useQuery, QueryKey } from 'react-query'
+import { ReapitConnectSession, useReapitConnect } from '@reapit/connect-session'
+import { useQuery, QueryKey, useMutation } from 'react-query'
 import qs from 'qs'
 import { URLS } from '../constants/api'
 import { reapitConnectBrowserSession } from '../core/connect-session'
-import { ContactModelPagedResult } from '@reapit/foundations-ts-definitions'
+import { ContactModel, ContactModelPagedResult } from '@reapit/foundations-ts-definitions'
 import isEmpty from 'lodash.isempty'
 
 export type SearchContactParam = {
@@ -41,4 +41,45 @@ export const useFetchContactsBy = (params: SearchContactParam) => {
   })
 
   return contactListResult
+}
+
+// update contact data
+export interface UpdateContactDataType {
+  contactId: string
+  _eTag: string
+  bodyData: any
+}
+
+const updateContactData = async (
+  connectSession: ReapitConnectSession,
+  params: UpdateContactDataType,
+): Promise<ContactModel | void> => {
+  if (!connectSession) return
+  const { _eTag, contactId, bodyData } = params
+
+  const { data } = await axios.patch<ContactModel>(
+    `${window.reapit.config.platformApiUrl}/contacts/${contactId}`,
+    bodyData,
+    {
+      headers: {
+        'If-Match': _eTag,
+      },
+    },
+  )
+
+  return data
+}
+
+export const useUpdateContactData = <T extends Function>(params: UpdateContactDataType, refetchContactData: T) => {
+  const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
+  return useMutation(() => updateContactData(connectSession!, params), {
+    onError: () => {
+      // any method will placed here
+      console.error('error')
+    },
+    onSuccess: () => {
+      // any method will placed here
+      refetchContactData()
+    },
+  })
 }

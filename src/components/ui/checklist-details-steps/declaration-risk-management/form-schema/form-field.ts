@@ -5,21 +5,23 @@ export interface ValuesType {
   type?: string
 }
 
+export type AvailableFormFieldType = 'declarationForm' | 'type' | 'reason' | 'riskAssessmentForm'
+
 export interface FormFieldType {
   declarationFormField: {
-    name: 'declarationForm'
+    name: Extract<AvailableFormFieldType, 'declarationForm'>
     label: string
   }
   typeField: {
-    name: 'type'
+    name: Extract<AvailableFormFieldType, 'type'>
     label: string
   }
   reasonField: {
-    name: 'reason'
+    name: Extract<AvailableFormFieldType, 'reason'>
     label: string
   }
   riskAssessmentFormField: {
-    name: 'riskAssessmentForm'
+    name: Extract<AvailableFormFieldType, 'riskAssessmentForm'>
     label: string
   }
 }
@@ -39,6 +41,6 @@ export const formField = (): FormFieldType => ({
   },
   riskAssessmentFormField: {
     name: 'riskAssessmentForm',
-    label: 'Upload File',
+    label: 'Upload Risk Assessment File',
   },
 })

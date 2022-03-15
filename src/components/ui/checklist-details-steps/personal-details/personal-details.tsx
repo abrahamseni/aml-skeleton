@@ -8,14 +8,16 @@ import { Input, InputGroup, Label, Button, SmallText } from '@reapit/elements'
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useMutation, useQueryClient } from 'react-query'
-import axios from 'axios'
+import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from 'react-query'
 
 import { ContactModel } from '@reapit/foundations-ts-definitions'
-import { BASE_HEADERS } from '../../../../constants/api'
+import { useUpdateContact } from '../../../../platform-api/hooks/useUpdateContact'
 
-type Props = {
-  data: ContactModel
+type PersonalDetailsProps = {
+  userData: ContactModel
+  userDataRefetch: (
+    options?: (RefetchOptions & RefetchQueryFilters) | undefined,
+  ) => Promise<QueryObserverResult<ContactModel, Error>>
 }
 
 type FormPersonalDetailsType = {}
@@ -30,8 +32,9 @@ const schema = yup.object().shape({
   }),
 })
 
-const PersonalDetails = ({ data }: Props) => {
+const PersonalDetails = ({ userData, userDataRefetch }: PersonalDetailsProps) => {
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
+  const updateContact = useUpdateContact(connectSession, userData!.id!, userData!._eTag!)
   const {
     register,
     handleSubmit,
@@ -41,46 +44,24 @@ const PersonalDetails = ({ data }: Props) => {
     resolver: yupResolver(schema),
     defaultValues: {
       personalDetails: {
-        title: data?.title,
-        forename: data?.forename,
-        surname: data?.surname,
-        dob: data?.dateOfBirth,
-        email: data?.email,
-        home: data?.homePhone,
-        mobile: data?.mobilePhone,
-        work: data?.workPhone,
+        title: userData?.title,
+        forename: userData?.forename,
+        surname: userData?.surname,
+        dob: userData?.dateOfBirth,
+        email: userData?.email,
+        home: userData?.homePhone,
+        mobile: userData?.mobilePhone,
+        work: userData?.workPhone,
       },
     },
   })
 
   const onSubmitHandler = ({ personalDetails }: { personalDetails: object }) => {
     console.log({ personalDetails })
-    // reset();
-
-    // const queryClient = useQueryClient()
-
-    // return useMutation(
-    //   () =>
-    //     axios.patch(
-    //       `${window.reapit.config.platformApiUrl}/contacts/${data?.id}`,
-    //       { ...personalDetails },
-    //       {
-    //         headers: {
-    //           ...BASE_HEADERS,
-    //           Authorization: `Bearer ${connectSession?.accessToken}`,
-    //         },
-    //       },
-    //     ),
-    //   {
-    //     onSuccess: () => {
-    //       // ✅ refetch the comments list for our blog post
-    //       queryClient.invalidateQueries(['contact', data?.id])
-    //     },
-    //   },
-    // )
+    if (!connectSession) return // not really necessary ?
+    updateContact.mutate({ ...personalDetails })
   }
 
-  console.log({ errors })
   return (
     <form onSubmit={handleSubmit(onSubmitHandler)}>
       <div className="el-flex el-flex-column el-flex-wrap">
