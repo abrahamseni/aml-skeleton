@@ -1,64 +1,43 @@
 import React from 'react'
 import { elMl6, FlexContainer, BodyText, StatusIndicator } from '@reapit/elements'
 
-interface TabsSectionProps {
+export interface TabsSectionProps {
   tabName: string
   contents: {
     name: string
     content: React.ReactElement
     status?: boolean
   }[]
+  activeTabs: number
+  setActiveTabs: React.Dispatch<React.SetStateAction<number>>
+  pageHandler: (type: 'forward' | 'backward') => void
 }
 
-interface TabsSectionRefHandler {
-  nextHandler: () => void
-  prevHandler: () => void
-}
-
-const TabsSection = React.forwardRef<TabsSectionRefHandler, TabsSectionProps>(
-  ({ tabName, contents }, ref): React.ReactElement => {
-    const [activeTabs, setActiveTabs] = React.useState<number>(0)
-
-    React.useImperativeHandle(ref, () => ({
-      nextHandler() {
-        nextHandlerProps()
-      },
-      prevHandler() {
-        prevHandlerProps()
-      },
-    }))
-
-    const nextHandlerProps = (): void => {
-      if (activeTabs < contents.length - 1) setActiveTabs((prev) => prev + 1)
-    }
-
-    const prevHandlerProps = (): void => {
-      if (activeTabs > 0) setActiveTabs((prev) => prev - 1)
-    }
-
-    return (
-      <>
-        <div className="el-tabs-full-width el-tabs-wrap">
-          <div className="el-tabs-options-wrap">
-            {generateTableContent({ activeTabs, setActiveTabs, contents, tabName })}
-          </div>
-          <div className="el-tabs-footer"></div>
+const TabsSection: React.FC<TabsSectionProps> = ({
+  activeTabs,
+  setActiveTabs,
+  tabName,
+  contents,
+}): React.ReactElement => {
+  return (
+    <>
+      <div className="el-tabs-full-width el-tabs-wrap">
+        <div className="el-tabs-options-wrap">
+          {generateTableContent({ activeTabs, setActiveTabs, contents, tabName })}
         </div>
-        <div>{contents[activeTabs].content}</div>
-      </>
-    )
-  },
-)
+        <div className="el-tabs-footer"></div>
+      </div>
+      <div>{contents[activeTabs].content}</div>
+    </>
+  )
+}
 
 export default TabsSection
 
 /**
  * Will be better if we use Callback
  */
-interface GenerateTableContents extends TabsSectionProps {
-  activeTabs: number
-  setActiveTabs: React.Dispatch<React.SetStateAction<number>>
-}
+interface GenerateTableContents extends Omit<TabsSectionProps, 'pageHandler'> {}
 
 const generateTableContent = (props: GenerateTableContents): React.ReactNode => {
   const { activeTabs, setActiveTabs, contents, tabName } = props

@@ -1,4 +1,5 @@
 import React from 'react'
+import { TabsSectionProps } from '../components/ui/tab-section/tab-section'
 import { DOCUMENT_TYPE, RISK_ASSESSMENT_TYPE } from '../constants/appointment-details'
 
 interface GenerateOptionsType {
@@ -90,4 +91,38 @@ export const generateOptionsType = (type: 'documentType' | 'riskAssessmentType')
 export const generateLabelField = (text: string, isRequired: boolean = false): string => {
   if (isRequired) return `${text} *`
   return text
+}
+
+interface GenerateProgressBarProps {
+  tabContents: TabsSectionProps['contents']
+}
+interface GenerateProgressBarResult {
+  notComplete: number
+  complete: number
+  total: number
+}
+
+export const generateProgressBarResult = ({ tabContents }: GenerateProgressBarProps): GenerateProgressBarResult => {
+  const result: GenerateProgressBarResult = {
+    notComplete: 0,
+    complete: 0,
+    total: 0,
+  }
+
+  tabContents.map((v) => {
+    switch (v.status) {
+      case true:
+        result.complete += 1
+        result.total += 1
+        break
+      case false:
+        result.notComplete += 1
+        result.total += 1
+        break
+      default:
+        result.notComplete += 1
+        result.total += 1
+    }
+  })
+  return result
 }
