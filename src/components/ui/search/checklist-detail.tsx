@@ -3,7 +3,7 @@
 import React, { FC, useState } from 'react'
 import { reapitConnectBrowserSession } from '../../../core/connect-session'
 import { useReapitConnect } from '@reapit/connect-session'
-import { Subtitle, Title, Tabs, Icon, ProgressBarSteps, Modal, BodyText, InputGroup } from '@reapit/elements'
+import { Subtitle, Title, Icon, ProgressBarSteps, Modal, BodyText, InputGroup } from '@reapit/elements'
 import { useParams } from 'react-router'
 
 import PersonalDetails from '../checklist-details-steps/personal-details'
@@ -14,7 +14,7 @@ import { AddressInformation } from '../checklist-details-steps/address-informati
 
 import { useSingleContact } from '../../../platform-api/hooks/useSIngleContact'
 import { TabsSection } from '../tab-section'
-import { isCompletedAddress, isCompletedDeclarationRisk, isCompletedProfile } from '../../../utils/completed-sections'
+import { isCompletedAddress, isCompletedDeclarationRisk } from '../../../utils/completed-sections'
 
 export const ChecklistDetailPage: FC = () => {
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
@@ -39,8 +39,7 @@ export const ChecklistDetailPage: FC = () => {
             contents={[
               {
                 name: 'Personal',
-                content: <PersonalDetails data={userData} />,
-                status: isCompletedProfile(userData),
+                content: <PersonalDetails userData={userData} userDataRefetch={userDataRefetch} />,
               },
               {
                 name: 'Primary ID',
