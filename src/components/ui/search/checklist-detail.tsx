@@ -38,7 +38,7 @@ export const ChecklistDetailPage: FC = () => {
             contents={[
               {
                 name: 'Personal',
-                content: <PersonalDetails data={userData} />,
+                content: <PersonalDetails userData={userData} userDataRefetch={userDataRefetch} />,
               },
               {
                 name: 'Primary ID',
