@@ -3,7 +3,7 @@
 import React, { FC, useState } from 'react'
 import { reapitConnectBrowserSession } from '../../../core/connect-session'
 import { useReapitConnect } from '@reapit/connect-session'
-import { Subtitle, Title, Tabs, Icon, ProgressBarSteps, Modal, BodyText, InputGroup } from '@reapit/elements'
+import { Subtitle, Title, Icon, ProgressBarSteps, Modal, BodyText, InputGroup, Loader } from '@reapit/elements'
 import { useParams } from 'react-router'
 
 import PersonalDetails from '../checklist-details-steps/personal-details'
@@ -15,81 +15,122 @@ import { AddressInformation } from '../checklist-details-steps/address-informati
 import { useSingleContact } from '../../../platform-api/hooks/useSIngleContact'
 import { useFetchSingleIdentityCheckByContactId } from '../../../platform-api/identity-check-api'
 import { TabsSection } from '../tab-section'
+import {
+  isCompletedAddress,
+  isCompletedDeclarationRisk,
+  isCompletedPrimaryID,
+  isCompletedProfile,
+  isCompletedSecondaryID,
+} from '../../../utils/completed-sections'
+import { TabsSectionProps } from '../tab-section/tab-section'
+import { UseQueryResult } from 'react-query'
+import { ContactModel, IdentityCheckModel } from '@reapit/foundations-ts-definitions'
+import { generateProgressBarResult } from '../../../utils/generator'
+
+interface GenerateTabsContentProps {
+  querySingleContact: UseQueryResult<ContactModel, Error>
+  queryIdentityCheck: UseQueryResult<IdentityCheckModel | undefined, unknown>
+  switchTabSection: (type: 'forward' | 'backward') => void
+}
+
+export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectionProps['contents'] => {
+  const { querySingleContact, queryIdentityCheck, switchTabSection } = props
+
+  // single contact
+  const { data: userData, refetch: userDataRefetch } = querySingleContact
+
+  // identity check
+  const { data: idCheck, refetch: refetchIdCheck } = queryIdentityCheck
+  return [
+    {
+      name: 'Personal',
+      content: <PersonalDetails userData={userData!} userDataRefetch={userDataRefetch} />,
+      status: isCompletedProfile(userData),
+    },
+    {
+      name: 'Primary ID',
+      content: <PrimaryId contact={userData!} idCheck={idCheck} onSaved={refetchIdCheck} />,
+      status: isCompletedPrimaryID(idCheck),
+    },
+    {
+      name: 'Secondary ID',
+      content: <SecondaryId contact={userData!} idCheck={idCheck} onSaved={refetchIdCheck} />,
+      status: isCompletedSecondaryID(idCheck),
+    },
+    {
+      name: 'Address Information',
+      content: (
+        <AddressInformation userData={userData} userDataRefetch={userDataRefetch} switchTabContent={switchTabSection} />
+      ),
+      status: isCompletedAddress(userData!),
+    },
+    {
+      name: 'Declaration Risk Management',
+      content: (
+        <DeclarationRiskManagement
+          userData={userData!}
+          userDataRefetch={userDataRefetch}
+          switchTabContent={switchTabSection}
+        />
+      ),
+      status: isCompletedDeclarationRisk(userData!),
+    },
+  ]
+}
 
 export const ChecklistDetailPage: FC = () => {
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
   const { id } = useParams<{ id: string }>()
-  const { data: userData, refetch: userDataRefetch } = useSingleContact(connectSession, id)
-  const { data: idCheck, refetch: refetchIdCheck } = useFetchSingleIdentityCheckByContactId({ contactId: id })
-  const [tab, setTab] = useState<boolean[]>([true, false, false, false, false])
+
+  const querySingleContact = useSingleContact(connectSession, id)
+  const { data: userData, isFetching: userDataIsFetching } = querySingleContact
+  const queryIdentityCheck = useFetchSingleIdentityCheckByContactId({ contactId: id })
   const [isModalStatusOpen, setModalStatusOpen] = useState<boolean>(false)
   const [userStatus, setUserStatus] = useState<string>('passed')
-  
+
   // console.log('idCheck')
   // console.log(idCheck)
 
-  const tabSectionHandler = React.useRef<React.ElementRef<typeof TabsSection>>(null)
+  // local state - tab pagination handler
+  const [activeTabs, setActiveTabs] = React.useState<number>(0)
 
-  const renderTabContent = () => {
-    if (userData) {
-      /**
-       * @todo
-       * make validator each of contents here
-       */
-      return (
-        <>
-          <TabsSection
-            ref={tabSectionHandler}
-            tabName="tab-section"
-            contents={[
-              {
-                name: 'Personal',
-                content: <PersonalDetails userData={userData} userDataRefetch={userDataRefetch} />,
-              },
-              {
-                name: 'Primary ID',
-                content: <PrimaryId contact={userData} idCheck={idCheck} onSaved={refetchIdCheck} />,
-              },
-              {
-                name: 'Secondary ID',
-                content: <SecondaryId contact={userData} idCheck={idCheck} onSaved={refetchIdCheck} />,
-              },
-              {
-                name: 'Address Information',
-                content: (
-                  <AddressInformation
-                    userData={userData}
-                    userDataRefetch={userDataRefetch}
-                    switchTabContent={switchTabSection}
-                  />
-                ),
-                status: 'danger',
-              },
-              {
-                name: 'Declaration Risk Management',
-                content: (
-                  <DeclarationRiskManagement
-                    userData={userData}
-                    userDataRefetch={userDataRefetch}
-                    switchTabContent={switchTabSection}
-                  />
-                ),
-              },
-            ]}
-          />
-        </>
-      )
+  if ((!userData && userDataIsFetching) || !userData) {
+    return <Loader fullPage label="Please wait..." />
+  }
+
+  // data is available from here
+
+  // change current active tab content with this fn
+  const switchTabSection = (type: 'forward' | 'backward'): void => {
+    switch (type) {
+      case 'forward':
+        if (activeTabs < tabContents.length - 1) setActiveTabs((prev) => prev + 1)
+        break
+      case 'backward':
+        if (activeTabs > 0) setActiveTabs((prev) => prev - 1)
+        break
     }
   }
 
-  // change current active tab content with this fn
-  const switchTabSection = (type: 'forward' | 'backward'): void | undefined => {
-    switch (type) {
-      case 'forward':
-        return tabSectionHandler.current?.nextHandler()
-      case 'backward':
-        return tabSectionHandler.current?.prevHandler()
-    }
+  // render tab contents
+  const tabContents = generateTabsContent({ querySingleContact, queryIdentityCheck, switchTabSection })
+
+  // progress bar indicator
+  const { complete: completeStep, total: totalStep } = generateProgressBarResult({ tabContents })
+
+  // render tab component (will use tabContents variable for the content)
+  const renderTabContent = () => {
+    return (
+      <>
+        <TabsSection
+          activeTabs={activeTabs}
+          tabName="tab-section"
+          contents={tabContents}
+          setActiveTabs={setActiveTabs}
+          pageHandler={switchTabSection}
+        />
+      </>
+    )
   }
 
   return (
@@ -101,10 +142,9 @@ export const ChecklistDetailPage: FC = () => {
         </Subtitle>
         <Icon icon="editSolidSystem" iconSize="smallest" className="el-ml2" onClick={() => setModalStatusOpen(true)} />
       </div>
-
-      <ProgressBarSteps currentStep={3} numberSteps={5} className="el-mt6" />
-      <button onClick={() => switchTabSection('backward')}>previous | test</button>
-      <button onClick={() => switchTabSection('forward')}>next | test</button>
+      <div>
+        <ProgressBarSteps currentStep={completeStep} numberSteps={totalStep} className="el-mt6" />
+      </div>
       <div className="el-mt3">{renderTabContent()}</div>
       <Modal isOpen={isModalStatusOpen} onModalClose={() => setModalStatusOpen(false)} title="Update Status">
         <BodyText>

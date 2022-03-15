@@ -16,15 +16,15 @@ import {
   elMy6,
   elMt6,
   elMb6,
+  Modal,
+  InputError,
 } from '@reapit/elements'
 import { cx } from '@linaria/core'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { generateLabelField, generateOptionsType } from '../../../../utils/generator'
-import { formField, ValuesType, validationSchema, AvailableFormFieldType } from './form-schema'
+import { formField, ValuesType, validationSchema } from './form-schema'
 import { order0 } from './__styles__'
-import { displayErrorMessage } from '../../../../utils/error-message'
-import { ModalDocument } from '../../modal-document'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
 import { UpdateContactDataType, useUpdateContactData } from '../../../../platform-api/contact-api'
 import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from 'react-query'
@@ -43,11 +43,24 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   userDataRefetch,
   switchTabContent,
 }): React.ReactElement => {
+  // local state - modal handler
+  const [declarationFormModalOpen, setDeclarationFormModalOpen] = React.useState<boolean>(false)
+  const [riskAssessmentFormModalOpen, setRiskAssessmentFormModalOpen] = React.useState<boolean>(false)
+
+  // local function - modal handler
+  const handleModal = (type: 'declaration' | 'riskAssessment', option: 'open' | 'close'): void => {
+    switch (type) {
+      case 'riskAssessment':
+        setRiskAssessmentFormModalOpen(option === 'open' ? true : false)
+        break
+      case 'declaration':
+        setDeclarationFormModalOpen(option === 'open' ? true : false)
+        break
+    }
+  }
+
   // local state - state to manage available  user if user already clicked the button
   const [isButtonLoading, setIsButtonLoading] = React.useState<boolean>(false)
-  // modal handler
-  const declarationFormModal = React.useRef<React.ElementRef<typeof ModalDocument>>(null)
-  const riskAssessmentFormModal = React.useRef<React.ElementRef<typeof ModalDocument>>(null)
 
   const { declarationForm, reason, riskAssessmentForm, type } = userData?.metadata?.declarationRisk ?? {}
 
@@ -60,7 +73,13 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   }
 
   // setup and integrate with initial value
-  const { register, handleSubmit, watch, formState, getValues } = useForm<ValuesType>({
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+    getValues,
+  } = useForm<ValuesType>({
     defaultValues: INITIAL_VALUES,
     resolver: yupResolver(validationSchema),
     mode: 'all',
@@ -94,6 +113,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   const onNextHandler = (): void => {
     onSubmitHandler()
     console.log('next')
+    // switchTabContent('forward')
     // will replace with fn handler to the next section
   }
 
@@ -120,9 +140,9 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
                   {...register(declarationFormField.name)}
                   placeholderText={declarationFormField.label}
                   defaultValue={declarationForm}
-                  onFileView={() => declarationFormModal?.current?.openModal()}
+                  onFileView={() => handleModal('declaration', 'open')}
                 />
-                {displayErrorMessage<AvailableFormFieldType, ValuesType>(declarationFormField.name, formState)}
+                {errors.declarationForm?.message && <InputError message={errors.declarationForm?.message} />}
               </InputGroup>
             </InputWrap>
             <InputWrap className={elMy6}>
@@ -131,7 +151,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
                   {generateOptionsType('riskAssessmentType')}
                 </Select>
                 <Label className={cx(order0, elMb2)}>{generateLabelField(typeField.label)}</Label>
-                {displayErrorMessage<AvailableFormFieldType, ValuesType>(typeField.name, formState)}
+                {errors.type?.message && <InputError message={errors.type?.message} />}
               </InputGroup>
             </InputWrap>
             <InputWrap className={elMt6}>
@@ -141,16 +161,16 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
                   {...register(riskAssessmentFormField.name)}
                   placeholderText={riskAssessmentFormField.label}
                   defaultValue={riskAssessmentForm}
-                  onFileView={() => riskAssessmentFormModal?.current?.openModal()}
+                  onFileView={() => handleModal('riskAssessment', 'open')}
                 />
-                {displayErrorMessage<AvailableFormFieldType, ValuesType>(riskAssessmentFormField.name, formState)}
+                {errors.riskAssessmentForm?.message && <InputError message={errors.riskAssessmentForm?.message} />}
               </InputGroup>
             </InputWrap>
             <InputWrap className={elMt6}>
               <InputGroup>
                 <TextArea {...register(reasonField.name)} placeholder={reasonField.label} />
                 <Label>{generateLabelField(reasonField.label)}</Label>
-                {displayErrorMessage<AvailableFormFieldType, ValuesType>(reasonField.name, formState)}
+                {errors.reason?.message && <InputError message={errors.reason?.message} />}
               </InputGroup>
             </InputWrap>
           </InputWrapFull>
@@ -165,7 +185,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
             <Button
               intent="success"
               type="submit"
-              disabled={Object.keys(formState.errors).length !== 0 ? true : false || isButtonLoading}
+              disabled={Object.keys(errors).length !== 0 ? true : false || isButtonLoading}
               loading={updateContactData.isLoading}
             >
               Save
@@ -175,7 +195,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
               onClick={onNextHandler}
               type="button"
               chevronRight
-              disabled={Object.keys(formState.errors).length !== 0 ? true : false || isButtonLoading}
+              disabled={Object.keys(errors).length !== 0 ? true : false || isButtonLoading}
             >
               Finish
             </Button>
@@ -183,19 +203,37 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
         </FlexContainer>
       </form>
       {/* Modal Declaration Form */}
-      <ModalDocument
-        ref={declarationFormModal}
-        watchFormField={watch}
-        forwardedRef={declarationFormModal}
-        selectedFormField={declarationFormField.name}
-      />
+      <Modal
+        isOpen={declarationFormModalOpen}
+        title="Image Preview"
+        onModalClose={() => handleModal('declaration', 'close')}
+      >
+        <FlexContainer isFlexAlignCenter isFlexJustifyCenter>
+          {/* will be good if we can handle by file type, e.g pdf -> return pdf viewer // img -> return img tag */}
+          <img src={watch(declarationFormField.name)} height="auto" width="150px" />
+        </FlexContainer>
+        <ButtonGroup alignment="right">
+          <Button intent="low" onClick={() => handleModal('declaration', 'close')}>
+            Close
+          </Button>
+        </ButtonGroup>
+      </Modal>
       {/* Modal Risk Assessment Form */}
-      <ModalDocument
-        ref={riskAssessmentFormModal}
-        watchFormField={watch}
-        forwardedRef={riskAssessmentFormModal}
-        selectedFormField={riskAssessmentFormField.name}
-      />
+      <Modal
+        isOpen={riskAssessmentFormModalOpen}
+        title="Image Preview"
+        onModalClose={() => handleModal('riskAssessment', 'close')}
+      >
+        <FlexContainer isFlexAlignCenter isFlexJustifyCenter>
+          {/* will be good if we can handle by file type, e.g pdf -> return pdf viewer // img -> return img tag */}
+          <img src={watch(riskAssessmentFormField.name)} height="auto" width="150px" />
+        </FlexContainer>
+        <ButtonGroup alignment="right">
+          <Button intent="low" onClick={() => handleModal('riskAssessment', 'close')}>
+            Close
+          </Button>
+        </ButtonGroup>
+      </Modal>
     </>
   )
 }

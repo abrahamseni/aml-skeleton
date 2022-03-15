@@ -7,14 +7,16 @@ import { ValuesType } from './form-field'
  */
 export const validationSchema: Yup.SchemaOf<ValuesType> = Yup.object().shape({
   declarationForm: Yup.string()
+    .trim()
     .required(errorMessages.FIELD_REQUIRED)
     .matches(/(png|jpg|jpeg|pdf)/, errorMessages.WRONG_FILE_TYPE),
 
   riskAssessmentForm: Yup.string()
+    .trim()
     .required(errorMessages.FIELD_REQUIRED)
     .matches(/(png|jpg|jpeg|pdf)/, errorMessages.WRONG_FILE_TYPE),
 
-  reason: Yup.string().required(errorMessages.FIELD_REQUIRED),
+  reason: Yup.string().trim().required(errorMessages.FIELD_REQUIRED),
 
-  type: Yup.string().required(errorMessages.FIELD_REQUIRED),
+  type: Yup.string().trim().required(errorMessages.FIELD_REQUIRED),
 })
