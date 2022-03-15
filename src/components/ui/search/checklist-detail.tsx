@@ -12,7 +12,7 @@ import SecondaryId from '../checklist-details-steps/secondary-id'
 import { DeclarationRiskManagement } from '../checklist-details-steps/declaration-risk-management'
 import { AddressInformation } from '../checklist-details-steps/address-information'
 
-import { useSingleContact } from '../../../platform-api/hooks/useSIngleContact'
+import { useSingleContact } from '../../../platform-api/hooks/useSingleContact'
 import { TabsSection } from '../tab-section'
 
 export const ChecklistDetailPage: FC = () => {
@@ -39,14 +39,17 @@ export const ChecklistDetailPage: FC = () => {
               {
                 name: 'Personal',
                 content: <PersonalDetails userData={userData} userDataRefetch={userDataRefetch} />,
+                status: 'success',
               },
               {
                 name: 'Primary ID',
                 content: <PrimaryId data={userData} />,
+                status: 'success',
               },
               {
                 name: 'Secondary ID',
                 content: <SecondaryId data={userData} />,
+                status: 'success',
               },
               {
                 name: 'Address Information',
@@ -68,6 +71,7 @@ export const ChecklistDetailPage: FC = () => {
                     switchTabContent={switchTabSection}
                   />
                 ),
+                status: 'danger',
               },
             ]}
           />
