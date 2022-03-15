@@ -13,22 +13,27 @@ import { DeclarationRiskManagement } from '../checklist-details-steps/declaratio
 import { AddressInformation } from '../checklist-details-steps/address-information'
 
 import { useSingleContact } from '../../../platform-api/hooks/useSIngleContact'
+import { useFetchSingleIdentityCheckByContactId } from '../../../platform-api/identity-check-api'
 
 export const ChecklistDetailPage: FC = () => {
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
   const { id } = useParams<{ id: string }>()
   const { data: userData } = useSingleContact(connectSession, id)
+  const { data: idCheck, refetch: refetchIdCheck } = useFetchSingleIdentityCheckByContactId({ contactId: id })
   const [tab, setTab] = useState<boolean[]>([true, false, false, false, false])
   const [isModalStatusOpen, setModalStatusOpen] = useState<boolean>(false)
   const [userStatus, setUserStatus] = useState<string>('passed')
+  
+  // console.log('idCheck')
+  // console.log(idCheck)
 
   const renderTabContent = () => {
     if (userData) {
       return (
         <>
           {tab[0] && <PersonalDetails data={userData} />}
-          {tab[1] && <PrimaryId data={userData} />}
-          {tab[2] && <SecondaryId data={userData} />}
+          {tab[1] && <PrimaryId contact={userData} idCheck={idCheck} onSaved={refetchIdCheck} />}
+          {tab[2] && <SecondaryId contact={userData} idCheck={idCheck} onSaved={refetchIdCheck} />}
           {tab[3] && <AddressInformation />}
           {tab[4] && <DeclarationRiskManagement />}
         </>

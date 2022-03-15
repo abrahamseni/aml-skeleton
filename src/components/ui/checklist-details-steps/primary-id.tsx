@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Subtitle } from '@reapit/elements'
 import IdForm, { ValuesType } from './id-form'
-import { isDataUrl } from '../../../utils/url'
+import { ContactModel, IdentityCheckModel } from '@reapit/foundations-ts-definitions'
+import { useSaveIdentityDocument } from './id-form/identity-check-action'
 
 const defaultValues = {
   idType: 'DL',
@@ -12,43 +13,63 @@ const defaultValues = {
 }
 
 type Props = {
-  data: {}
+  contact: ContactModel
+  idCheck?: IdentityCheckModel
+  onSaved?: () => void
 }
 
-const PrimaryId = ({ data }: Props) => {
-  data
+const PrimaryId = ({ contact, idCheck, onSaved }: Props) => {
+  const saveIdentityDocument = useSaveIdentityDocument(1)
+  const [loading, setLoading] = useState(false)
 
-  function save(values: ValuesType) {
+  function getDefaultValues(): ValuesType {
+    if (!idCheck) {
+      return defaultValues
+    }
+    const idDoc = idCheck.identityDocument1!
+    return {
+      idType: idDoc.typeId!,
+      idReference: idDoc.details!,
+      expiryDate: idDoc.expiry!,
+      documentFile: idDoc.documentId!,
+    }
+  }
+
+  async function save(values: ValuesType) {
     console.log('save')
-    console.log(values)
 
-    createUpdateIdentityCheckParams(values)
+    await doSave(values)
   }
 
   function goToPrevious() {
     console.log('previous')
   }
 
-  function goToNext(values: ValuesType) {
+  async function goToNext(values: ValuesType) {
     console.log('next')
-    console.log(values)
 
-    createUpdateIdentityCheckParams(values)
+    await doSave(values)
   }
 
-  function createUpdateIdentityCheckParams(formValues: any) {
-    const params = {}
-    if (isDataUrl(formValues.documentFile)) {
-      params['fileData'] = formValues.documentFile
-    }
+  async function doSave(values: ValuesType) {
+    setLoading(true)
+    await saveIdentityDocument(contact, idCheck, values)
+    setLoading(false)
 
-    return params
+    onSaved && onSaved()
   }
 
   return (
     <>
       <Subtitle>Primary ID</Subtitle>
-      <IdForm defaultValues={defaultValues} onSave={save} onPrevious={goToPrevious} onNext={goToNext} />
+      <IdForm
+        defaultValues={getDefaultValues()}
+        rpsRef={contact.id}
+        loading={loading}
+        onSave={save}
+        onPrevious={goToPrevious}
+        onNext={goToNext}
+      />
     </>
   )
 }
