@@ -16,6 +16,7 @@ import {
   elMy6,
   elMt6,
   elMb6,
+  Modal,
 } from '@reapit/elements'
 import { cx } from '@linaria/core'
 import { useForm } from 'react-hook-form'
@@ -24,7 +25,6 @@ import { generateLabelField, generateOptionsType } from '../../../../utils/gener
 import { formField, ValuesType, validationSchema, AvailableFormFieldType } from './form-schema'
 import { order0 } from './__styles__'
 import { displayErrorMessage } from '../../../../utils/error-message'
-import { ModalDocument } from '../../modal-document'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
 import { UpdateContactDataType, useUpdateContactData } from '../../../../platform-api/contact-api'
 import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from 'react-query'
@@ -43,11 +43,24 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   userDataRefetch,
   switchTabContent,
 }): React.ReactElement => {
+  // local state - modal handler
+  const [declarationFormModalOpen, setDeclarationFormModalOpen] = React.useState<boolean>(false)
+  const [riskAssessmentFormModalOpen, setRiskAssessmentFormModalOpen] = React.useState<boolean>(false)
+
+  // local function - modal handler
+  const handleModal = (type: 'declaration' | 'riskAssessment', option: 'open' | 'close'): void => {
+    switch (type) {
+      case 'riskAssessment':
+        setRiskAssessmentFormModalOpen(option === 'open' ? true : false)
+        break
+      case 'declaration':
+        setDeclarationFormModalOpen(option === 'open' ? true : false)
+        break
+    }
+  }
+
   // local state - state to manage available  user if user already clicked the button
   const [isButtonLoading, setIsButtonLoading] = React.useState<boolean>(false)
-  // modal handler
-  const declarationFormModal = React.useRef<React.ElementRef<typeof ModalDocument>>(null)
-  const riskAssessmentFormModal = React.useRef<React.ElementRef<typeof ModalDocument>>(null)
 
   const { declarationForm, reason, riskAssessmentForm, type } = userData?.metadata?.declarationRisk ?? {}
 
@@ -121,7 +134,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
                   {...register(declarationFormField.name)}
                   placeholderText={declarationFormField.label}
                   defaultValue={declarationForm}
-                  onFileView={() => declarationFormModal?.current?.openModal()}
+                  onFileView={() => handleModal('declaration', 'open')}
                 />
                 {displayErrorMessage<AvailableFormFieldType, ValuesType>(declarationFormField.name, formState)}
               </InputGroup>
@@ -142,7 +155,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
                   {...register(riskAssessmentFormField.name)}
                   placeholderText={riskAssessmentFormField.label}
                   defaultValue={riskAssessmentForm}
-                  onFileView={() => riskAssessmentFormModal?.current?.openModal()}
+                  onFileView={() => handleModal('riskAssessment', 'open')}
                 />
                 {displayErrorMessage<AvailableFormFieldType, ValuesType>(riskAssessmentFormField.name, formState)}
               </InputGroup>
@@ -184,13 +197,37 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
         </FlexContainer>
       </form>
       {/* Modal Declaration Form */}
-      <ModalDocument ref={declarationFormModal} watchFormField={watch} selectedFormField={declarationFormField.name} />
+      <Modal
+        isOpen={declarationFormModalOpen}
+        title="Image Preview"
+        onModalClose={() => handleModal('declaration', 'close')}
+      >
+        <FlexContainer isFlexAlignCenter isFlexJustifyCenter>
+          {/* will be good if we can handle by file type, e.g pdf -> return pdf viewer // img -> return img tag */}
+          <img src={watch(declarationFormField.name)} height="auto" width="150px" />
+        </FlexContainer>
+        <ButtonGroup alignment="right">
+          <Button intent="low" onClick={() => handleModal('declaration', 'close')}>
+            Close
+          </Button>
+        </ButtonGroup>
+      </Modal>
       {/* Modal Risk Assessment Form */}
-      <ModalDocument
-        ref={riskAssessmentFormModal}
-        watchFormField={watch}
-        selectedFormField={riskAssessmentFormField.name}
-      />
+      <Modal
+        isOpen={riskAssessmentFormModalOpen}
+        title="Image Preview"
+        onModalClose={() => handleModal('riskAssessment', 'close')}
+      >
+        <FlexContainer isFlexAlignCenter isFlexJustifyCenter>
+          {/* will be good if we can handle by file type, e.g pdf -> return pdf viewer // img -> return img tag */}
+          <img src={watch(riskAssessmentFormField.name)} height="auto" width="150px" />
+        </FlexContainer>
+        <ButtonGroup alignment="right">
+          <Button intent="low" onClick={() => handleModal('riskAssessment', 'close')}>
+            Close
+          </Button>
+        </ButtonGroup>
+      </Modal>
     </>
   )
 }
