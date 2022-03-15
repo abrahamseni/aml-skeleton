@@ -1,15 +1,13 @@
 import React from 'react'
-import { elMl6, FlexContainer, BodyText, StatusIndicator, Intent } from '@reapit/elements'
-
-interface ContentType {
-  name: string
-  content: React.ReactElement
-  status?: Intent
-}
+import { elMl6, FlexContainer, BodyText, StatusIndicator } from '@reapit/elements'
 
 interface TabsSectionProps {
   tabName: string
-  contents: ContentType[]
+  contents: {
+    name: string
+    content: React.ReactElement
+    status?: boolean
+  }[]
 }
 
 interface TabsSectionRefHandler {
@@ -54,6 +52,9 @@ const TabsSection = React.forwardRef<TabsSectionRefHandler, TabsSectionProps>(
 
 export default TabsSection
 
+/**
+ * Will be better if we use Callback
+ */
 interface GenerateTableContents extends TabsSectionProps {
   activeTabs: number
   setActiveTabs: React.Dispatch<React.SetStateAction<number>>
@@ -84,7 +85,7 @@ const generateTableContent = (props: GenerateTableContents): React.ReactNode => 
                 </BodyText>
               </div>
               <div className={elMl6}>
-                <StatusIndicator intent={v.status ?? 'neutral'} />
+                <StatusIndicator intent={v.status ? 'success' : 'neutral'} />
               </div>
             </FlexContainer>
           </span>

@@ -23,7 +23,6 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
   // modal handler
   const documentImagePrimaryModalHandler = React.useRef<React.ElementRef<typeof ModalDocument>>(null)
   const documentImageSecondaryModalHandler = React.useRef<React.ElementRef<typeof ModalDocument>>(null)
-
   const documentImageModalHandler =
     identity === 'primaryAddress' ? documentImagePrimaryModalHandler : documentImageSecondaryModalHandler
 
@@ -166,18 +165,10 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
           </InputGroup>
         </InputWrap>
       </InputWrapFull>
-      {/* Document Image Primary Address */}
+      {/* Document Image Address */}
       <ModalDocument
-        ref={documentImagePrimaryModalHandler}
+        ref={documentImageModalHandler}
         watchFormField={watch}
-        forwardedRef={documentImagePrimaryModalHandler}
-        selectedFormField={documentImageField.name}
-      />
-      {/* Document Image Secondary Address */}
-      <ModalDocument
-        ref={documentImageSecondaryModalHandler}
-        watchFormField={watch}
-        forwardedRef={documentImageSecondaryModalHandler}
         selectedFormField={documentImageField.name}
       />
     </>

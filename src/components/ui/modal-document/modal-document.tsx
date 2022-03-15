@@ -12,7 +12,6 @@ type ModalDocumentHandle = {
 type AvailableFieldNameType = AddressFields | DRMFields
 
 export interface ModalDocumentProps<T> {
-  forwardedRef: React.RefObject<ModalDocumentHandle>
   watchFormField: UseFormWatch<T>
   selectedFormField: NonNullable<AvailableFieldNameType>
 }
@@ -22,8 +21,7 @@ export interface ModalDocumentProps<T> {
  * @description temporary for integrate with FileInput Component
  */
 const ModalDocument = React.forwardRef<ModalDocumentHandle, ModalDocumentProps<any>>(
-  (props, ref): React.ReactElement => {
-    const { watchFormField, selectedFormField } = props
+  ({ watchFormField, selectedFormField }, ref): React.ReactElement => {
     // local state - identify the modal, is open / closed
     const [selectedFormFieldModal, setSelectedFormFieldModal] = React.useState<boolean>(false)
 

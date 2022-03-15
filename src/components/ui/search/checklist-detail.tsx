@@ -14,6 +14,7 @@ import { AddressInformation } from '../checklist-details-steps/address-informati
 
 import { useSingleContact } from '../../../platform-api/hooks/useSIngleContact'
 import { TabsSection } from '../tab-section'
+import { isCompletedAddress, isCompletedDeclarationRisk, isCompletedProfile } from '../../../utils/completed-sections'
 
 export const ChecklistDetailPage: FC = () => {
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
@@ -39,6 +40,7 @@ export const ChecklistDetailPage: FC = () => {
               {
                 name: 'Personal',
                 content: <PersonalDetails data={userData} />,
+                status: isCompletedProfile(userData),
               },
               {
                 name: 'Primary ID',
@@ -57,7 +59,7 @@ export const ChecklistDetailPage: FC = () => {
                     switchTabContent={switchTabSection}
                   />
                 ),
-                status: 'danger',
+                status: isCompletedAddress(userData),
               },
               {
                 name: 'Declaration Risk Management',
@@ -68,6 +70,7 @@ export const ChecklistDetailPage: FC = () => {
                     switchTabContent={switchTabSection}
                   />
                 ),
+                status: isCompletedDeclarationRisk(userData),
               },
             ]}
           />

@@ -94,6 +94,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   const onNextHandler = (): void => {
     onSubmitHandler()
     console.log('next')
+    // switchTabContent('forward')
     // will replace with fn handler to the next section
   }
 
@@ -183,17 +184,11 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
         </FlexContainer>
       </form>
       {/* Modal Declaration Form */}
-      <ModalDocument
-        ref={declarationFormModal}
-        watchFormField={watch}
-        forwardedRef={declarationFormModal}
-        selectedFormField={declarationFormField.name}
-      />
+      <ModalDocument ref={declarationFormModal} watchFormField={watch} selectedFormField={declarationFormField.name} />
       {/* Modal Risk Assessment Form */}
       <ModalDocument
         ref={riskAssessmentFormModal}
         watchFormField={watch}
-        forwardedRef={riskAssessmentFormModal}
         selectedFormField={riskAssessmentFormField.name}
       />
     </>
