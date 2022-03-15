@@ -114,7 +114,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   }
 
   // temporary applied method for update data #2
-  const updateContactData = useUpdateContactData<typeof userDataRefetch>(updatedFormData, userDataRefetch)
+  const updateContactData = useUpdateContactData(updatedFormData)
 
   // button handler - submit
   const onSubmitHandler = (): void => {
@@ -139,6 +139,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   React.useLayoutEffect((): void => {
     if (isButtonLoading) {
       if (updateContactData.isSuccess) {
+        userDataRefetch()
         setIsButtonLoading(false)
         success(notificationMessage.DRM_SUCCESS, 2000)
         isGoingToNextSection && (setIsGoingToNextSection(false), switchTabContent('forward'))

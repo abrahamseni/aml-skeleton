@@ -102,7 +102,7 @@ const AddressInformation: React.FC<AddressInformationProps> = ({
     },
   }
 
-  const updateContactData = useUpdateContactData<typeof userDataRefetch>(updatedFormData, userDataRefetch)
+  const updateContactData = useUpdateContactData(updatedFormData)
 
   // button handler - submit
   const onSubmitHandler = (): void => {
@@ -126,6 +126,7 @@ const AddressInformation: React.FC<AddressInformationProps> = ({
   React.useLayoutEffect((): void => {
     if (isButtonLoading) {
       if (updateContactData.isSuccess) {
+        userDataRefetch()
         setIsButtonLoading(false)
         success(notificationMessage.AIF_SUCCESS, 2000)
         isGoingToNextSection && (setIsGoingToNextSection(false), switchTabContent('forward'))

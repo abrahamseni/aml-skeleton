@@ -70,16 +70,7 @@ const updateContactData = async (
   return data
 }
 
-export const useUpdateContactData = <T extends Function>(params: UpdateContactDataType, refetchContactData: T) => {
+export const useUpdateContactData = (params: UpdateContactDataType) => {
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
-  return useMutation(() => updateContactData(connectSession!, params), {
-    onError: () => {
-      // any method will placed here
-      console.error('error')
-    },
-    onSuccess: () => {
-      // any method will placed here
-      refetchContactData()
-    },
-  })
+  return useMutation(() => updateContactData(connectSession!, params))
 }
