@@ -1,42 +1,84 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Subtitle } from '@reapit/elements'
 import IdForm, { ValuesType } from './id-form'
+import { ContactModel, IdentityCheckModel } from '@reapit/foundations-ts-definitions'
+import { useSaveIdentityDocument } from './id-form/identity-check-action'
 
 const defaultValues = {
-  idType: 'BC',
-  idReference: 'ABC123',
-  expiryDate: '2023-01-23',
-  // documentFile: 'https://via.placeholder.com/150',
-  documentFile: 'MKT22000005', // BDF15002338
+  idType: '',
+  idReference: '',
+  expiryDate: '',
+  documentFile: '',
 }
 
 type Props = {
-  data: {}
+  contact: ContactModel
+  idCheck?: IdentityCheckModel
+  onSaved?: () => void
 }
 
-const PrimaryId = ({ data }: Props) => {
-  data
+const SecondaryId = ({ contact, idCheck, onSaved }: Props) => {
+  const saveIdentityDocument = useSaveIdentityDocument(2)
+  const [loading, setLoading] = useState(false)
 
-  function save(values: ValuesType) {
+  function getDefaultValues(): ValuesType {
+    if (!idCheck) {
+      return defaultValues
+    }
+    const idDoc = idCheck.identityDocument2!
+    return {
+      idType: idDoc.typeId!,
+      idReference: idDoc.details!,
+      expiryDate: idDoc.expiry!,
+      documentFile: idDoc.documentId!,
+    }
+  }
+
+  function getNoticeText() {
+    const text = 'Please ensure the Primary ID has been completed before adding a Secondary ID'
+    if (idCheck) {
+      return text
+    }
+  }
+
+  async function save(values: ValuesType) {
     console.log('save')
-    console.log(values)
+
+    await doSave(values)
   }
 
   function goToPrevious() {
     console.log('previous')
   }
 
-  function goToNext(values: ValuesType) {
+  async function goToNext(values: ValuesType) {
     console.log('next')
-    console.log(values)
+
+    await doSave(values)
+  }
+
+  async function doSave(values: ValuesType) {
+    setLoading(true)
+    await saveIdentityDocument(contact, idCheck, values)
+    setLoading(false)
+
+    onSaved && onSaved()
   }
 
   return (
     <>
       <Subtitle>Secondary ID</Subtitle>
-      <IdForm defaultValues={defaultValues} onSave={save} onPrevious={goToPrevious} onNext={goToNext} />
+      <IdForm
+        defaultValues={getDefaultValues()}
+        rpsRef={contact.id}
+        noticeText={getNoticeText()}
+        loading={loading}
+        onSave={save}
+        onPrevious={goToPrevious}
+        onNext={goToNext}
+      />
     </>
   )
 }
 
-export default PrimaryId
+export default SecondaryId

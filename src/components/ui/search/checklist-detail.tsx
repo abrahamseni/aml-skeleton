@@ -13,44 +13,54 @@ import { DeclarationRiskManagement } from '../checklist-details-steps/declaratio
 import { AddressInformation } from '../checklist-details-steps/address-information'
 
 import { useSingleContact } from '../../../platform-api/hooks/useSIngleContact'
+import { useFetchSingleIdentityCheckByContactId } from '../../../platform-api/identity-check-api'
 import { TabsSection } from '../tab-section'
-import { isCompletedAddress, isCompletedDeclarationRisk } from '../../../utils/completed-sections'
+import {
+  isCompletedAddress,
+  isCompletedDeclarationRisk,
+  isCompletedPrimaryID,
+  isCompletedProfile,
+  isCompletedSecondaryID,
+} from '../../../utils/completed-sections'
 import { TabsSectionProps } from '../tab-section/tab-section'
 import { UseQueryResult } from 'react-query'
-import { ContactModel } from '@reapit/foundations-ts-definitions'
+import { ContactModel, IdentityCheckModel } from '@reapit/foundations-ts-definitions'
 import { generateProgressBarResult } from '../../../utils/generator'
 
 interface GenerateTabsContentProps {
   querySingleContact: UseQueryResult<ContactModel, Error>
+  queryIdentityCheck: UseQueryResult<IdentityCheckModel | undefined, unknown>
   switchTabSection: (type: 'forward' | 'backward') => void
 }
 
 export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectionProps['contents'] => {
-  const { querySingleContact, switchTabSection } = props
+  const { querySingleContact, queryIdentityCheck, switchTabSection } = props
 
+  // single contact
   const { data: userData, refetch: userDataRefetch } = querySingleContact
 
+  // identity check
+  const { data: idCheck, refetch: refetchIdCheck } = queryIdentityCheck
   return [
     {
       name: 'Personal',
       content: <PersonalDetails userData={userData!} userDataRefetch={userDataRefetch} />,
+      status: isCompletedProfile(userData),
     },
     {
       name: 'Primary ID',
-      content: <PrimaryId data={userData!} />,
+      content: <PrimaryId contact={userData!} idCheck={idCheck} onSaved={refetchIdCheck} />,
+      status: isCompletedPrimaryID(idCheck),
     },
     {
       name: 'Secondary ID',
-      content: <SecondaryId data={userData!} />,
+      content: <SecondaryId contact={userData!} idCheck={idCheck} onSaved={refetchIdCheck} />,
+      status: isCompletedSecondaryID(idCheck),
     },
     {
       name: 'Address Information',
       content: (
-        <AddressInformation
-          userData={userData!}
-          userDataRefetch={userDataRefetch}
-          switchTabContent={switchTabSection}
-        />
+        <AddressInformation userData={userData} userDataRefetch={userDataRefetch} switchTabContent={switchTabSection} />
       ),
       status: isCompletedAddress(userData!),
     },
@@ -74,9 +84,12 @@ export const ChecklistDetailPage: FC = () => {
 
   const querySingleContact = useSingleContact(connectSession, id)
   const { data: userData, isFetching: userDataIsFetching } = querySingleContact
-
+  const queryIdentityCheck = useFetchSingleIdentityCheckByContactId({ contactId: id })
   const [isModalStatusOpen, setModalStatusOpen] = useState<boolean>(false)
   const [userStatus, setUserStatus] = useState<string>('passed')
+
+  // console.log('idCheck')
+  // console.log(idCheck)
 
   // local state - tab pagination handler
   const [activeTabs, setActiveTabs] = React.useState<number>(0)
@@ -100,7 +113,7 @@ export const ChecklistDetailPage: FC = () => {
   }
 
   // render tab contents
-  const tabContents = generateTabsContent({ querySingleContact, switchTabSection })
+  const tabContents = generateTabsContent({ querySingleContact, queryIdentityCheck, switchTabSection })
 
   // progress bar indicator
   const { complete: completeStep, total: totalStep } = generateProgressBarResult({ tabContents })

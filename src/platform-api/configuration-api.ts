@@ -22,7 +22,6 @@ export const getIdentityDocumentTypes = async (
   } catch (err) {
     const error = err as Error
     console.error('Error fetching Identity Document Types', error.message)
-
   }
 }
 

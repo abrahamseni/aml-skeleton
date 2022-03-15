@@ -7,10 +7,7 @@ type DownloadDocumentParams = {
   documentId: string
 }
 
-export const downloadDocument = async (
-  session: ReapitConnectSession | null,
-  params: DownloadDocumentParams
-) => {
+export const downloadDocument = async (session: ReapitConnectSession | null, params: DownloadDocumentParams) => {
   try {
     if (!session) return
 
