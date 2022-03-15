@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import {
   Button,
   ButtonGroup,
@@ -31,6 +31,10 @@ export type SearchFieldValue = {
   searchIdStatus: string
 }
 
+export type ContactsParams = SearchFieldValue & {
+  pageNumber: number
+}
+
 export const SearchPage: FC = () => {
   const [searchParams, setSearchParams] = React.useState<SearchContactParam | {}>({})
   const { register, handleSubmit } = useForm<SearchFieldValue>()
@@ -41,8 +45,11 @@ export const SearchPage: FC = () => {
       identityCheck: e.searchIdStatus,
     })
   const result = useFetchContactsBy(searchParams)
-  console.log(result)
-  console.log(searchParams)
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const handleResetForm = () => {
+    setSearchParams({})
+  }
 
   return (
     <FlexContainer isFlexAuto isFlexColumn className={cx(elRowGap6)}>
@@ -82,7 +89,7 @@ export const SearchPage: FC = () => {
             </InputWrap>
             <InputWrapFull>
               <ButtonGroup alignment="right">
-                <Button type="reset" intent="low">
+                <Button type="reset" intent="low" onClick={handleResetForm}>
                   Reset form
                 </Button>
                 <Button type="submit" intent="primary" chevronRight>
@@ -94,7 +101,11 @@ export const SearchPage: FC = () => {
         </form>
       </FlexContainer>
       <FlexContainer>
-        <TableResult items={result?.data?._embedded} />
+        {!searchParams || Number(result.data?._embedded?.length) === 0 ? (
+              'No search results'
+        ) : (
+              <TableResult items={result?.data?._embedded} />
+        )}
       </FlexContainer>
     </FlexContainer>
   )
