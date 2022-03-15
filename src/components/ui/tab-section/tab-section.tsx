@@ -10,7 +10,6 @@ export interface TabsSectionProps {
   }[]
   activeTabs: number
   setActiveTabs: React.Dispatch<React.SetStateAction<number>>
-  pageHandler: (type: 'forward' | 'backward') => void
 }
 
 const TabsSection: React.FC<TabsSectionProps> = ({
@@ -37,7 +36,7 @@ export default TabsSection
 /**
  * Will be better if we use Callback
  */
-interface GenerateTableContents extends Omit<TabsSectionProps, 'pageHandler'> {}
+interface GenerateTableContents extends TabsSectionProps {}
 
 const generateTableContent = (props: GenerateTableContents): React.ReactNode => {
   const { activeTabs, setActiveTabs, contents, tabName } = props
@@ -52,7 +51,7 @@ const generateTableContent = (props: GenerateTableContents): React.ReactNode => 
           type="radio"
           className="el-tabs"
           value={`tab-${index}-fw`}
-          checked={activeTabs === index ? !!true : !!false}
+          checked={activeTabs === index ? true : false}
           onClick={() => setActiveTabs(index)}
         />
         <label htmlFor={`tab-${index}-fw`} className="el-tabs-label">

@@ -47,6 +47,9 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   const [declarationFormModalOpen, setDeclarationFormModalOpen] = React.useState<boolean>(false)
   const [riskAssessmentFormModalOpen, setRiskAssessmentFormModalOpen] = React.useState<boolean>(false)
 
+  // local state - button handler
+  const [isGoingToNextSection, setIsGoingToNextSection] = React.useState<boolean>(false)
+
   // local function - modal handler
   const handleModal = (type: 'declaration' | 'riskAssessment', option: 'open' | 'close'): void => {
     switch (type) {
@@ -79,17 +82,23 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
     watch,
     formState: { errors },
     getValues,
+    trigger,
   } = useForm<ValuesType>({
     defaultValues: INITIAL_VALUES,
     resolver: yupResolver(validationSchema),
     mode: 'all',
   })
 
+  // trigger form validation on mount
+  React.useLayoutEffect(() => {
+    trigger()
+  }, [])
+
   // declare form
   const { declarationFormField, riskAssessmentFormField, typeField, reasonField } = formField()
 
   // temporary applied method for update data #1
-  const updateFormData: UpdateContactDataType = {
+  const updatedFormData: UpdateContactDataType = {
     contactId: userData!.id!,
     _eTag: userData!._eTag!,
     bodyData: {
@@ -101,7 +110,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   }
 
   // temporary applied method for update data #2
-  const updateContactData = useUpdateContactData<typeof userDataRefetch>(updateFormData, userDataRefetch)
+  const updateContactData = useUpdateContactData<typeof userDataRefetch>(updatedFormData, userDataRefetch)
 
   // button handler - submit
   const onSubmitHandler = (): void => {
@@ -112,9 +121,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   // button handler - next
   const onNextHandler = (): void => {
     onSubmitHandler()
-    console.log('next')
-    // switchTabContent('forward')
-    // will replace with fn handler to the next section
+    setIsGoingToNextSection(true)
   }
 
   // button handler - previous
@@ -124,8 +131,10 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   }
 
   // turn off disabled attribute, if mutate UpdateContactData state is success
-  React.useMemo<void>((): void => {
-    isButtonLoading && updateContactData.isSuccess && (setIsButtonLoading(false), console.log('appear notification'))
+  React.useLayoutEffect((): void => {
+    isButtonLoading &&
+      updateContactData.isSuccess &&
+      (setIsButtonLoading(false), isGoingToNextSection && (setIsGoingToNextSection(false), switchTabContent('forward')))
   }, [updateContactData.isSuccess])
 
   return (

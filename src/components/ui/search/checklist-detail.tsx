@@ -98,7 +98,7 @@ export const ChecklistDetailPage: FC = () => {
   // local state - tab pagination handler
   const [activeTabs, setActiveTabs] = React.useState<number>(0)
 
-  if ((!userData && userDataIsFetching) || (!identityCheck && identityCheckIsFetching) || !userData || !identityCheck) {
+  if ((!userData && userDataIsFetching) || (!identityCheck && identityCheckIsFetching) || !userData) {
     return <Loader fullPage label="Please wait..." />
   }
 
@@ -123,15 +123,14 @@ export const ChecklistDetailPage: FC = () => {
   const { complete: completeStep, total: totalStep } = generateProgressBarResult({ tabContents })
 
   // render tab component (will use tabContents variable for the content)
-  const renderTabContent = () => {
+  const renderTabContent = (): React.ReactNode => {
     return (
       <>
         <TabsSection
           activeTabs={activeTabs}
+          setActiveTabs={setActiveTabs}
           tabName="tab-section"
           contents={tabContents}
-          setActiveTabs={setActiveTabs}
-          pageHandler={switchTabSection}
         />
       </>
     )

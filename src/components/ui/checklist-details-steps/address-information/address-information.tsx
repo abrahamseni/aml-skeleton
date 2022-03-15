@@ -23,8 +23,12 @@ const AddressInformation: React.FC<AddressInformationProps> = ({
   switchTabContent,
 }): React.ReactElement => {
   const [isSecondaryFormActive, setIsSecondaryFormActive] = React.useState<boolean>(false)
+
   // local state - state to manage available  user if user already clicked the button
   const [isButtonLoading, setIsButtonLoading] = React.useState<boolean>(false)
+
+  // local state - button handler
+  const [isGoingToNextSection, setIsGoingToNextSection] = React.useState<boolean>(false)
 
   // get user data from parent
   const { primaryAddress, secondaryAddress, metadata } = userData ?? {}
@@ -65,8 +69,13 @@ const AddressInformation: React.FC<AddressInformationProps> = ({
     mode: 'all',
   })
 
+  // trigger form validation on mount
+  React.useLayoutEffect(() => {
+    currentForm.trigger()
+  }, [])
+
   // temporary applied method for update data #1
-  const updateFormData: UpdateContactDataType = {
+  const updatedFormData: UpdateContactDataType = {
     contactId: userData!.id!,
     _eTag: userData!._eTag!,
     bodyData: {
@@ -79,8 +88,7 @@ const AddressInformation: React.FC<AddressInformationProps> = ({
     },
   }
 
-  // temporary applied method for update data #2
-  const updateContactData = useUpdateContactData<typeof userDataRefetch>(updateFormData, userDataRefetch)
+  const updateContactData = useUpdateContactData<typeof userDataRefetch>(updatedFormData, userDataRefetch)
 
   // button handler - submit
   const onSubmitHandler = (): void => {
@@ -91,8 +99,7 @@ const AddressInformation: React.FC<AddressInformationProps> = ({
   // button handler - next
   const onNextHandler = (): void => {
     onSubmitHandler()
-    // switchTabContent('forward')
-    // later will solve this issue
+    setIsGoingToNextSection(true)
   }
 
   // button handler - previous
@@ -101,8 +108,11 @@ const AddressInformation: React.FC<AddressInformationProps> = ({
   }
 
   // turn off disabled attribute, if mutate UpdateContactData state is success
-  React.useMemo<void>((): void => {
-    isButtonLoading && updateContactData.isSuccess && (setIsButtonLoading(false), console.log('appear notification'))
+  // later will do more with optimize way :)
+  React.useLayoutEffect((): void => {
+    isButtonLoading &&
+      updateContactData.isSuccess &&
+      (setIsButtonLoading(false), isGoingToNextSection && (setIsGoingToNextSection(false), switchTabContent('forward')))
   }, [updateContactData.isSuccess])
 
   return (
