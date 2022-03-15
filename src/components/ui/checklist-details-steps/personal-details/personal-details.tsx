@@ -58,7 +58,7 @@ const PersonalDetails = ({ userData, userDataRefetch }: PersonalDetailsProps) =>
 
   const onSubmitHandler = ({ personalDetails }: { personalDetails: object }) => {
     console.log({ personalDetails })
-    if (!connectSession) return
+    if (!connectSession) return // not really necessary ?
     updateContact.mutate({ ...personalDetails })
   }
 
