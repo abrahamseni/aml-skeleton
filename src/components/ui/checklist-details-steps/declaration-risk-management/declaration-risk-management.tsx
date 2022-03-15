@@ -17,14 +17,14 @@ import {
   elMt6,
   elMb6,
   Modal,
+  InputError,
 } from '@reapit/elements'
 import { cx } from '@linaria/core'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { generateLabelField, generateOptionsType } from '../../../../utils/generator'
-import { formField, ValuesType, validationSchema, AvailableFormFieldType } from './form-schema'
+import { formField, ValuesType, validationSchema } from './form-schema'
 import { order0 } from './__styles__'
-import { displayErrorMessage } from '../../../../utils/error-message'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
 import { UpdateContactDataType, useUpdateContactData } from '../../../../platform-api/contact-api'
 import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from 'react-query'
@@ -73,7 +73,13 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   }
 
   // setup and integrate with initial value
-  const { register, handleSubmit, watch, formState, getValues } = useForm<ValuesType>({
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+    getValues,
+  } = useForm<ValuesType>({
     defaultValues: INITIAL_VALUES,
     resolver: yupResolver(validationSchema),
     mode: 'all',
@@ -136,7 +142,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
                   defaultValue={declarationForm}
                   onFileView={() => handleModal('declaration', 'open')}
                 />
-                {displayErrorMessage<AvailableFormFieldType, ValuesType>(declarationFormField.name, formState)}
+                {errors.declarationForm?.message && <InputError message={errors.declarationForm?.message} />}
               </InputGroup>
             </InputWrap>
             <InputWrap className={elMy6}>
@@ -145,7 +151,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
                   {generateOptionsType('riskAssessmentType')}
                 </Select>
                 <Label className={cx(order0, elMb2)}>{generateLabelField(typeField.label)}</Label>
-                {displayErrorMessage<AvailableFormFieldType, ValuesType>(typeField.name, formState)}
+                {errors.type?.message && <InputError message={errors.type?.message} />}
               </InputGroup>
             </InputWrap>
             <InputWrap className={elMt6}>
@@ -157,14 +163,14 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
                   defaultValue={riskAssessmentForm}
                   onFileView={() => handleModal('riskAssessment', 'open')}
                 />
-                {displayErrorMessage<AvailableFormFieldType, ValuesType>(riskAssessmentFormField.name, formState)}
+                {errors.riskAssessmentForm?.message && <InputError message={errors.riskAssessmentForm?.message} />}
               </InputGroup>
             </InputWrap>
             <InputWrap className={elMt6}>
               <InputGroup>
                 <TextArea {...register(reasonField.name)} placeholder={reasonField.label} />
                 <Label>{generateLabelField(reasonField.label)}</Label>
-                {displayErrorMessage<AvailableFormFieldType, ValuesType>(reasonField.name, formState)}
+                {errors.reason?.message && <InputError message={errors.reason?.message} />}
               </InputGroup>
             </InputWrap>
           </InputWrapFull>
@@ -179,7 +185,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
             <Button
               intent="success"
               type="submit"
-              disabled={Object.keys(formState.errors).length !== 0 ? true : false || isButtonLoading}
+              disabled={Object.keys(errors).length !== 0 ? true : false || isButtonLoading}
               loading={updateContactData.isLoading}
             >
               Save
@@ -189,7 +195,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
               onClick={onNextHandler}
               type="button"
               chevronRight
-              disabled={Object.keys(formState.errors).length !== 0 ? true : false || isButtonLoading}
+              disabled={Object.keys(errors).length !== 0 ? true : false || isButtonLoading}
             >
               Finish
             </Button>
