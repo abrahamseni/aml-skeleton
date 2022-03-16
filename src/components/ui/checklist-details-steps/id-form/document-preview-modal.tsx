@@ -57,7 +57,7 @@ export const DocumentPreviewModal: FC<Props> = ({ src, isOpen, onModalClose, loa
         {src &&
           !loading &&
           (!pdfPreviewIsVisible ? (
-            <img src={src} onError={() => setPdfPreviewIsVisible(true)} />
+            <img src={src} onError={() => setPdfPreviewIsVisible(true)} alt="image preview" />
           ) : (
             <PdfContainer>
               <SizeMe>

@@ -12,7 +12,7 @@ type Props = {
 }
 
 const ModalStatus = ({ userData, idCheck, isModalStatusOpen, setModalStatusOpen }: Props) => {
-  const [userStatus, setUserStatus] = useState<string>('passed')
+  const [userStatus, setUserStatus] = useState<string>(userData!.identityCheck! || 'passed')
   const updateStatus = useUpdateIdentityCheck()
   console.log({ userData })
 

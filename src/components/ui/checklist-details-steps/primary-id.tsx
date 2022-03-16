@@ -4,21 +4,28 @@ import IdForm, { ValuesType } from './id-form'
 import { ContactModel, IdentityCheckModel } from '@reapit/foundations-ts-definitions'
 import { useSaveIdentityDocument } from './id-form/identity-check-action'
 
+// const defaultValues = {
+//   idType: 'DL',
+//   idReference: 'Hello',
+//   expiryDate: '',
+//   // documentFile: 'https://via.placeholder.com/150',
+//   documentFile: 'MKT22000005', // BDF15002338
+// }
+
 const defaultValues = {
-  idType: 'DL',
-  idReference: 'Hello',
+  idType: '',
+  idReference: '',
   expiryDate: '',
-  // documentFile: 'https://via.placeholder.com/150',
-  documentFile: 'MKT22000005', // BDF15002338
+  documentFile: '',
 }
 
-type Props = {
+export type PrimaryIdProps = {
   contact: ContactModel
   idCheck?: IdentityCheckModel
   onSaved?: () => void
 }
 
-const PrimaryId = ({ contact, idCheck, onSaved }: Props) => {
+const PrimaryId = ({ contact, idCheck, onSaved }: PrimaryIdProps) => {
   const saveIdentityDocument = useSaveIdentityDocument(1)
   const [loading, setLoading] = useState(false)
 
@@ -36,7 +43,7 @@ const PrimaryId = ({ contact, idCheck, onSaved }: Props) => {
   }
 
   async function save(values: ValuesType) {
-    console.log('save')
+    // console.log('save')
 
     await doSave(values)
   }

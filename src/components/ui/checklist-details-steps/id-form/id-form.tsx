@@ -7,7 +7,6 @@ import {
   FileInputProps,
   FlexContainer,
   ButtonGroup,
-  InputError,
   Input,
   Loader,
 } from '@reapit/elements'
@@ -23,7 +22,14 @@ import { isDataUrl } from '../../../../utils/url'
 import validationSchema from './form-schema/validation-schema'
 import { SaveButtonGroup, LoaderContainer } from './__styles__/id-form.style'
 
-type Props = {
+const defaultValuesConst = {
+  idType: '',
+  idReference: '',
+  expiryDate: '',
+  documentFile: '',
+}
+
+export type IdFormProps = {
   defaultValues?: ValuesType
   onSave: (values: ValuesType) => void
   onPrevious?: () => void
@@ -34,7 +40,7 @@ type Props = {
   loading?: boolean
 }
 
-export const IdForm: FC<Props> = ({
+export const IdForm: FC<IdFormProps> = ({
   defaultValues,
   onSave,
   onNext,
@@ -50,13 +56,7 @@ export const IdForm: FC<Props> = ({
     getValues,
     formState: { errors },
   } = useForm<ValuesType>({
-    defaultValues: defaultValues || {
-      idType: 'DL',
-      idReference: 'Hello',
-      expiryDate: '',
-      // documentFile: 'https://via.placeholder.com/150',
-      documentFile: 'MKT22000005', // BDF15002338
-    },
+    defaultValues: defaultValues || defaultValuesConst,
     resolver: yupResolver(validationSchema),
   })
   const { data: identityDocumentTypesData } = useGetIdentityDocumentTypes()
@@ -98,10 +98,15 @@ export const IdForm: FC<Props> = ({
 
   return (
     <div>
-      {noticeText && <p>*{noticeText}</p>}
+      {noticeText && <p data-testid="noticeText">*{noticeText}</p>}
       <InputGroup className="el-my3">
         <Label>{formFields.idType.label}</Label>
-        <Select defaultValue="" {...register(formFields.idType.name)} disabled={disabled}>
+        <Select
+          defaultValue=""
+          {...register(formFields.idType.name)}
+          disabled={disabled}
+          data-testid={`input.${formFields.idType.name}`}
+        >
           {identityDocumentTypes &&
             identityDocumentTypes.map((opt) => (
               <option key={opt.id} value={opt.id}>
@@ -112,17 +117,41 @@ export const IdForm: FC<Props> = ({
             Please select
           </option>
         </Select>
-        {errors.idType?.message && <InputError message={errors.idType.message} />}
+        {errors.idType?.message && (
+          <p className="el-input-error" data-testid={`error.${formFields.idType.name}`}>
+            {errors.idType.message}
+          </p>
+        )}
       </InputGroup>
       <InputGroup className="el-my3">
         <Label>{formFields.idReference.label}</Label>
-        <Input type="text" placeholder="ID Reference" disabled={disabled} {...register(formFields.idReference.name)} />
-        {errors.idReference?.message && <InputError message={errors.idReference.message} />}
+        <Input
+          type="text"
+          placeholder="ID Reference"
+          disabled={disabled}
+          {...register(formFields.idReference.name)}
+          data-testid={`input.${formFields.idReference.name}`}
+        />
+        {errors.idReference?.message && (
+          <p className="el-input-error" data-testid={`error.${formFields.idReference.name}`}>
+            {errors.idReference.message}
+          </p>
+        )}
       </InputGroup>
       <InputGroup className="el-my3">
         <Label>{formFields.expiryDate.label}</Label>
-        <Input type="date" defaultValue="" disabled={disabled} {...register(formFields.expiryDate.name)} />
-        {errors.expiryDate?.message && <InputError message={errors.expiryDate.message} />}
+        <Input
+          type="date"
+          defaultValue=""
+          disabled={disabled}
+          {...register(formFields.expiryDate.name)}
+          data-testid={`input.${formFields.expiryDate.name}`}
+        />
+        {errors.expiryDate?.message && (
+          <p className="el-input-error" data-testid={`error.${formFields.expiryDate.name}`}>
+            {errors.expiryDate.message}
+          </p>
+        )}
       </InputGroup>
       <div className="el-my3">
         <MyFileInput
@@ -133,8 +162,13 @@ export const IdForm: FC<Props> = ({
           register={register}
           accept="image/jpeg, image/png, application/pdf"
           disabled={disabled}
+          data-testid={`input.${formFields.documentFile.name}`}
         />
-        {errors.documentFile?.message && <InputError message={errors.documentFile.message} />}
+        {errors.documentFile?.message && (
+          <p className="el-input-error" data-testid={`error.${formFields.documentFile.name}`}>
+            {errors.documentFile.message}
+          </p>
+        )}
         <DocumentPreviewModal
           src={documentPreviewState.document}
           isOpen={documentPreviewState.isOpen}
@@ -144,29 +178,37 @@ export const IdForm: FC<Props> = ({
       </div>
       <FlexContainer isFlexJustifyBetween className="el-mt8">
         <ButtonGroup>
-          <Button intent="secondary" chevronLeft onClick={goToPrevious}>
+          <Button intent="secondary" chevronLeft onClick={goToPrevious} data-testid="previousButton">
             Previous
           </Button>
         </ButtonGroup>
         <FlexContainer isFlexAlignCenter>
           <div className="el-mr4">
             <span>RPS Ref:</span>
-            <span className="el-ml1">{rpsRef || ''}</span>
+            <span className="el-ml1" data-testid="rpsRefText">
+              {rpsRef || ''}
+            </span>
           </div>
-        {!loading ? (
-          <SaveButtonGroup>
-            <Button intent="success" disabled={disabled} onClick={handleSubmit(save)}>
-              Save
-            </Button>
-            <Button intent="primary" chevronRight disabled={disabled} onClick={handleSubmit(goToNext)}>
-              Next
-            </Button>
-          </SaveButtonGroup>
-        ) : (
-          <LoaderContainer>
-            <Loader label="Please wait" />
-          </LoaderContainer>
-        )}
+          {!loading ? (
+            <SaveButtonGroup>
+              <Button intent="success" disabled={disabled} onClick={handleSubmit(save)} data-testid="saveButton">
+                Save
+              </Button>
+              <Button
+                intent="primary"
+                chevronRight
+                disabled={disabled}
+                onClick={handleSubmit(goToNext)}
+                data-testid="nextButton"
+              >
+                Next
+              </Button>
+            </SaveButtonGroup>
+          ) : (
+            <LoaderContainer>
+              <Loader label="Please wait" />
+            </LoaderContainer>
+          )}
         </FlexContainer>
       </FlexContainer>
     </div>

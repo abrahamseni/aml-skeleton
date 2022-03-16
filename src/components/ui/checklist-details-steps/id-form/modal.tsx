@@ -4,7 +4,7 @@ import { Body, Container, MyModal, MyModalBg, MyModalHeader } from './__styles__
 
 interface Props extends ModalProps {
   bodyClassName?: string
-} 
+}
 
 export const Modal: FC<Props> = ({ isOpen, onModalClose, title, children, bodyClassName, ...props }) => {
   return (
@@ -15,9 +15,7 @@ export const Modal: FC<Props> = ({ isOpen, onModalClose, title, children, bodyCl
             <MyModalBg onClick={onModalClose} />
             <MyModal {...props}>
               <MyModalHeader>{title}</MyModalHeader>
-              <Body className={bodyClassName}>
-                {children}
-              </Body>
+              <Body className={bodyClassName}>{children}</Body>
             </MyModal>
           </Container>
         </Portal>
