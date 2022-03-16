@@ -1,8 +1,8 @@
 import axios from '../axios/axios'
 import { useReapitConnect } from '@reapit/connect-session'
 import { reapitConnectBrowserSession } from '../core/connect-session'
-import { useQuery, QueryKey, useMutation } from 'react-query'
-import { ContactModelPagedResult, ContactModel } from '@reapit/foundations-ts-definitions'
+import { useQuery, QueryKey } from 'react-query'
+import { ContactModelPagedResult } from '@reapit/foundations-ts-definitions'
 import isEmpty from 'lodash.isempty'
 import qs from 'qs'
 import { URLS } from '../constants/api'
@@ -41,26 +41,4 @@ export const useFetchContactsBy = (params: SearchContactParam) => {
   })
 
   return contactListResult
-}
-
-// update contact data
-export interface UpdateContactDataType {
-  contactId: string
-  _eTag: string
-  bodyData: any
-}
-
-const updateContactData = async (params: UpdateContactDataType): Promise<ContactModel | undefined> => {
-  const { _eTag, contactId, bodyData } = params
-  const { data } = await axios.patch<ContactModel>(`${URLS.CONTACTS}/${contactId}`, bodyData, {
-    headers: {
-      'If-Match': _eTag,
-    },
-  })
-
-  return data
-}
-
-export const useUpdateContactData = (params: UpdateContactDataType) => {
-  return useMutation(() => updateContactData(params))
 }
