@@ -14,7 +14,6 @@ type Props = {
 const ModalStatus = ({ userData, idCheck, isModalStatusOpen, setModalStatusOpen }: Props) => {
   const [userStatus, setUserStatus] = useState<string>(userData!.identityCheck! || 'passed')
   const updateStatus = useUpdateIdentityCheck()
-  console.log({ userData })
 
   return (
     <Modal isOpen={isModalStatusOpen} onModalClose={() => setModalStatusOpen(false)} title="Update Status">
