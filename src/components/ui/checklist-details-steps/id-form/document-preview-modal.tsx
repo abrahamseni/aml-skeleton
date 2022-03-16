@@ -72,7 +72,7 @@ export const DocumentPreviewModal: FC<Props> = ({ src, isOpen, onModalClose, loa
       </Body>
       <Footer className="el-pt6">
         <FlexContainer isFlexJustifyEnd>
-          <a className="el-button el-intent-primary el-mr4" href={src}>
+          <a className="el-button el-intent-primary el-mr4" href={src} download>
             Download
           </a>
           <Button intent="low" onClick={closeModal}>
