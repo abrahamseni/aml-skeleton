@@ -9,9 +9,9 @@ export interface ValuesType {
   surname?: string
   dateOfBirth?: string
   email?: string
-  home?: string
-  mobile?: string
-  work?: string
+  homePhone?: string
+  mobilePhone?: string
+  workPhone?: string
 }
 
 interface PersonalDetailsFormInfo extends FormFieldInfo {
@@ -51,15 +51,15 @@ export const formFields: FormFieldType = {
     label: 'Email',
   },
   homePhone: {
-    name: 'home',
+    name: 'homePhone',
     label: 'Home Phone',
   },
   mobilePhone: {
-    name: 'mobile',
+    name: 'mobilePhone',
     label: 'Mobile Phone',
   },
   workPhone: {
-    name: 'work',
+    name: 'workPhone',
     label: 'Work Phone',
   },
 }

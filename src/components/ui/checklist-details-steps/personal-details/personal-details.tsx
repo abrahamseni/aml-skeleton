@@ -2,27 +2,24 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react'
-import { reapitConnectBrowserSession } from '../../../../core/connect-session'
-import { useReapitConnect } from '@reapit/connect-session'
-import { Input, InputGroup, Label, Button, SmallText } from '@reapit/elements'
+// import { reapitConnectBrowserSession } from '../../../../core/connect-session'
+// import { useReapitConnect } from '@reapit/connect-session'
+import { Input, InputGroup, Label, Button, SmallText, InputError, BodyText } from '@reapit/elements'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from 'react-query'
 
 import { ContactModel } from '@reapit/foundations-ts-definitions'
 import validationSchema from './form-schema/validation-schema'
-import { useUpdateContact } from '../../../../platform-api/hooks/useUpdateContact'
+import { useUpdateContact } from '../../../../platform-api/contact-api/update-contact'
 
 type PersonalDetailsProps = {
   userData: ContactModel
-  userDataRefetch: (
-    options?: (RefetchOptions & RefetchQueryFilters) | undefined,
-  ) => Promise<QueryObserverResult<ContactModel, Error>>
+  switchTabContent: (type: 'forward' | 'backward') => void | undefined
 }
 
-const PersonalDetails = ({ userData, userDataRefetch }: PersonalDetailsProps) => {
-  const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
-  const updateContact = useUpdateContact(connectSession, userData!.id!, userData!._eTag!)
+const PersonalDetails = ({ userData, switchTabContent }: PersonalDetailsProps) => {
+  // const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
+  const updateContact = useUpdateContact(userData!.id!, userData!._eTag!)
   const {
     register,
     handleSubmit,
@@ -36,18 +33,16 @@ const PersonalDetails = ({ userData, userDataRefetch }: PersonalDetailsProps) =>
       surname: userData?.surname,
       dob: userData?.dateOfBirth,
       email: userData?.email,
-      home: userData?.homePhone,
-      mobile: userData?.mobilePhone,
-      work: userData?.workPhone,
+      homePhone: userData?.homePhone,
+      mobilePhone: userData?.mobilePhone,
+      workPhone: userData?.workPhone,
     },
   })
 
   const onSubmitHandler = (data: object) => {
-    console.log({ data })
-    if (!connectSession) return // not really necessary ?
     updateContact.mutate({ ...data })
   }
-  console.log({ updateContact })
+
   return (
     <form onSubmit={handleSubmit(onSubmitHandler)}>
       <div className="el-flex el-flex-column el-flex-wrap">
@@ -72,7 +67,7 @@ const PersonalDetails = ({ userData, userDataRefetch }: PersonalDetailsProps) =>
         <InputGroup className="el-mt6 el-flex1">
           <Input id="email" type="email" {...register('email')} />
           <Label htmlFor="name">Email</Label>
-          <p>{errors.email?.message}</p>
+          {errors.email?.message && <InputError message={errors.email.message} />}
         </InputGroup>
       </div>
       <div className="el-mt8">
@@ -81,23 +76,26 @@ const PersonalDetails = ({ userData, userDataRefetch }: PersonalDetailsProps) =>
         </SmallText>
         <div className=" el-flex el-flex-column el-flex-wrap">
           <InputGroup className="el-flex1">
-            <Input id="home" type="text" {...register('home')} />
+            <Input id="home" type="text" {...register('homePhone')} />
             <Label htmlFor="name">Home Phone</Label>
-            <p>{errors.home?.message}</p>
+            {errors.homePhone?.message && <InputError message={errors.homePhone.message} />}
           </InputGroup>
           <InputGroup className="el-mt6 el-flex1">
-            <Input id="mobile" type="text" {...register('mobile')} />
+            <Input id="mobile" type="text" {...register('mobilePhone')} />
             <Label htmlFor="name">Mobile Phone</Label>
-            <p>{errors.mobile?.message}</p>
+            {errors.mobilePhone?.message && <InputError message={errors.mobilePhone.message} />}
           </InputGroup>
           <InputGroup className="el-mt6 el-flex1">
-            <Input id="work" type="text" {...register('work')} />
+            <Input id="work" type="text" {...register('workPhone')} />
             <Label htmlFor="name">Work Phone</Label>
-            <p>{errors.work?.message}</p>
+            {errors.workPhone?.message && <InputError message={errors.workPhone.message} />}
           </InputGroup>
         </div>
       </div>
-      <div className="el-flex el-flex-row el-flex-justify-end el-mt8">
+      <div className="el-flex el-flex-row el-flex-justify-end el-flex-align-center el-mt8">
+        <BodyText hasNoMargin className="el-mr4">
+          RPS Ref: {userData?.id}
+        </BodyText>
         <Button className="el-mr6" intent="success" type="submit" loading={updateContact.isLoading}>
           Save
         </Button>
