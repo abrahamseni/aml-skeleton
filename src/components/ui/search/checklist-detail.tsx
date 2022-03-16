@@ -78,7 +78,7 @@ export const ChecklistDetailPage: FC = () => {
   const querySingleContact = useSingleContact(connectSession, id)
   const { data: userData, isFetching: userDataIsFetching } = querySingleContact
 
-  const queryIdentityCheck = useFetchSingleIdentityCheckByContactId({ contactId: id })
+  const queryIdentityCheck = useFetchSingleIdentityCheckByContactId(id)
   const { data: identityCheck, isFetching: identityCheckIsFetching } = queryIdentityCheck
 
   const [isModalStatusOpen, setModalStatusOpen] = useState<boolean>(false)

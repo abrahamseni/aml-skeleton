@@ -9,13 +9,9 @@ import {
 import { useQuery } from 'react-query'
 import { reapitConnectBrowserSession } from '../core/connect-session'
 
-type FetchSingleIdentityCheckByContactIdParams = {
-  contactId: string
-}
-
 export const fetchSingleIdentityCheckByContactId = async (
   session: ReapitConnectSession | null,
-  params: FetchSingleIdentityCheckByContactIdParams,
+  id: string,
 ): Promise<IdentityCheckModel | undefined> => {
   if (!session) return
 
@@ -24,19 +20,18 @@ export const fetchSingleIdentityCheckByContactId = async (
       ...BASE_HEADERS,
       Authorization: `Bearer ${session?.accessToken}`,
     },
-    params: params,
+    params: { contactId: id },
   })
 
   return response.data._embedded[0]
 }
 
-export const useFetchSingleIdentityCheckByContactId = (params: FetchSingleIdentityCheckByContactIdParams) => {
+export const useFetchSingleIdentityCheckByContactId = (id: string) => {
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
-  const { contactId } = params
 
   return useQuery(
-    ['fetchSingleIdentityCheckByContactId', { contactId }],
-    () => fetchSingleIdentityCheckByContactId(connectSession, { contactId }),
+    ['fetchSingleIdentityCheckByContactId', { id }],
+    () => fetchSingleIdentityCheckByContactId(connectSession, id),
     {
       enabled: !!connectSession,
     },
