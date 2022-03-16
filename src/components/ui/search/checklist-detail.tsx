@@ -38,7 +38,7 @@ export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectio
   const { querySingleContact, queryIdentityCheck, switchTabSection } = props
 
   // single contact
-  const { data: userData, refetch: userDataRefetch } = querySingleContact
+  const { data: userData } = querySingleContact
 
   // identity check
   const { data: idCheck, refetch: refetchIdCheck } = queryIdentityCheck
@@ -60,20 +60,12 @@ export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectio
     },
     {
       name: 'Address Information',
-      content: (
-        <AddressInformation userData={userData} userDataRefetch={userDataRefetch} switchTabContent={switchTabSection} />
-      ),
+      content: <AddressInformation userData={userData} switchTabContent={switchTabSection} />,
       status: isCompletedAddress(userData!),
     },
     {
       name: 'Declaration Risk Management',
-      content: (
-        <DeclarationRiskManagement
-          userData={userData!}
-          userDataRefetch={userDataRefetch}
-          switchTabContent={switchTabSection}
-        />
-      ),
+      content: <DeclarationRiskManagement userData={userData!} switchTabContent={switchTabSection} />,
       status: isCompletedDeclarationRisk(userData!),
     },
   ]

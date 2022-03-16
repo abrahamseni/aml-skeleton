@@ -16,23 +16,15 @@ import { FormField } from './form-field'
 import { validationSchema, ValuesType } from './form-schema'
 import { RightSideContainer } from './__styles__'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
-import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from 'react-query'
-import { UpdateContactDataType, useUpdateContactData } from '../../../../platform-api/contact-api'
 import { notificationMessage } from '../../../../constants/notification-message'
+import { useUpdateContact } from '../../../../platform-api/contact-api/update-contact'
 
 interface AddressInformationProps {
   userData: ContactModel | undefined
-  userDataRefetch: (
-    options?: (RefetchOptions & RefetchQueryFilters) | undefined,
-  ) => Promise<QueryObserverResult<ContactModel, Error>>
   switchTabContent: (type: 'forward' | 'backward') => void | undefined
 }
 
-const AddressInformation: React.FC<AddressInformationProps> = ({
-  userData,
-  userDataRefetch,
-  switchTabContent,
-}): React.ReactElement => {
+const AddressInformation: React.FC<AddressInformationProps> = ({ userData, switchTabContent }): React.ReactElement => {
   // snack notification - snack provider
   const { success, error } = useSnack()
 
@@ -90,25 +82,18 @@ const AddressInformation: React.FC<AddressInformationProps> = ({
     currentForm.trigger()
   }, [])
 
-  // temporary applied method for update data #1
-  const updatedFormData: UpdateContactDataType = {
-    contactId: userData!.id!,
-    _eTag: userData!._eTag!,
-    bodyData: {
+  const updateContactData = useUpdateContact(userData!.id!, userData!._eTag!)
+
+  // button handler - submit
+  const onSubmitHandler = (): void => {
+    updateContactData.mutate({
       primaryAddress: currentForm.getValues('primaryAddress'),
       secondaryAddress: currentForm.getValues('secondaryAddress'),
       metadata: {
         declarationRisk: userData?.metadata?.declarationRisk,
         ...currentForm.getValues('metadata'),
       },
-    },
-  }
-
-  const updateContactData = useUpdateContactData(updatedFormData)
-
-  // button handler - submit
-  const onSubmitHandler = (): void => {
-    updateContactData.mutate()
+    })
     setIsButtonLoading(true)
   }
 
@@ -128,7 +113,6 @@ const AddressInformation: React.FC<AddressInformationProps> = ({
   React.useLayoutEffect((): void => {
     if (isButtonLoading) {
       if (updateContactData.isSuccess) {
-        userDataRefetch()
         setIsButtonLoading(false)
         success(notificationMessage.AIF_SUCCESS, 2000)
         isGoingToNextSection && (setIsGoingToNextSection(false), switchTabContent('forward'))

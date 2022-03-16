@@ -27,22 +27,17 @@ import { generateLabelField, generateOptionsType } from '../../../../utils/gener
 import { formField, ValuesType, validationSchema } from './form-schema'
 import { order0 } from './__styles__'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
-import { UpdateContactDataType, useUpdateContactData } from '../../../../platform-api/contact-api'
-import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from 'react-query'
 import { notificationMessage } from '../../../../constants/notification-message'
+import { useUpdateContact } from '../../../../platform-api/contact-api/update-contact'
 
 interface DeclarationRiskManagementProps {
   userData: ContactModel | undefined
-  userDataRefetch: (
-    options?: (RefetchOptions & RefetchQueryFilters) | undefined,
-  ) => Promise<QueryObserverResult<ContactModel, Error>>
   switchTabContent: (type: 'forward' | 'backward') => void | undefined
 }
 
 // render view
 const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   userData,
-  userDataRefetch,
   switchTabContent,
 }): React.ReactElement => {
   // snack notification - snack provider
@@ -101,24 +96,16 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   // declare form
   const { declarationFormField, riskAssessmentFormField, typeField, reasonField } = formField()
 
-  // temporary applied method for update data #1
-  const updatedFormData: UpdateContactDataType = {
-    contactId: userData!.id!,
-    _eTag: userData!._eTag!,
-    bodyData: {
+  const updateContactData = useUpdateContact(userData!.id!, userData!._eTag!)
+
+  // button handler - submit
+  const onSubmitHandler = (): void => {
+    updateContactData.mutate({
       metadata: {
         ...userData?.metadata,
         declarationRisk: getValues(),
       },
-    },
-  }
-
-  // temporary applied method for update data #2
-  const updateContactData = useUpdateContactData(updatedFormData)
-
-  // button handler - submit
-  const onSubmitHandler = (): void => {
-    updateContactData.mutate()
+    })
     setIsButtonLoading(true)
   }
 
@@ -138,7 +125,6 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   React.useLayoutEffect((): void => {
     if (isButtonLoading) {
       if (updateContactData.isSuccess) {
-        userDataRefetch()
         setIsButtonLoading(false)
         success(notificationMessage.DRM_SUCCESS, 2000)
         isGoingToNextSection && (setIsGoingToNextSection(false), switchTabContent('forward'))
