@@ -29,7 +29,7 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData, switc
   const { success, error } = useSnack()
 
   const [isSecondaryFormActive, setIsSecondaryFormActive] = React.useState<boolean>(
-    userData?.secondaryAddress !== null ? true : false,
+    userData?.secondaryAddress !== (null || undefined) ? true : false,
   )
 
   // local state - state to manage available  user if user already clicked the button
@@ -94,7 +94,10 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData, switc
 
   // button handler - next
   const onNextHandler = (): void => {
-    onSubmitHandler()
+    currentForm.trigger()
+    if (Object.keys(currentForm.formState.errors).length === 0) {
+      onSubmitHandler()
+    }
     setIsGoingToNextSection(true)
   }
 
@@ -124,15 +127,22 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData, switc
     <>
       <form onSubmit={currentForm.handleSubmit(onSubmitHandler)}>
         <FormLayout hasMargin className={elWFull}>
-          <FormField identity="primaryAddress" rhfProps={currentForm} />
+          <FormField identity="primaryAddress" rhfProps={currentForm} data-testid="form.primaryAddress" />
           <InputWrapFull>
             <RightSideContainer>
-              <Button intent="neutral" type="button" onClick={() => setIsSecondaryFormActive(!isSecondaryFormActive)}>
+              <Button
+                data-testid="toggler.extend.form"
+                intent="neutral"
+                type="button"
+                onClick={() => setIsSecondaryFormActive(!isSecondaryFormActive)}
+              >
                 Less than 3 Years ?
               </Button>
             </RightSideContainer>
           </InputWrapFull>
-          {isSecondaryFormActive && <FormField identity="secondaryAddress" rhfProps={currentForm} />}
+          {isSecondaryFormActive && (
+            <FormField identity="secondaryAddress" rhfProps={currentForm} data-testid="form.secondaryAddress" />
+          )}
         </FormLayout>
         <FlexContainer isFlexJustifyBetween className={elWFull}>
           <ButtonGroup>

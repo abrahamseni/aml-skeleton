@@ -80,7 +80,6 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
     getValues,
   } = useForm<ValuesType>({
@@ -155,7 +154,6 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
               <FlexContainer isFlexColumn className={elPl3}>
                 <Label className={cx(order0, elMb2)}>{generateLabelField(riskAssessmentFormField.label, true)}</Label>
                 <FileInput
-                  style={{ padding: 0 }}
                   {...register(riskAssessmentFormField.name)}
                   defaultValue={riskAssessmentForm}
                   onFileView={() => handleModal('riskAssessment', 'open')}
@@ -198,13 +196,13 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
       </div>
       {/* Modal Declaration Form */}
       <DocumentPreviewModal
-        src={watch(declarationFormField.name)}
+        src={getValues(declarationFormField.name)}
         isOpen={declarationFormModalOpen}
         onModalClose={() => handleModal('declaration', 'close')}
       />
       {/* Modal Risk Assessment Form */}
       <DocumentPreviewModal
-        src={watch(riskAssessmentFormField.name)}
+        src={getValues(riskAssessmentFormField.name)}
         isOpen={riskAssessmentFormModalOpen}
         onModalClose={() => handleModal('riskAssessment', 'close')}
       />
