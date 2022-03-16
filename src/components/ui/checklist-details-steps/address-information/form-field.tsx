@@ -45,7 +45,7 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
     }
   }
   // passed useForm hook from parent
-  const { register, watch, getValues, formState } = rhfProps
+  const { register, getValues, formState } = rhfProps
 
   // adjusting field name and field label with initialized value
   const {
@@ -172,7 +172,7 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
       </InputWrapFull>
       {/* Document Image Address */}
       <DocumentPreviewModal
-        src={watch(documentImageField.name)}
+        src={getValues(documentImageField.name)}
         isOpen={identity === 'primaryAddress' ? imagePrimaryAddress : imageSecondaryAddress}
         onModalClose={() => modalHandler('close')}
       />

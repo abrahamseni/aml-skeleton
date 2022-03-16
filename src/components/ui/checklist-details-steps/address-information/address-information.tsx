@@ -94,7 +94,10 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData, switc
 
   // button handler - next
   const onNextHandler = (): void => {
-    onSubmitHandler()
+    currentForm.trigger()
+    if (Object.keys(currentForm.formState.errors).length !== 0) {
+      onSubmitHandler()
+    }
     setIsGoingToNextSection(true)
   }
 
