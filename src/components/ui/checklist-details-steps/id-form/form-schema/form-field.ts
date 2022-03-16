@@ -1,5 +1,5 @@
 type FormFieldInfo = {
-  name: string
+  name: keyof ValuesType
   label: string
 }
 
@@ -10,15 +10,11 @@ export interface ValuesType {
   documentFile: string
 }
 
-interface IdFormFieldInfo extends FormFieldInfo {
-  name: keyof ValuesType
-}
-
 export interface FormFieldType {
-  idType: IdFormFieldInfo
-  idReference: IdFormFieldInfo
-  expiryDate: IdFormFieldInfo
-  documentFile: IdFormFieldInfo
+  idType: FormFieldInfo
+  idReference: FormFieldInfo
+  expiryDate: FormFieldInfo
+  documentFile: FormFieldInfo
 }
 
 export const formFields: FormFieldType = {

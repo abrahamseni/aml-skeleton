@@ -37,7 +37,7 @@ export const MyModal = styled.div`
   position: fixed;
   z-index: 999;
   background-color: white;
-  box-shadow: 2px 4px 20px rgba(0,0,0,0.12);
+  box-shadow: 2px 4px 20px rgba(0, 0, 0, 0.12);
   min-width: 300px;
   max-height: calc(100vh - 40px);
   overflow: hidden;

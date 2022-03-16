@@ -52,6 +52,9 @@ const transformLoader = (loader) => {
 const updateJestSetupTestFiles = (config) => {
   const setupTestFile = path.resolve(__dirname, './src/setup-tests.js')
   config.setupFiles.push(setupTestFile)
+  config.setupFilesAfterEnv.push('@alex_neo/jest-expect-message')
+  config.resetMocks = false
+  config.clearMocks = true
   return config
 }
 

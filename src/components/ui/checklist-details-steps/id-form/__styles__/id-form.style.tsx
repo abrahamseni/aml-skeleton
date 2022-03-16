@@ -1,4 +1,4 @@
-import { ButtonGroup, } from '@reapit/elements'
+import { ButtonGroup } from '@reapit/elements'
 import { styled } from '@linaria/react'
 
 const SaveButtonGroupWidth = '228px'

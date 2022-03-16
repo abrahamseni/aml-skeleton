@@ -33,6 +33,7 @@ Object.defineProperty(window, 'reapit', {
     config: {
       connectClientId: 'SOME_CLIENT_ID',
       connectOAuthUrl: 'SOME_OAUTH_URL',
+      platformApiUrl: 'https://example.com',
     },
   },
 })

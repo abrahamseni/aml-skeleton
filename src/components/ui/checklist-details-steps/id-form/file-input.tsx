@@ -16,7 +16,13 @@ import { Label } from '@reapit/elements'
 import { FlexContainer } from '@reapit/elements'
 import { handleSetNativeInput } from '@reapit/elements'
 import { SmallText } from '@reapit/elements'
-import { ElFileInput, ElFileInputHidden, ElFileInputIconContainer, ElFileInputWrap, ElIconDisabled } from './__styles__/file-input.style'
+import {
+  ElFileInput,
+  ElFileInputHidden,
+  ElFileInputIconContainer,
+  ElFileInputWrap,
+  ElIconDisabled,
+} from './__styles__/file-input.style'
 import { cx } from '@linaria/core'
 
 export interface FileInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -41,59 +47,59 @@ export interface ImageUploadModel {
   Url: string
 }
 
-export const handleFileChange = (
-  setFileName: Dispatch<SetStateAction<string>>,
-  fileName: string,
-  onFileUpload?: (uploadImageModel: CreateImageUploadModel) => Promise<string | ImageUploadModel>,
-) => (event: ChangeEvent<HTMLInputElement>) => {
-  if (event.target && event.target.files && event.target.files[0]) {
-    const file = event.target.files[0]
+export const handleFileChange =
+  (
+    setFileName: Dispatch<SetStateAction<string>>,
+    fileName: string,
+    onFileUpload?: (uploadImageModel: CreateImageUploadModel) => Promise<string | ImageUploadModel>,
+  ) =>
+  (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target && event.target.files && event.target.files[0]) {
+      const file = event.target.files[0]
 
-    const reader = new FileReader()
-    reader.readAsDataURL(file)
-    reader.onload = async () => {
-      const base64 = reader.result
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = async () => {
+        const base64 = reader.result
 
-      const value =
-        onFileUpload && typeof base64 === 'string'
-          ? await onFileUpload({
-              imageData: base64,
-              name: `${fileName ? fileName : file.name}`,
-            })
-          : base64
+        const value =
+          onFileUpload && typeof base64 === 'string'
+            ? await onFileUpload({
+                imageData: base64,
+                name: `${fileName ? fileName : file.name}`,
+              })
+            : base64
 
-      if (typeof value === 'string') {
-        setFileName(value)
+        if (typeof value === 'string') {
+          setFileName(value)
+        }
+
+        if (value && (value as ImageUploadModel).Url) {
+          setFileName((value as ImageUploadModel).Url)
+        }
+      }
+      reader.onerror = (error) => {
+        console.error(`file upload error: ${error}`)
       }
 
-      if (value && (value as ImageUploadModel).Url) {
-        setFileName((value as ImageUploadModel).Url)
-      }
+      return reader
     }
-    reader.onerror = (error) => {
-      console.error(`file upload error: ${error}`)
-    }
-
-    return reader
   }
-}
 
-export const handleFileClear = (setFileName: Dispatch<SetStateAction<string>>) => (
-  event: MouseEvent<HTMLSpanElement>,
-) => {
-  event.stopPropagation()
-  event.preventDefault()
+export const handleFileClear =
+  (setFileName: Dispatch<SetStateAction<string>>) => (event: MouseEvent<HTMLSpanElement>) => {
+    event.stopPropagation()
+    event.preventDefault()
 
-  setFileName('')
-}
+    setFileName('')
+  }
 
-export const handleFileView = (onFileView: (fileUrl: string) => void, fileUrl: string) => (
-  event: MouseEvent<HTMLSpanElement>,
-) => {
-  event.stopPropagation()
-  event.preventDefault()
-  onFileView(fileUrl)
-}
+export const handleFileView =
+  (onFileView: (fileUrl: string) => void, fileUrl: string) => (event: MouseEvent<HTMLSpanElement>) => {
+    event.stopPropagation()
+    event.preventDefault()
+    onFileView(fileUrl)
+  }
 
 export const FileInput: FileInputWrapped = forwardRef(
   (
@@ -140,7 +146,7 @@ export const FileInput: FileInputWrapped = forwardRef(
                 />
               )}
               <Icon
-                onClick={!disabled ? handleFileClear(setFileName): undefined}
+                onClick={!disabled ? handleFileClear(setFileName) : undefined}
                 className={cx(elMr4, disabled && ElIconDisabled)}
                 intent="primary"
                 icon="cancelSolidSystem"

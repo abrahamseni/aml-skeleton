@@ -47,10 +47,10 @@ export const identityDocumentTypes = [
     id: 'RF',
     value: 'Reference',
   },
-  {
-    id: '',
-    value: 'Unmapped',
-  },
+  // {
+  //   id: '',
+  //   value: 'Unmapped',
+  // },
   {
     id: 'UT',
     value: 'Utility Bill',

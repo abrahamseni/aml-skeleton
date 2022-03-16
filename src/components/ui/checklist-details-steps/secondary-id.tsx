@@ -25,7 +25,10 @@ const SecondaryId = ({ contact, idCheck, onSaved }: Props) => {
     if (!idCheck) {
       return defaultValues
     }
-    const idDoc = idCheck.identityDocument2!
+    if (!idCheck.identityDocument2) {
+      return defaultValues
+    }
+    const idDoc = idCheck.identityDocument2
     return {
       idType: idDoc.typeId!,
       idReference: idDoc.details!,
@@ -36,7 +39,7 @@ const SecondaryId = ({ contact, idCheck, onSaved }: Props) => {
 
   function getNoticeText() {
     const text = 'Please ensure the Primary ID has been completed before adding a Secondary ID'
-    if (idCheck) {
+    if (!idCheck) {
       return text
     }
   }
@@ -73,6 +76,7 @@ const SecondaryId = ({ contact, idCheck, onSaved }: Props) => {
         rpsRef={contact.id}
         noticeText={getNoticeText()}
         loading={loading}
+        disabled={idCheck ? false : true}
         onSave={save}
         onPrevious={goToPrevious}
         onNext={goToNext}
