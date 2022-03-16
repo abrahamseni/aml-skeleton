@@ -24,7 +24,7 @@ export const TableResult: FC<TableProps> = (props) => {
         cells: [
           {
             label: 'Name',
-            value: surname+' '+forename ?? '',
+            value: forename+' '+surname ?? '',
             narrowTable: {
               showLabel: true,
             },
@@ -56,16 +56,16 @@ export const TableResult: FC<TableProps> = (props) => {
             ),
           },
           {
-            label: 'Action',
+            label: '',
             value: <Button intent="primary" onClick={() => history.push(`/checklist-detail/${id}`)}>Edit</Button>,
             narrowTable: {
               showLabel: true,
             },
           },
         ],
-        ctaContent: {
-          content: <Button intent="primary" onClick={() => history.push(`/checklist-detail/${id}`)}>Edit</Button>
-        }
+        // ctaContent: {
+        //   content: (<Button intent="primary" onClick={() => history.push(`/checklist-detail/${id}`)}>Edit</Button>)
+        // }
       }),
     )}      
     />
