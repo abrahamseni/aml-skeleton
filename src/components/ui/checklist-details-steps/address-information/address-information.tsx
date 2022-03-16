@@ -4,7 +4,7 @@ import {
   Button,
   ButtonGroup,
   elMt6,
-  elW8,
+  elWFull,
   FlexContainer,
   FormLayout,
   InputWrapFull,
@@ -36,7 +36,9 @@ const AddressInformation: React.FC<AddressInformationProps> = ({
   // snack notification - snack provider
   const { success, error } = useSnack()
 
-  const [isSecondaryFormActive, setIsSecondaryFormActive] = React.useState<boolean>(false)
+  const [isSecondaryFormActive, setIsSecondaryFormActive] = React.useState<boolean>(
+    userData?.secondaryAddress !== null ? true : false,
+  )
 
   // local state - state to manage available  user if user already clicked the button
   const [isButtonLoading, setIsButtonLoading] = React.useState<boolean>(false)
@@ -142,7 +144,7 @@ const AddressInformation: React.FC<AddressInformationProps> = ({
   return (
     <>
       <form onSubmit={currentForm.handleSubmit(onSubmitHandler)}>
-        <FormLayout hasMargin className={elW8}>
+        <FormLayout hasMargin className={elWFull}>
           <FormField identity="primaryAddress" rhfProps={currentForm} />
           <InputWrapFull>
             <RightSideContainer>
@@ -153,7 +155,7 @@ const AddressInformation: React.FC<AddressInformationProps> = ({
           </InputWrapFull>
           {isSecondaryFormActive && <FormField identity="secondaryAddress" rhfProps={currentForm} />}
         </FormLayout>
-        <FlexContainer isFlexJustifyBetween className={elW8}>
+        <FlexContainer isFlexJustifyBetween className={elWFull}>
           <ButtonGroup>
             <Button onClick={onPreviousHandler} chevronLeft intent="secondary" type="button" disabled={isButtonLoading}>
               Previous

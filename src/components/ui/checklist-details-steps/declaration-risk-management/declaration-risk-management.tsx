@@ -3,7 +3,6 @@ import {
   Button,
   ButtonGroup,
   elMb2,
-  elW8,
   FlexContainer,
   InputGroup,
   Label,
@@ -19,6 +18,7 @@ import {
   Modal,
   InputError,
   useSnack,
+  elWFull,
 } from '@reapit/elements'
 import { cx } from '@linaria/core'
 import { useForm } from 'react-hook-form'
@@ -155,7 +155,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   return (
     <>
       <form onSubmit={handleSubmit<ValuesType>(onSubmitHandler)}>
-        <FormLayout hasMargin className={elW8}>
+        <FormLayout hasMargin className={elWFull}>
           <InputWrapFull>
             <InputWrap className={elMb6}>
               <InputGroup>
@@ -199,7 +199,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
             </InputWrap>
           </InputWrapFull>
         </FormLayout>
-        <FlexContainer isFlexJustifyBetween className={elW8}>
+        <FlexContainer isFlexJustifyBetween className={elWFull}>
           <ButtonGroup>
             <Button intent="secondary" onClick={onPreviousHandler} type="button" disabled={isButtonLoading} chevronLeft>
               Previous
@@ -237,7 +237,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
           <img src={watch(declarationFormField.name)} height="auto" width="150px" />
         </FlexContainer>
         <ButtonGroup alignment="right">
-          <Button intent="low" onClick={() => handleModal('declaration', 'close')}>
+          <Button intent="low" type="button" onClick={() => handleModal('declaration', 'close')}>
             Close
           </Button>
         </ButtonGroup>
@@ -253,7 +253,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
           <img src={watch(riskAssessmentFormField.name)} height="auto" width="150px" />
         </FlexContainer>
         <ButtonGroup alignment="right">
-          <Button intent="low" onClick={() => handleModal('riskAssessment', 'close')}>
+          <Button intent="low" type="button" onClick={() => handleModal('riskAssessment', 'close')}>
             Close
           </Button>
         </ButtonGroup>

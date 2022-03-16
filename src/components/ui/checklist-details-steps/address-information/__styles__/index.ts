@@ -5,5 +5,5 @@ export const RightSideContainer = styled('div')`
   text-align: right;
 `
 export const order0 = css`
-  order: 0;
+  order: 0 !important;
 `
