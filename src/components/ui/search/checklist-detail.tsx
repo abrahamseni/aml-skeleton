@@ -14,7 +14,7 @@ import SecondaryId from '../checklist-details-steps/secondary-id'
 import { DeclarationRiskManagement } from '../checklist-details-steps/declaration-risk-management'
 import { AddressInformation } from '../checklist-details-steps/address-information'
 
-import { useSingleContact } from '../../../platform-api/hooks/useSingleContact'
+import { useSingleContact } from '../../../platform-api/contact-api/single-contact'
 import { useFetchSingleIdentityCheckByContactId } from '../../../platform-api/identity-check-api'
 import { TabsSection } from '../tab-section'
 import { ModalStatus } from '../modal-status'
@@ -45,7 +45,7 @@ export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectio
   return [
     {
       name: 'Personal',
-      content: <PersonalDetails userData={userData!} userDataRefetch={userDataRefetch} />,
+      content: <PersonalDetails userData={userData!} switchTabContent={switchTabSection} />,
       status: isCompletedProfile(userData),
     },
     {

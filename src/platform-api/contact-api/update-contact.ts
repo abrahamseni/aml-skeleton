@@ -1,22 +1,20 @@
 import { useMutation, useQueryClient } from 'react-query'
-import axios from 'axios'
-import { ReapitConnectSession } from '@reapit/connect-session'
-import { BASE_HEADERS } from '../../constants/api'
+// import { ReapitConnectSession } from '@reapit/connect-session'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
+import axios from '../../axios/axios'
+import { URLS } from '../../constants/api'
 
-export const useUpdateContact = (session: ReapitConnectSession | null, id: string, _eTag: string) => {
+export const useUpdateContact = (id: string, _eTag: string) => {
   const queryClient = useQueryClient()
   return useMutation(
     (body: any) =>
-      axios.patch<ContactModel>(`${window.reapit.config.platformApiUrl}/contacts/${id}`, body, {
+      axios.patch<ContactModel>(`${URLS.CONTACTS}/${id}`, body, {
         headers: {
-          ...BASE_HEADERS,
-          Authorization: `Bearer ${session?.accessToken}`,
           'If-Match': _eTag,
         },
       }),
     {
-      // ✅ always invalidate the todo list
+      // ✅ invalidate contact by id
       onSuccess: ({ data }) => {
         queryClient.invalidateQueries(['contact', id])
         console.log('success', { data })
