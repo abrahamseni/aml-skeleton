@@ -1,5 +1,5 @@
 import axios from '../axios/axios'
-import { useReapitConnect, ReapitConnectSession } from '@reapit/connect-session'
+import { useReapitConnect } from '@reapit/connect-session'
 import { reapitConnectBrowserSession } from '../core/connect-session'
 import { useQuery, QueryKey, useMutation } from 'react-query'
 import { ContactModelPagedResult, ContactModel } from '@reapit/foundations-ts-definitions'
@@ -50,36 +50,17 @@ export interface UpdateContactDataType {
   bodyData: any
 }
 
-const updateContactData = async (
-  connectSession: ReapitConnectSession,
-  params: UpdateContactDataType,
-): Promise<ContactModel | void> => {
-  if (!connectSession) return
+const updateContactData = async (params: UpdateContactDataType): Promise<ContactModel | undefined> => {
   const { _eTag, contactId, bodyData } = params
-
-  const { data } = await axios.patch<ContactModel>(
-    `${window.reapit.config.platformApiUrl}/contacts/${contactId}`,
-    bodyData,
-    {
-      headers: {
-        'If-Match': _eTag,
-      },
+  const { data } = await axios.patch<ContactModel>(`${URLS.CONTACTS}/${contactId}`, bodyData, {
+    headers: {
+      'If-Match': _eTag,
     },
-  )
+  })
 
   return data
 }
 
-export const useUpdateContactData = <T extends Function>(params: UpdateContactDataType, refetchContactData: T) => {
-  const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
-  return useMutation(() => updateContactData(connectSession!, params), {
-    onError: () => {
-      // any method will placed here
-      console.error('error')
-    },
-    onSuccess: () => {
-      // any method will placed here
-      refetchContactData()
-    },
-  })
+export const useUpdateContactData = (params: UpdateContactDataType) => {
+  return useMutation(() => updateContactData(params))
 }

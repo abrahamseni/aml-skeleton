@@ -38,7 +38,7 @@ export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectio
   const { querySingleContact, queryIdentityCheck, switchTabSection } = props
 
   // single contact
-  const { data: userData, refetch: userDataRefetch } = querySingleContact
+  const { data: userData } = querySingleContact
 
   // identity check
   const { data: idCheck, refetch: refetchIdCheck } = queryIdentityCheck
@@ -60,20 +60,12 @@ export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectio
     },
     {
       name: 'Address Information',
-      content: (
-        <AddressInformation userData={userData} userDataRefetch={userDataRefetch} switchTabContent={switchTabSection} />
-      ),
+      content: <AddressInformation userData={userData} switchTabContent={switchTabSection} />,
       status: isCompletedAddress(userData!),
     },
     {
       name: 'Declaration Risk Management',
-      content: (
-        <DeclarationRiskManagement
-          userData={userData!}
-          userDataRefetch={userDataRefetch}
-          switchTabContent={switchTabSection}
-        />
-      ),
+      content: <DeclarationRiskManagement userData={userData!} switchTabContent={switchTabSection} />,
       status: isCompletedDeclarationRisk(userData!),
     },
   ]
@@ -94,7 +86,7 @@ export const ChecklistDetailPage: FC = () => {
   // local state - tab pagination handler
   const [activeTabs, setActiveTabs] = React.useState<number>(0)
 
-  if ((!userData && userDataIsFetching) || (!identityCheck && identityCheckIsFetching) || !userData || !identityCheck) {
+  if ((!userData && userDataIsFetching) || (!identityCheck && identityCheckIsFetching) || !userData) {
     return <Loader fullPage label="Please wait..." />
   }
   // const updateContact = useUpdateContact(connectSession, userData!.id!, userData!._eTag!)
@@ -116,6 +108,20 @@ export const ChecklistDetailPage: FC = () => {
   // progress bar indicator
   const { complete: completeStep, total: totalStep } = generateProgressBarResult({ tabContents })
 
+  // render tab component (will use tabContents variable for the content)
+  const renderTabContent = (): React.ReactNode => {
+    return (
+      <>
+        <TabsSection
+          activeTabs={activeTabs}
+          setActiveTabs={setActiveTabs}
+          tabName="tab-section"
+          contents={tabContents}
+        />
+      </>
+    )
+  }
+
   return (
     <main>
       <Title hasNoMargin>{`${userData?.forename} ${userData?.surname}`}</Title>
@@ -128,18 +134,10 @@ export const ChecklistDetailPage: FC = () => {
       <div>
         <ProgressBarSteps currentStep={completeStep} numberSteps={totalStep} className="el-mt6" />
       </div>
-      <div className="el-mt3">
-        <TabsSection
-          activeTabs={activeTabs}
-          tabName="tab-section"
-          contents={tabContents}
-          setActiveTabs={setActiveTabs}
-          pageHandler={switchTabSection}
-        />
-      </div>
+      <div className="el-mt3">{renderTabContent()}</div>
       <ModalStatus
         userData={userData}
-        idCheck={identityCheck}
+        idCheck={identityCheck!}
         isModalStatusOpen={isModalStatusOpen}
         setModalStatusOpen={setModalStatusOpen}
       />

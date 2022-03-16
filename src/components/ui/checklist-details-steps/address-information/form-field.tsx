@@ -187,14 +187,14 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
       <Modal
         isOpen={identity === 'primaryAddress' ? imagePrimaryAddress : imageSecondaryAddress}
         title="Image Preview"
-        onModalClose={() => modalHandler('open')}
+        onModalClose={() => modalHandler('close')}
       >
         <FlexContainer isFlexAlignCenter isFlexJustifyCenter>
           {/* will be good if we can handle by file type, e.g pdf -> return pdf viewer // img -> return img tag */}
           <img src={watch(documentImageField.name)} height="auto" width="150px" alt={watch(documentImageField.name)} />
         </FlexContainer>
         <ButtonGroup alignment="right">
-          <Button intent="low" onClick={() => modalHandler('open')}>
+          <Button intent="low" onClick={() => modalHandler('close')} type="button">
             Close
           </Button>
         </ButtonGroup>
