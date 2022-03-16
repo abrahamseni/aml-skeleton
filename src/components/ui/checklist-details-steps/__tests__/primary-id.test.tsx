@@ -143,6 +143,8 @@ const queryClient = new QueryClient({
 type Props = Partial<PrimaryIdProps>
 
 function renderPrimaryId({ contact, ...rest }: Props = {}) {
+  queryClient.clear()
+  
   const aContact = contact || { id: 'c123' }
   return render(
     <QueryClientProvider client={queryClient}>

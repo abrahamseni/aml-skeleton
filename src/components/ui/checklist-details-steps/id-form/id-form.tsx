@@ -4,13 +4,12 @@ import {
   InputGroup,
   Label,
   Select,
-  FileInputProps,
   FlexContainer,
   ButtonGroup,
   Input,
   Loader,
 } from '@reapit/elements'
-import { FileInput } from './file-input'
+import { FileInput, FileInputProps } from './file-input'
 import { useForm, UseFormRegister, UseFormRegisterReturn } from 'react-hook-form'
 import { useGetIdentityDocumentTypes } from '../../../../platform-api/configuration-api'
 import { formFields, ValuesType } from './form-schema/form-field'
@@ -58,6 +57,7 @@ export const IdForm: FC<IdFormProps> = ({
   } = useForm<ValuesType>({
     defaultValues: defaultValues || defaultValuesConst,
     resolver: yupResolver(validationSchema),
+    mode: 'onBlur'
   })
   const { data: identityDocumentTypesData } = useGetIdentityDocumentTypes()
   identityDocumentTypesData
@@ -102,7 +102,6 @@ export const IdForm: FC<IdFormProps> = ({
       <InputGroup className="el-my3">
         <Label>{formFields.idType.label}</Label>
         <Select
-          defaultValue=""
           {...register(formFields.idType.name)}
           disabled={disabled}
           data-testid={`input.${formFields.idType.name}`}
@@ -127,7 +126,6 @@ export const IdForm: FC<IdFormProps> = ({
         <Label>{formFields.idReference.label}</Label>
         <Input
           type="text"
-          placeholder="ID Reference"
           disabled={disabled}
           {...register(formFields.idReference.name)}
           data-testid={`input.${formFields.idReference.name}`}
@@ -162,6 +160,7 @@ export const IdForm: FC<IdFormProps> = ({
           register={register}
           accept="image/jpeg, image/png, application/pdf"
           disabled={disabled}
+          invalid={errors.documentFile ? true : false}
           data-testid={`input.${formFields.documentFile.name}`}
         />
         {errors.documentFile?.message && (

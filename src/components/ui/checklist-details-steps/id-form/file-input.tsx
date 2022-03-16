@@ -25,13 +25,15 @@ import {
 } from './__styles__/file-input.style'
 import { cx } from '@linaria/core'
 
-export interface FileInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface FileInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onBlur'> {
   onFileUpload?: (uploadImageModel: CreateImageUploadModel) => Promise<any | ImageUploadModel>
   onFileView?: (base64: string) => void
   placeholderText?: string
   defaultValue?: string
   label?: string
   fileName?: string
+  onBlur?: (e: { target: EventTarget & HTMLInputElement; type: string }) => void
+  invalid?: boolean
 }
 
 export type FileInputWrapped = React.ForwardRefExoticComponent<
@@ -103,7 +105,21 @@ export const handleFileView =
 
 export const FileInput: FileInputWrapped = forwardRef(
   (
-    { onFileView, onFileUpload, defaultValue, label, placeholderText, fileName = '', accept, id, disabled, ...rest },
+    {
+      onFileView,
+      onFileUpload,
+      onChange,
+      onBlur,
+      defaultValue,
+      label,
+      placeholderText,
+      fileName = '',
+      accept,
+      id,
+      disabled,
+      invalid,
+      ...rest
+    },
     ref: React.ForwardedRef<React.InputHTMLAttributes<HTMLInputElement>>,
   ) => {
     const [fileUrl, setFileName] = useState<string>(defaultValue ?? '')
@@ -115,11 +131,20 @@ export const FileInput: FileInputWrapped = forwardRef(
 
     useEffect(handleSetNativeInput(inputId, [fileUrl]), [fileUrl])
 
+    function onInputHiddenChange(e: React.ChangeEvent<HTMLInputElement>) {
+      onChange && onChange(e)
+      const blurEvent = {
+        target: e.target,
+        type: 'blur',
+      }
+      onBlur && onBlur(blurEvent)
+    }
+
     return (
       <ElFileInputWrap>
         {label && <Label>{label}</Label>}
         <FlexContainer isFlexAlignCenter>
-          <Button className={elMr4} type="button" intent="low" disabled={disabled}>
+          <Button className={elMr4} type="button" intent={!invalid ? 'low' : 'danger'} disabled={disabled}>
             {fileUrl ? 'Change' : 'Upload'}
           </Button>
           <ElFileInput
@@ -132,6 +157,7 @@ export const FileInput: FileInputWrapped = forwardRef(
           <ElFileInputHidden
             id={inputId}
             {...rest}
+            onChange={onInputHiddenChange}
             defaultValue={defaultValue}
             ref={ref as LegacyRef<HTMLInputElement>}
           />

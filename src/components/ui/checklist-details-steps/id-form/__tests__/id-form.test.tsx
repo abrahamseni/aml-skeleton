@@ -214,6 +214,8 @@ const queryClient = new QueryClient({
 type Props = Partial<IdFormProps>
 
 function renderPrimaryId({ onSave, ...rest }: Props = {}) {
+  queryClient.clear()
+  
   const theOnSave = onSave || (() => {})
   return render(
     <QueryClientProvider client={queryClient}>
