@@ -1,12 +1,12 @@
 type FormFieldInfo = {
-  name: string,
-  label: string,
+  name: string
+  label: string
 }
 
 export interface ValuesType {
-  idType: string,
-  idReference: string,
-  expiryDate: string,
+  idType: string
+  idReference: string
+  expiryDate: string
   documentFile: string
 }
 
@@ -24,18 +24,18 @@ export interface FormFieldType {
 export const formFields: FormFieldType = {
   idType: {
     name: 'idType',
-    label: 'ID Type'
+    label: 'ID Type',
   },
   idReference: {
     name: 'idReference',
-    label: 'ID Reference'
+    label: 'ID Reference',
   },
   expiryDate: {
     name: 'expiryDate',
-    label: 'Expiry Date'
+    label: 'Expiry Date',
   },
   documentFile: {
     name: 'documentFile',
-    label: 'Upload Document'
+    label: 'Upload Document',
   },
 }

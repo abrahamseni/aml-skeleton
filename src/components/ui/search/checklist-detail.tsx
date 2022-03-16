@@ -12,7 +12,7 @@ import SecondaryId from '../checklist-details-steps/secondary-id'
 import { DeclarationRiskManagement } from '../checklist-details-steps/declaration-risk-management'
 import { AddressInformation } from '../checklist-details-steps/address-information'
 
-import { useSingleContact } from '../../../platform-api/hooks/useSIngleContact'
+import { useSingleContact } from '../../../platform-api/hooks/useSingleContact'
 import { useFetchSingleIdentityCheckByContactId } from '../../../platform-api/identity-check-api'
 import { TabsSection } from '../tab-section'
 import {
