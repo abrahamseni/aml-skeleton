@@ -234,7 +234,12 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
       >
         <FlexContainer isFlexAlignCenter isFlexJustifyCenter>
           {/* will be good if we can handle by file type, e.g pdf -> return pdf viewer // img -> return img tag */}
-          <img src={watch(declarationFormField.name)} height="auto" width="150px" />
+          <img
+            src={watch(declarationFormField.name)}
+            height="auto"
+            width="150px"
+            alt={watch(declarationFormField.name)}
+          />
         </FlexContainer>
         <ButtonGroup alignment="right">
           <Button intent="low" type="button" onClick={() => handleModal('declaration', 'close')}>
@@ -250,7 +255,12 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
       >
         <FlexContainer isFlexAlignCenter isFlexJustifyCenter>
           {/* will be good if we can handle by file type, e.g pdf -> return pdf viewer // img -> return img tag */}
-          <img src={watch(riskAssessmentFormField.name)} height="auto" width="150px" />
+          <img
+            src={watch(riskAssessmentFormField.name)}
+            height="auto"
+            width="150px"
+            alt={watch(riskAssessmentFormField.name)}
+          />
         </FlexContainer>
         <ButtonGroup alignment="right">
           <Button intent="low" type="button" onClick={() => handleModal('riskAssessment', 'close')}>
