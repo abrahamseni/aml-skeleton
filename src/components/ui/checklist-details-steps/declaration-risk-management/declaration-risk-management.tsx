@@ -131,7 +131,6 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   // button handler - previous
   const onPreviousHandler = (): void => {
     switchTabContent('backward')
-    // will replace with fn handler to the previous section
   }
 
   // turn off disabled attribute, if mutate UpdateContactData state is success

@@ -1,5 +1,5 @@
 import axios from '../axios/axios'
-import { ReapitConnectSession, useReapitConnect } from '@reapit/connect-session'
+import { useReapitConnect } from '@reapit/connect-session'
 import { useQuery, QueryKey, useMutation } from 'react-query'
 import qs from 'qs'
 import { URLS } from '../constants/api'
@@ -50,27 +50,17 @@ export interface UpdateContactDataType {
   bodyData: any
 }
 
-const updateContactData = async (
-  connectSession: ReapitConnectSession,
-  params: UpdateContactDataType,
-): Promise<ContactModel | void> => {
-  if (!connectSession) return
+const updateContactData = async (params: UpdateContactDataType): Promise<ContactModel | undefined> => {
   const { _eTag, contactId, bodyData } = params
-
-  const { data } = await axios.patch<ContactModel>(
-    `${window.reapit.config.platformApiUrl}/contacts/${contactId}`,
-    bodyData,
-    {
-      headers: {
-        'If-Match': _eTag,
-      },
+  const { data } = await axios.patch<ContactModel>(`${URLS.CONTACTS}/${contactId}`, bodyData, {
+    headers: {
+      'If-Match': _eTag,
     },
-  )
+  })
 
   return data
 }
 
 export const useUpdateContactData = (params: UpdateContactDataType) => {
-  const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
-  return useMutation(() => updateContactData(connectSession!, params))
+  return useMutation(() => updateContactData(params))
 }
