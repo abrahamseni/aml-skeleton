@@ -47,7 +47,6 @@ const PersonalDetails = ({ userData, userDataRefetch }: PersonalDetailsProps) =>
     if (!connectSession) return // not really necessary ?
     updateContact.mutate({ ...data })
   }
-  console.log({ updateContact })
   return (
     <form onSubmit={handleSubmit(onSubmitHandler)}>
       <div className="el-flex el-flex-column el-flex-wrap">
