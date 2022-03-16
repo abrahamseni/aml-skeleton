@@ -3,14 +3,23 @@ import { Table, Button, StatusIndicator } from '@reapit/elements'
 import { TableProps } from './table-type'
 import { useHistory } from 'react-router'
 
+const status ={
+  pass:'success',
+  fail:'danger',
+  pending:'primary',
+  cancelled:'secondary',
+  warnings:'critical',
+  unchecked:'',
+}
+
 export const TableResult: FC<TableProps> = (props) => {
   if (!props.items || !props.items.length) return null
 
   let history = useHistory();
-
+  
   return (
     <Table
-      numberColumns={5}
+      numberColumns={6}
       rows={props.items?.map(({ id,surname,forename, primaryAddress, identityCheck }) => ({
         cells: [
           {
@@ -28,6 +37,13 @@ export const TableResult: FC<TableProps> = (props) => {
             },
           },
           {
+            label: 'Postcode',
+            value: primaryAddress?.postcode ?? '',
+            narrowTable: {
+              showLabel: true,
+            },
+          },
+          {
             label: 'Status',
             value: identityCheck ?? '',
             narrowTable: {
@@ -35,7 +51,7 @@ export const TableResult: FC<TableProps> = (props) => {
             },
             children: (
               <>
-                <StatusIndicator intent="critical" /> {identityCheck}
+                <StatusIndicator intent={status[identityCheck]} /> {identityCheck}
               </>
             ),
           },
@@ -47,6 +63,9 @@ export const TableResult: FC<TableProps> = (props) => {
             },
           },
         ],
+        ctaContent: {
+          content: <Button intent="primary" onClick={() => history.push(`/checklist-detail/${id}`)}>Edit</Button>
+        }
       }),
     )}      
     />

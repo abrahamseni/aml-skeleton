@@ -11,8 +11,11 @@ import {
   InputWrap,
   InputWrapFull,
   Label,
+  Pagination,
   Select,
   Subtitle,
+  PersistantNotification,
+  Loader,
 } from '@reapit/elements'
 import { cx } from '@linaria/core'
 import { ID_STATUS } from '../../../constants/id-status'
@@ -35,9 +38,20 @@ export type ContactsParams = SearchFieldValue & {
   pageNumber: number
 }
 
+export const fnChangePage = (setPageNumber: (page: number) => void) => (page: number) => {
+  setPageNumber(page)
+}
+
+export const fnFetchContacts =
+  (search: SearchFieldValue | null, pageNumber: number, fetchContacts: (params: ContactsParams) => void) => () => {
+    if (search) {
+      fetchContacts({ ...search, pageNumber })
+    }
+  }
+
 export const SearchPage: FC = () => {
   const [searchParams, setSearchParams] = React.useState<SearchContactParam | {}>({})
-  const { register, handleSubmit } = useForm<SearchFieldValue>()
+  const { register, handleSubmit, reset } = useForm<SearchFieldValue>()
   const onSubmit = (e: SearchFieldValue) =>
     setSearchParams({
       name: e.searchName,
@@ -46,10 +60,17 @@ export const SearchPage: FC = () => {
     })
   const result = useFetchContactsBy(searchParams)
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageNumber, setPageNumber] = useState<number>(1)
 
-  const handleResetForm = () => {
+  console.log(result)
+  console.log(searchParams)
+
+  const handleReset = () => {
+    reset()
     setSearchParams({})
   }
+
+  const handleChangePage = React.useCallback(fnChangePage(setPageNumber), [pageNumber])
 
   return (
     <FlexContainer isFlexAuto isFlexColumn className={cx(elRowGap6)}>
@@ -89,7 +110,7 @@ export const SearchPage: FC = () => {
             </InputWrap>
             <InputWrapFull>
               <ButtonGroup alignment="right">
-                <Button type="reset" intent="low" onClick={handleResetForm}>
+                <Button type="reset" intent="low" onClick={handleReset}>
                   Reset form
                 </Button>
                 <Button type="submit" intent="primary" chevronRight>
@@ -100,12 +121,24 @@ export const SearchPage: FC = () => {
           </FormLayout>
         </form>
       </FlexContainer>
-      <FlexContainer>
-        {!searchParams || Number(result.data?._embedded?.length) === 0 ? (
-              'No search results'
-        ) : (
-              <TableResult items={result?.data?._embedded} />
-        )}
+      <FlexContainer>       
+
+        {result.status === 'loading' ? (
+           <Loader label="Loading" />
+          ) : (
+            <>
+              {!searchParams || Number(result.data?._embedded?.length) === 0 ? (
+                <PersistantNotification isExpanded={true} isFullWidth>
+                  No search results
+                </PersistantNotification>
+              ) : (
+                <>
+                  <TableResult items={result?.data?._embedded} />  
+                  {/* <Pagination callback={handleChangePage} currentPage={result?.data?.pageNumber} numberPages={result?.data?.pageSize}/> */}
+                </>
+              )}
+            </>
+          )}
       </FlexContainer>
     </FlexContainer>
   )

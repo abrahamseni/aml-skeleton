@@ -6,16 +6,19 @@ import { URLS } from '../constants/api'
 import { reapitConnectBrowserSession } from '../core/connect-session'
 import { ContactModelPagedResult } from '@reapit/foundations-ts-definitions'
 import isEmpty from 'lodash.isempty'
+import { CONTACTS_PER_PAGE } from '../constants/paginators'
 
 export type SearchContactParam = {
   name?: string
   address?: string
   identityCheck?: string
+  
 }
 
 const fetchContactsBy = async (params: SearchContactParam) => {
   try {
     const result = await axios.get(`${URLS.CONTACTS}/?${qs.stringify(params)}`)
+    console.log(result)
     if (result.status < 400) {
       return result.data
     }
@@ -27,7 +30,7 @@ const fetchContactsBy = async (params: SearchContactParam) => {
 export const useFetchContactsBy = (params: SearchContactParam) => {
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
   const beginFetch = () => !!(connectSession?.accessToken && !isEmpty(params))
-
+  
   const contactListResult = useQuery<
     ContactModelPagedResult,
     Error,
