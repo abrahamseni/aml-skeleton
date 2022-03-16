@@ -74,13 +74,8 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData, switc
   const currentForm = useForm<ValuesType>({
     defaultValues: INITIAL_VALUES,
     resolver: yupResolver(validationSchema),
-    mode: 'all',
+    mode: 'onBlur',
   })
-
-  // trigger form validation on mount
-  React.useLayoutEffect(() => {
-    currentForm.trigger()
-  }, [])
 
   const updateContactData = useUpdateContact(userData!.id!, userData!._eTag!)
 

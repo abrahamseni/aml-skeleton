@@ -4,14 +4,12 @@ import {
   InputGroup,
   Label,
   Select,
-  FileInput,
   InputWrap,
   InputWrapFull,
   elMt4,
-  Modal,
   FlexContainer,
-  ButtonGroup,
-  Button,
+  FileInput,
+  elPl3,
 } from '@reapit/elements'
 import { AvailableFormFieldType, formFields, ValuesType } from './form-schema'
 import { UseFormReturn } from 'react-hook-form'
@@ -19,6 +17,8 @@ import { displayErrorMessage } from '../../../../utils/error-message'
 import { generateLabelField, generateOptionsType, generateOptionsYearsOrMonths } from '../../../../utils/generator'
 import { cx } from '@linaria/core'
 import { order0 } from './__styles__'
+
+import DocumentPreviewModal from '../id-form/document-preview-modal'
 
 interface FormFieldProps {
   /**
@@ -67,12 +67,11 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
     <>
       <InputWrapFull>
         <InputWrap>
-          <InputGroup type="hidden" placeholder={typeField.label} {...register(typeField.name)} />
+          <InputGroup type="hidden" {...register(typeField.name)} />
         </InputWrap>
         <InputWrap>
           <InputGroup
             type="text"
-            placeholder={buildingNameField.label}
             label={generateLabelField(buildingNameField.label)}
             autoComplete="off"
             {...register(buildingNameField.name)}
@@ -82,7 +81,6 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
         <InputWrap>
           <InputGroup
             type="text"
-            placeholder={buildingNumberField.label}
             label={generateLabelField(buildingNumberField.label)}
             autoComplete="off"
             {...register(buildingNumberField.name)}
@@ -92,7 +90,6 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
         <InputWrap>
           <InputGroup
             type="text"
-            placeholder={postcodeField.label}
             label={generateLabelField(postcodeField.label, true)}
             autoComplete="off"
             {...register(postcodeField.name)}
@@ -104,7 +101,6 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
         <InputWrap>
           <InputGroup
             type="text"
-            placeholder={line1Field.label}
             label={generateLabelField(line1Field.label, true)}
             autoComplete="off"
             {...register(line1Field.name)}
@@ -114,7 +110,6 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
         <InputWrap>
           <InputGroup
             type="text"
-            placeholder={line2Field.label}
             label={generateLabelField(line2Field.label)}
             autoComplete="off"
             {...register(line2Field.name)}
@@ -124,7 +119,6 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
         <InputWrap>
           <InputGroup
             type="text"
-            placeholder={line3Field.label}
             label={generateLabelField(line3Field.label, true)}
             autoComplete="off"
             {...register(line3Field.name)}
@@ -134,7 +128,6 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
         <InputWrap>
           <InputGroup
             type="text"
-            placeholder={line4Field.label}
             label={generateLabelField(line4Field.label)}
             autoComplete="off"
             {...register(line4Field.name)}
@@ -146,59 +139,43 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
         <InputWrap>
           <InputGroup>
             <Label>{generateLabelField(yearField.label, true)}</Label>
-            <Select {...register(yearField.name)} placeholder={yearField.label}>
-              {generateOptionsYearsOrMonths('years')}
-            </Select>
+            <Select {...register(yearField.name)}>{generateOptionsYearsOrMonths('years')}</Select>
             {displayErrorMessage<AvailableFormFieldType, ValuesType>(yearField.name, formState)}
           </InputGroup>
         </InputWrap>
         <InputWrap>
           <InputGroup>
             <Label>{generateLabelField(monthField.label, true)}</Label>
-            <Select {...register(monthField.name)} placeholder={monthField.label}>
-              {generateOptionsYearsOrMonths('months')}
-            </Select>
+            <Select {...register(monthField.name)}>{generateOptionsYearsOrMonths('months')}</Select>
             {displayErrorMessage<AvailableFormFieldType, ValuesType>(monthField.name, formState)}
           </InputGroup>
         </InputWrap>
         <InputWrap>
           <InputGroup>
             <Label>{generateLabelField(documentTypeField.label, true)}</Label>
-            <Select {...register(documentTypeField.name)} placeholder={documentTypeField.label}>
-              {generateOptionsType('documentType')}
-            </Select>
+            <Select {...register(documentTypeField.name)}>{generateOptionsType('documentType')}</Select>
             {displayErrorMessage<AvailableFormFieldType, ValuesType>(documentTypeField.name, formState)}
           </InputGroup>
         </InputWrap>
         <InputWrap className={elMt4}>
-          <InputGroup>
+          <FlexContainer isFlexColumn className={elPl3}>
             <Label className={cx(elMb2, order0)}>{generateLabelField(documentImageField.label, true)}</Label>
             <FileInput
               {...register(documentImageField.name)}
-              placeholderText={documentImageField.label}
               defaultValue={getValues(documentImageField.name)}
               onFileView={() => modalHandler('open')}
+              accept="image/jpeg, image/png, application/pdf"
             />
             {displayErrorMessage<AvailableFormFieldType, ValuesType>(documentImageField.name, formState)}
-          </InputGroup>
+          </FlexContainer>
         </InputWrap>
       </InputWrapFull>
       {/* Document Image Address */}
-      <Modal
+      <DocumentPreviewModal
+        src={watch(documentImageField.name)}
         isOpen={identity === 'primaryAddress' ? imagePrimaryAddress : imageSecondaryAddress}
-        title="Image Preview"
         onModalClose={() => modalHandler('close')}
-      >
-        <FlexContainer isFlexAlignCenter isFlexJustifyCenter>
-          {/* will be good if we can handle by file type, e.g pdf -> return pdf viewer // img -> return img tag */}
-          <img src={watch(documentImageField.name)} height="auto" width="150px" alt={watch(documentImageField.name)} />
-        </FlexContainer>
-        <ButtonGroup alignment="right">
-          <Button intent="low" onClick={() => modalHandler('close')} type="button">
-            Close
-          </Button>
-        </ButtonGroup>
-      </Modal>
+      />
     </>
   )
 }
