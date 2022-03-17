@@ -14,8 +14,6 @@ import SecondaryId from '../checklist-details-steps/secondary-id'
 import { DeclarationRiskManagement } from '../checklist-details-steps/declaration-risk-management'
 import { AddressInformation } from '../checklist-details-steps/address-information'
 
-import { navigate } from '../../../utils/navigation'
-import { history } from '../../../core/router'
 import { Routes } from '../../../constants/routes'
 import { useSingleContact } from '../../../platform-api/contact-api/single-contact'
 import { useFetchSingleIdentityCheckByContactId } from '../../../platform-api/identity-check-api'

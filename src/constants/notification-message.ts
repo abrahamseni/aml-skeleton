@@ -2,7 +2,7 @@
 export const notificationMessage = {
   SUCCESS: (formName: string) => `Successfully update ${formName} data`,
   ERROR: (errorMessage: string | undefined) =>
-    errorMessage ? `${errorMessage}` : 'Something is not working, try to reload your browser',
+    errorMessage ? `${errorMessage}` : 'Something went wrong, try to reload your browser',
   /**
    * Address Information Form
    */
