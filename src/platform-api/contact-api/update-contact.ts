@@ -1,26 +1,22 @@
 import { useMutation, useQueryClient } from 'react-query'
-// import { ReapitConnectSession } from '@reapit/connect-session'
+import { AxiosError } from 'axios'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
 import axios from '../../axios/axios'
 import { URLS } from '../../constants/api'
 
 export const useUpdateContact = (id: string, _eTag: string) => {
   const queryClient = useQueryClient()
-  return useMutation(
+  return useMutation<ContactModel, AxiosError, any, () => void>(
     (body: any) =>
-      axios.patch<ContactModel>(`${URLS.CONTACTS}/${id}`, body, {
+      axios.patch(`${URLS.CONTACTS}/${id}`, body, {
         headers: {
           'If-Match': _eTag,
         },
       }),
     {
       // ✅ invalidate contact by id
-      onSuccess: ({ data }) => {
+      onSuccess: () => {
         queryClient.invalidateQueries(['contact', id])
-        console.log('success', { data })
-      },
-      onError: (err: any) => {
-        console.error('error', err)
       },
     },
   )

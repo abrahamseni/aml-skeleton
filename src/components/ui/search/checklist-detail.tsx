@@ -3,17 +3,20 @@
 import React, { FC, useState } from 'react'
 import { reapitConnectBrowserSession } from '../../../core/connect-session'
 import { useReapitConnect } from '@reapit/connect-session'
-import { Subtitle, Title, Icon, ProgressBarSteps, Modal, BodyText, InputGroup, Loader, Button } from '@reapit/elements'
+import { Subtitle, Title, Icon, ProgressBarSteps, Loader, PersistantNotification, BodyText } from '@reapit/elements'
 import { useParams } from 'react-router'
 import { UseQueryResult } from 'react-query'
 import { ContactModel, IdentityCheckModel } from '@reapit/foundations-ts-definitions'
-
+import { Link } from 'react-router-dom'
 import PersonalDetails from '../checklist-details-steps/personal-details'
 import PrimaryId from '../checklist-details-steps/primary-id'
 import SecondaryId from '../checklist-details-steps/secondary-id'
 import { DeclarationRiskManagement } from '../checklist-details-steps/declaration-risk-management'
 import { AddressInformation } from '../checklist-details-steps/address-information'
 
+import { navigate } from '../../../utils/navigation'
+import { history } from '../../../core/router'
+import { Routes } from '../../../constants/routes'
 import { useSingleContact } from '../../../platform-api/contact-api/single-contact'
 import { useFetchSingleIdentityCheckByContactId } from '../../../platform-api/identity-check-api'
 import { TabsSection } from '../tab-section'
@@ -76,20 +79,14 @@ export const ChecklistDetailPage: FC = () => {
   const { id } = useParams<{ id: string }>()
 
   const querySingleContact = useSingleContact(connectSession, id)
-  const { data: userData, isFetching: userDataIsFetching } = querySingleContact
+  const { data: userData, isFetching: userDataIsFetching, isError: userDataIsError } = querySingleContact
 
   const queryIdentityCheck = useFetchSingleIdentityCheckByContactId(id)
-  const { data: identityCheck, isFetching: identityCheckIsFetching } = queryIdentityCheck
+  const { data: identityCheck, isFetching: identityCheckIsFetching, isError: identityCheckIsError } = queryIdentityCheck
 
   const [isModalStatusOpen, setModalStatusOpen] = useState<boolean>(false)
-
   // local state - tab pagination handler
   const [activeTabs, setActiveTabs] = React.useState<number>(0)
-
-  if ((!userData && userDataIsFetching) || (!identityCheck && identityCheckIsFetching) || !userData) {
-    return <Loader fullPage label="Please wait..." />
-  }
-  // const updateContact = useUpdateContact(connectSession, userData!.id!, userData!._eTag!)
 
   // data is available from here //
   // change current active tab content with this fn
@@ -108,41 +105,67 @@ export const ChecklistDetailPage: FC = () => {
   // progress bar indicator
   const { complete: completeStep, total: totalStep } = generateProgressBarResult({ tabContents })
 
-  // render tab component (will use tabContents variable for the content)
-  const renderTabContent = (): React.ReactNode => {
+  if ((userDataIsFetching && !userData) || (identityCheckIsFetching && !userData)) {
+    return <Loader fullPage label="Please wait..." />
+  }
+
+  if ((!userData && userDataIsError) || (!identityCheck && identityCheckIsError)) {
     return (
       <>
-        <TabsSection
-          activeTabs={activeTabs}
-          setActiveTabs={setActiveTabs}
-          tabName="tab-section"
-          contents={tabContents}
-        />
+        <Link to={Routes.SEARCH}>
+          <div className="el-flex el-flex-align-center el-mb6">
+            <Icon icon="arrowLeftSystem" iconSize="smallest" />
+            <BodyText hasNoMargin hasBoldText className="el-ml3">
+              Back to search
+            </BodyText>
+          </div>
+        </Link>
+        <PersistantNotification isFullWidth isExpanded icon="warningSolidSystem" intent="danger">
+          {querySingleContact?.error?.response?.status === 404
+            ? `Entity "Contact" (${id}) was not found.`
+            : querySingleContact?.error?.response?.data?.description || 'Error'}
+        </PersistantNotification>
       </>
     )
   }
 
-  return (
-    <main>
-      <Title hasNoMargin>{`${userData?.forename} ${userData?.surname}`}</Title>
-      <div className="el-flex el-flex-row">
-        <Subtitle hasGreyText hasBoldText>
-          Status: {userData?.identityCheck?.toUpperCase()}
-        </Subtitle>
-        <Icon icon="editSolidSystem" iconSize="smallest" className="el-ml2" onClick={() => setModalStatusOpen(true)} />
-      </div>
-      <div>
-        <ProgressBarSteps currentStep={completeStep} numberSteps={totalStep} className="el-mt6" />
-      </div>
-      <div className="el-mt3">{renderTabContent()}</div>
-      <ModalStatus
-        userData={userData}
-        idCheck={identityCheck!}
-        isModalStatusOpen={isModalStatusOpen}
-        setModalStatusOpen={setModalStatusOpen}
-      />
-    </main>
-  )
+  if (userData && identityCheck) {
+    return (
+      <main>
+        <Title hasNoMargin>{`${userData?.forename} ${userData?.surname}`}</Title>
+        <div className="el-flex el-flex-row">
+          <Subtitle hasGreyText hasBoldText>
+            Status: {userData?.identityCheck?.toUpperCase()}
+          </Subtitle>
+          <Icon
+            icon="editSolidSystem"
+            iconSize="smallest"
+            className="el-ml2"
+            onClick={() => setModalStatusOpen(true)}
+          />
+        </div>
+        <div>
+          <ProgressBarSteps currentStep={completeStep} numberSteps={totalStep} className="el-mt6" />
+        </div>
+        <div className="el-mt3">
+          <TabsSection
+            activeTabs={activeTabs}
+            setActiveTabs={setActiveTabs}
+            tabName="tab-section"
+            contents={tabContents}
+          />
+        </div>
+        <ModalStatus
+          userData={userData}
+          idCheck={identityCheck!}
+          isModalStatusOpen={isModalStatusOpen}
+          setModalStatusOpen={setModalStatusOpen}
+        />
+      </main>
+    )
+  }
+
+  return <></>
 }
 
 export default ChecklistDetailPage
