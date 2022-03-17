@@ -54,6 +54,7 @@ const FormFooter = ({
             intent="secondary"
             type="button"
             disabled={isFormSubmitting || isFieldError}
+            data-testid="previous-form"
           >
             Previous
           </Button>
@@ -70,6 +71,7 @@ const FormFooter = ({
               type="submit"
               disabled={isFormSubmitting || isFieldError}
               loading={isFormSubmitting}
+              data-testid="save-form"
             >
               Save
             </Button>
@@ -80,6 +82,7 @@ const FormFooter = ({
                 intent="primary"
                 type="button"
                 disabled={isFormSubmitting || isFieldError}
+                data-testid="next-form"
               >
                 Next
               </Button>
