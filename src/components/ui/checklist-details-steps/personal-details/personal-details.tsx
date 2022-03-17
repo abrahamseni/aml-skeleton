@@ -108,7 +108,7 @@ const PersonalDetails = ({ userData, switchTabContent }: PersonalDetailsProps) =
       <FormFooter
         isPrevHide={true}
         idUser={userData?.id}
-        isFieldError={Object.keys(errors).length !== 0}
+        isFieldError={!!Object.keys(errors).length}
         isFormSubmitting={updateContact?.isLoading}
         switchTabContent={switchTabContent}
         submitHandler={onSubmitHandler}
