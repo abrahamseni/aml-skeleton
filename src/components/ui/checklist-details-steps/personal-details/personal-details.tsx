@@ -2,15 +2,15 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react'
-// import { reapitConnectBrowserSession } from '../../../../core/connect-session'
-// import { useReapitConnect } from '@reapit/connect-session'
-import { Input, InputGroup, Label, Button, SmallText, InputError, BodyText } from '@reapit/elements'
+import { Input, InputGroup, Label, Button, SmallText, InputError, useSnack } from '@reapit/elements'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-
 import { ContactModel } from '@reapit/foundations-ts-definitions'
 import validationSchema from './form-schema/validation-schema'
+
 import { useUpdateContact } from '../../../../platform-api/contact-api/update-contact'
+import FormFooter from '../../form-footer/form-footer'
+import { notificationMessage } from '../../../../constants/notification-message'
 
 type PersonalDetailsProps = {
   userData: ContactModel
@@ -18,14 +18,9 @@ type PersonalDetailsProps = {
 }
 
 const PersonalDetails = ({ userData, switchTabContent }: PersonalDetailsProps) => {
-  // const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
+  const { success: successAlert, error: errorAlert } = useSnack()
   const updateContact = useUpdateContact(userData!.id!, userData!._eTag!)
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm({
+  const formPersonalDetails = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       title: userData?.title,
@@ -38,11 +33,25 @@ const PersonalDetails = ({ userData, switchTabContent }: PersonalDetailsProps) =
       workPhone: userData?.workPhone,
     },
   })
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = formPersonalDetails
 
-  const onSubmitHandler = (data: object) => {
-    updateContact.mutate({ ...data })
+  const onSubmitHandler = async (data: object) => {
+    await updateContact.mutate(
+      { ...data },
+      {
+        onSuccess: () => {
+          successAlert(notificationMessage.SUCCESS('personal details'))
+        },
+        onError: (err) => errorAlert(notificationMessage.ERROR(err?.message)),
+      },
+    )
   }
-  console.log({ errors })
+
   return (
     <form onSubmit={handleSubmit(onSubmitHandler)}>
       <div className="el-flex el-flex-column el-flex-wrap">
@@ -96,7 +105,7 @@ const PersonalDetails = ({ userData, switchTabContent }: PersonalDetailsProps) =
           </InputGroup>
         </div>
       </div>
-      <div className="el-flex el-flex-row el-flex-justify-end el-flex-align-center el-mt8">
+      {/* <div className="el-flex el-flex-row el-flex-justify-end el-flex-align-center el-mt8">
         <BodyText hasNoMargin className="el-mr4">
           RPS Ref: {userData?.id}
         </BodyText>
@@ -106,7 +115,16 @@ const PersonalDetails = ({ userData, switchTabContent }: PersonalDetailsProps) =
         <Button intent="primary" chevronRight type="submit">
           Next
         </Button>
-      </div>
+      </div> */}
+      <FormFooter
+        isPrevHide={true}
+        idUser={userData?.id}
+        isFieldError={Object.keys(errors).length !== 0}
+        isFormSubmitting={updateContact?.isLoading}
+        currentForm={formPersonalDetails}
+        switchTabContent={switchTabContent}
+        submitHandler={handleSubmit(onSubmitHandler)}
+      />
     </form>
   )
 }

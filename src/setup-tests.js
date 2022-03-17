@@ -7,7 +7,13 @@ jest.mock('@linaria/core', () => {
 
 jest.mock('@linaria/react', () => {
   const styled = (tag) => {
-    return jest.fn(() => `mock-styled-${tag}`)
+    if (typeof tag !== 'string') {
+      return jest.fn(() => {
+        return tag
+      })
+    }
+
+    return jest.fn(() => tag)
   }
   return {
     styled: new Proxy(styled, {

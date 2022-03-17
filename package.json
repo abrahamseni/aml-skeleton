@@ -78,6 +78,7 @@
   "devDependencies": {
     "@alex_neo/jest-expect-message": "^1.0.5",
     "@testing-library/dom": "^8.11.3",
+    "@testing-library/react-hooks": "^7.0.2",
     "@testing-library/user-event": "^13.5.0",
     "axios-mock-adapter": "^1.20.0"
   }

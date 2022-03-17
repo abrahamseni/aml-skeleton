@@ -1,26 +1,17 @@
 import React, { FC, useState } from 'react'
-import {
-  Button,
-  InputGroup,
-  Label,
-  Select,
-  FileInputProps,
-  FlexContainer,
-  ButtonGroup,
-  Input,
-  Loader,
-} from '@reapit/elements'
-import { FileInput } from './file-input'
+import { Button, InputGroup, Label, Select, FlexContainer, ButtonGroup, Input, Loader } from '@reapit/elements'
+import { FileInput, FileInputProps } from './file-input'
 import { useForm, UseFormRegister, UseFormRegisterReturn } from 'react-hook-form'
-import { useGetIdentityDocumentTypes } from '../../../../platform-api/configuration-api'
+import { useGetIdentityDocumentTypes } from 'platform-api/configuration-api'
 import { formFields, ValuesType } from './form-schema/form-field'
 import { identityDocumentTypes } from './__mocks__'
 import DocumentPreviewModal from './document-preview-modal'
-import { useDownloadDocument } from '../../../../platform-api/document-api'
+import { useDownloadDocument } from 'platform-api/document-api'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { isDataUrl } from '../../../../utils/url'
+import { isDataUrl } from 'utils/url'
 import validationSchema from './form-schema/validation-schema'
 import { SaveButtonGroup, LoaderContainer } from './__styles__/id-form.style'
+import { generateLabelField } from 'utils/generator'
 
 const defaultValuesConst = {
   idType: '',
@@ -58,6 +49,7 @@ export const IdForm: FC<IdFormProps> = ({
   } = useForm<ValuesType>({
     defaultValues: defaultValues || defaultValuesConst,
     resolver: yupResolver(validationSchema),
+    mode: 'onBlur',
   })
   const { data: identityDocumentTypesData } = useGetIdentityDocumentTypes()
   identityDocumentTypesData
@@ -100,9 +92,8 @@ export const IdForm: FC<IdFormProps> = ({
     <div>
       {noticeText && <p data-testid="noticeText">*{noticeText}</p>}
       <InputGroup className="el-my3">
-        <Label>{formFields.idType.label}</Label>
+        <Label>{generateLabelField(formFields.idType.label, true)}</Label>
         <Select
-          defaultValue=""
           {...register(formFields.idType.name)}
           disabled={disabled}
           data-testid={`input.${formFields.idType.name}`}
@@ -124,10 +115,9 @@ export const IdForm: FC<IdFormProps> = ({
         )}
       </InputGroup>
       <InputGroup className="el-my3">
-        <Label>{formFields.idReference.label}</Label>
+        <Label>{generateLabelField(formFields.idReference.label, true)}</Label>
         <Input
           type="text"
-          placeholder="ID Reference"
           disabled={disabled}
           {...register(formFields.idReference.name)}
           data-testid={`input.${formFields.idReference.name}`}
@@ -139,7 +129,7 @@ export const IdForm: FC<IdFormProps> = ({
         )}
       </InputGroup>
       <InputGroup className="el-my3">
-        <Label>{formFields.expiryDate.label}</Label>
+        <Label>{generateLabelField(formFields.expiryDate.label, true)}</Label>
         <Input
           type="date"
           defaultValue=""
@@ -155,13 +145,14 @@ export const IdForm: FC<IdFormProps> = ({
       </InputGroup>
       <div className="el-my3">
         <MyFileInput
-          label={formFields.documentFile.label}
+          label={generateLabelField(formFields.documentFile.label, true)}
           name={formFields.documentFile.name}
           defaultValue={getValues('documentFile')}
           onFileView={openDocumentPreview}
           register={register}
           accept="image/jpeg, image/png, application/pdf"
           disabled={disabled}
+          invalid={errors.documentFile ? true : false}
           data-testid={`input.${formFields.documentFile.name}`}
         />
         {errors.documentFile?.message && (
