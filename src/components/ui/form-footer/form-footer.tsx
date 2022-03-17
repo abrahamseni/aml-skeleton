@@ -8,71 +8,82 @@ import { AxiosError } from 'axios'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
 
 type FormFooterProps = {
-  setIsGoingToNextSection?: any
   switchTabContent?: any
   isPrevHide?: boolean
   isNextHide?: boolean
   isIdInfoHide?: boolean
-  apiData?: any
-  formValue?: any
-  updateForm?: UseMutationResult<ContactModel, AxiosError<any, any>, any, () => void>
+  idUser?: string
+  isFieldError?: boolean
   submitHandler?: any
+  apiData?: any
+  currentForm?: any
+  updateForm?: UseMutationResult<ContactModel, AxiosError<any, any>, any, () => void>
 }
 
 const FormFooter = ({
-  setIsGoingToNextSection,
   switchTabContent,
-  isPrevHide,
-  isNextHide,
-  isIdInfoHide,
-  apiData,
-  formValue,
-  updateForm,
+  isPrevHide = false,
+  isNextHide = false,
+  isIdInfoHide = false,
+  idUser,
+  isFieldError,
   submitHandler,
+  apiData,
+  currentForm,
+  updateForm,
 }: FormFooterProps) => {
-  // button handler - next
-  const onNextHandler = (): void => {
+  const onNextHandler = async () => {
     // currentForm.trigger()
     // if (Object.keys(currentForm.formState.errors).length === 0) {
-    //   onSubmitHandler()
+    //   await submitHandler()
     // }
-    // setIsGoingToNextSection(true)
     switchTabContent('forward')
   }
 
-  // button handler - previous
   const onPreviousHandler = (): void => {
     switchTabContent('backward')
   }
 
-  // console.log({ updateForm })
   return (
     <footer className={elMt8}>
       <FlexContainer isFlexJustifyBetween className={elWFull}>
         {!isPrevHide && (
-          <Button onClick={onPreviousHandler} chevronLeft intent="secondary" type="button" disabled={false}>
+          <Button
+            onClick={onPreviousHandler}
+            chevronLeft
+            intent="secondary"
+            type="button"
+            disabled={updateForm?.isLoading || isFieldError}
+          >
             Previous
           </Button>
         )}
         <FlexContainer isFlexAlignCenter isFlexJustifyEnd={isPrevHide} className={isPrevHide ? elWFull : undefined}>
           {!isIdInfoHide && (
             <BodyText hasNoMargin className={elMr6}>
-              RPS Ref:
+              RPS Ref: {idUser}
             </BodyText>
           )}
           <ButtonGroup>
-            <Button intent="success" type="submit" disabled={updateForm?.isLoading} loading={updateForm?.isLoading}>
+            <Button
+              intent="success"
+              type="submit"
+              disabled={updateForm?.isLoading || isFieldError}
+              loading={updateForm?.isLoading}
+            >
               Save
             </Button>
-            <Button
-              onClick={onNextHandler}
-              chevronRight
-              intent="primary"
-              type="button"
-              disabled={updateForm?.isLoading}
-            >
-              Next
-            </Button>
+            {!isNextHide && (
+              <Button
+                onClick={onNextHandler}
+                chevronRight
+                intent="primary"
+                type="button"
+                disabled={updateForm?.isLoading || isFieldError}
+              >
+                Next
+              </Button>
+            )}
           </ButtonGroup>
         </FlexContainer>
       </FlexContainer>

@@ -7,12 +7,13 @@ import { URLS } from '../../constants/api'
 export const useUpdateContact = (id: string, _eTag: string) => {
   const queryClient = useQueryClient()
   return useMutation<ContactModel, AxiosError, any, () => void>(
-    (body: any) =>
-      axios.patch(`${URLS.CONTACTS}/${id}`, body, {
+    (body: any) => {
+      return axios.patch(`${URLS.CONTACTS}/${id}`, body, {
         headers: {
           'If-Match': _eTag,
         },
-      }),
+      })
+    },
     {
       // ✅ invalidate contact by id
       onSuccess: () => {
