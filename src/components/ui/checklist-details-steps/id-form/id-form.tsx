@@ -11,6 +11,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { isDataUrl } from 'utils/url'
 import validationSchema from './form-schema/validation-schema'
 import { SaveButtonGroup, LoaderContainer } from './__styles__/id-form.style'
+import { generateLabelField } from 'utils/generator'
 
 const defaultValuesConst = {
   idType: '',
@@ -91,7 +92,7 @@ export const IdForm: FC<IdFormProps> = ({
     <div>
       {noticeText && <p data-testid="noticeText">*{noticeText}</p>}
       <InputGroup className="el-my3">
-        <Label>{formFields.idType.label}</Label>
+        <Label>{generateLabelField(formFields.idType.label, true)}</Label>
         <Select
           {...register(formFields.idType.name)}
           disabled={disabled}
@@ -114,7 +115,7 @@ export const IdForm: FC<IdFormProps> = ({
         )}
       </InputGroup>
       <InputGroup className="el-my3">
-        <Label>{formFields.idReference.label}</Label>
+        <Label>{generateLabelField(formFields.idReference.label, true)}</Label>
         <Input
           type="text"
           disabled={disabled}
@@ -128,7 +129,7 @@ export const IdForm: FC<IdFormProps> = ({
         )}
       </InputGroup>
       <InputGroup className="el-my3">
-        <Label>{formFields.expiryDate.label}</Label>
+        <Label>{generateLabelField(formFields.expiryDate.label, true)}</Label>
         <Input
           type="date"
           defaultValue=""
@@ -144,7 +145,7 @@ export const IdForm: FC<IdFormProps> = ({
       </InputGroup>
       <div className="el-my3">
         <MyFileInput
-          label={formFields.documentFile.label}
+          label={generateLabelField(formFields.documentFile.label, true)}
           name={formFields.documentFile.name}
           defaultValue={getValues('documentFile')}
           onFileView={openDocumentPreview}
