@@ -13,4 +13,10 @@ export const notificationMessage = {
    */
   DRM_SUCCESS: 'Successfully update declaration risk management',
   DRM_ERROR: 'Something is not working, try to reload your browser',
+
+  PI1_SUCCESS: 'Successfully update primary id',
+  PI1_ERROR: 'Cannot update primary id, try to reload your browser',
+
+  PI2_SUCCESS: 'Successfully update secondary id',
+  PI2_ERROR: 'Cannot update secondary id, try to reload your browser',
 }
