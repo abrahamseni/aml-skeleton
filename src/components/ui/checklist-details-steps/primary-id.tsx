@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
-import { Subtitle } from '@reapit/elements'
+import { Subtitle, useSnack } from '@reapit/elements'
 import IdForm, { ValuesType } from './id-form'
 import { ContactModel, IdentityCheckModel } from '@reapit/foundations-ts-definitions'
 import { useSaveIdentityDocument } from './id-form/identity-check-action'
+import { notificationMessage } from 'constants/notification-message'
 
 // const defaultValues = {
 //   idType: 'DL',
@@ -28,6 +29,7 @@ export type PrimaryIdProps = {
 const PrimaryId = ({ contact, idCheck, onSaved }: PrimaryIdProps) => {
   const saveIdentityDocument = useSaveIdentityDocument(1)
   const [loading, setLoading] = useState(false)
+  const { success, error } = useSnack()
 
   function getDefaultValues(): ValuesType {
     if (!idCheck) {
@@ -60,9 +62,15 @@ const PrimaryId = ({ contact, idCheck, onSaved }: PrimaryIdProps) => {
 
   async function doSave(values: ValuesType) {
     setLoading(true)
-    await saveIdentityDocument(contact, idCheck, values)
-    setLoading(false)
 
+    try {
+      await saveIdentityDocument(contact, idCheck, values)
+      success(notificationMessage.PI1_SUCCESS)
+    } catch (ignored) {
+      error(notificationMessage.PI1_ERROR)
+    }
+
+    setLoading(false)
     onSaved && onSaved()
   }
 
