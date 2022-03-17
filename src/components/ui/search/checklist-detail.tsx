@@ -1,121 +1,169 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { FC, useState } from 'react'
-import { Subtitle, Title, Tabs, Icon, ProgressBarSteps, Modal, BodyText, InputGroup } from '@reapit/elements'
+import { reapitConnectBrowserSession } from '../../../core/connect-session'
+import { useReapitConnect } from '@reapit/connect-session'
+import { Subtitle, Title, Icon, ProgressBarSteps, Loader, PersistantNotification, BodyText } from '@reapit/elements'
 import { useParams } from 'react-router'
-
+import { UseQueryResult } from 'react-query'
+import { ContactModel, IdentityCheckModel } from '@reapit/foundations-ts-definitions'
+import { Link } from 'react-router-dom'
 import PersonalDetails from '../checklist-details-steps/personal-details'
 import PrimaryId from '../checklist-details-steps/primary-id'
 import SecondaryId from '../checklist-details-steps/secondary-id'
 import { DeclarationRiskManagement } from '../checklist-details-steps/declaration-risk-management'
 import { AddressInformation } from '../checklist-details-steps/address-information'
 
-export const ChecklistDetailPage: FC = () => {
-  const { id } = useParams<{ id: string }>()
-  const data = {} // we will get data state from API
-  const [tab, setTab] = useState<boolean[]>([true, false, false, false, false])
-  const [isModalStatusOpen, setModalStatusOpen] = useState<boolean>(false)
-  const [userStatus, setUserStatus] = useState<string>('passed')
+import { Routes } from '../../../constants/routes'
+import { useSingleContact } from '../../../platform-api/contact-api/single-contact'
+import { useFetchSingleIdentityCheckByContactId } from '../../../platform-api/identity-check-api'
+import { TabsSection } from '../tab-section'
+import { ModalStatus } from '../modal-status'
+import {
+  isCompletedAddress,
+  isCompletedDeclarationRisk,
+  isCompletedPrimaryID,
+  isCompletedProfile,
+  isCompletedSecondaryID,
+} from '../../../utils/completed-sections'
+import { TabsSectionProps } from '../tab-section/tab-section'
+import { generateProgressBarResult } from '../../../utils/generator'
 
-  const renderTabContent = () => {
-    if (data) {
-      return (
-        <>
-          {tab[0] && <PersonalDetails data={data} />}
-          {tab[1] && <PrimaryId data={data} />}
-          {tab[2] && <SecondaryId data={data} />}
-          {tab[3] && <AddressInformation />}
-          {tab[4] && <DeclarationRiskManagement />}
-        </>
-      )
+interface GenerateTabsContentProps {
+  querySingleContact: UseQueryResult<ContactModel, Error>
+  queryIdentityCheck: UseQueryResult<IdentityCheckModel | undefined, unknown>
+  switchTabSection: (type: 'forward' | 'backward') => void
+}
+
+export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectionProps['contents'] => {
+  const { querySingleContact, queryIdentityCheck, switchTabSection } = props
+
+  // single contact
+  const { data: userData } = querySingleContact
+
+  // identity check
+  const { data: idCheck, refetch: refetchIdCheck } = queryIdentityCheck
+  return [
+    {
+      name: 'Personal',
+      content: <PersonalDetails userData={userData!} switchTabContent={switchTabSection} />,
+      status: isCompletedProfile(userData),
+    },
+    {
+      name: 'Primary ID',
+      content: <PrimaryId contact={userData!} idCheck={idCheck} onSaved={refetchIdCheck} />,
+      status: isCompletedPrimaryID(idCheck),
+    },
+    {
+      name: 'Secondary ID',
+      content: <SecondaryId contact={userData!} idCheck={idCheck} onSaved={refetchIdCheck} />,
+      status: isCompletedSecondaryID(idCheck),
+    },
+    {
+      name: 'Address Information',
+      content: <AddressInformation userData={userData} switchTabContent={switchTabSection} />,
+      status: isCompletedAddress(userData!),
+    },
+    {
+      name: 'Declaration Risk Management',
+      content: <DeclarationRiskManagement userData={userData!} switchTabContent={switchTabSection} />,
+      status: isCompletedDeclarationRisk(userData!),
+    },
+  ]
+}
+
+export const ChecklistDetailPage: FC = () => {
+  const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
+  const { id } = useParams<{ id: string }>()
+
+  const querySingleContact = useSingleContact(connectSession, id)
+  const { data: userData, isFetching: userDataIsFetching, isError: userDataIsError } = querySingleContact
+
+  const queryIdentityCheck = useFetchSingleIdentityCheckByContactId(id)
+  const { data: identityCheck, isFetching: identityCheckIsFetching, isError: identityCheckIsError } = queryIdentityCheck
+
+  const [isModalStatusOpen, setModalStatusOpen] = useState<boolean>(false)
+  // local state - tab pagination handler
+  const [activeTabs, setActiveTabs] = React.useState<number>(0)
+
+  // data is available from here //
+  // change current active tab content with this fn
+  const switchTabSection = (type: 'forward' | 'backward'): void => {
+    switch (type) {
+      case 'forward':
+        if (activeTabs < tabContents.length - 1) setActiveTabs((prev) => prev + 1)
+        break
+      case 'backward':
+        if (activeTabs > 0) setActiveTabs((prev) => prev - 1)
+        break
     }
   }
+  // render tab contents
+  const tabContents = generateTabsContent({ querySingleContact, queryIdentityCheck, switchTabSection })
+  // progress bar indicator
+  const { complete: completeStep, total: totalStep } = generateProgressBarResult({ tabContents })
 
-  return (
-    <main>
-      <Title hasNoMargin>Name of User</Title>
-      <div className="el-flex el-flex-row">
-        <Subtitle hasGreyText hasBoldText>
-          Status: PASS
-        </Subtitle>
-        <Icon icon="editSolidSystem" iconSize="smallest" className="el-ml2" onClick={() => setModalStatusOpen(true)} />
-      </div>
+  if ((userDataIsFetching && !userData) || (identityCheckIsFetching && !userData)) {
+    return <Loader fullPage label="Please wait..." />
+  }
 
-      <ProgressBarSteps currentStep={3} numberSteps={5} className="el-mt6" />
+  if ((!userData && userDataIsError) || (!identityCheck && identityCheckIsError)) {
+    return (
+      <>
+        <Link to={Routes.SEARCH}>
+          <div className="el-flex el-flex-align-center el-mb6">
+            <Icon icon="arrowLeftSystem" iconSize="smallest" />
+            <BodyText hasNoMargin hasBoldText className="el-ml3">
+              Back to search
+            </BodyText>
+          </div>
+        </Link>
+        <PersistantNotification isFullWidth isExpanded icon="warningSolidSystem" intent="danger">
+          {querySingleContact?.error?.response?.status === 404
+            ? `Entity "Contact" (${id}) was not found.`
+            : querySingleContact?.error?.response?.data?.description || 'Error'}
+        </PersistantNotification>
+      </>
+    )
+  }
 
-      <div className="el-mt3">
-        <Tabs
-          name="my-cool-tabs-full-width"
-          isFullWidth
-          options={[
-            {
-              id: '0',
-              value: '0',
-              text: 'Personal Details',
-              isChecked: tab[0],
-            },
-            {
-              id: '1',
-              value: '1',
-              text: 'Primary Id',
-              isChecked: tab[1],
-            },
-            {
-              id: '2',
-              value: '2',
-              text: 'Secondary Id',
-              isChecked: tab[2],
-            },
-            {
-              id: '3',
-              value: '3',
-              text: 'Address Information',
-              isChecked: tab[3],
-            },
-            {
-              id: '4',
-              value: '4',
-              text: 'Declaration Risk Management',
-              isChecked: tab[4],
-            },
-          ]}
-          onChange={(event: any) =>
-            setTab((prevTab) => {
-              const changeTab = prevTab.map(() => false)
-              const trueIndex = Number(event.target.value)
-              changeTab[trueIndex] = !changeTab[trueIndex]
-              return changeTab
-            })
-          }
-        />
-        {renderTabContent()}
-      </div>
-      <Modal isOpen={isModalStatusOpen} onModalClose={() => setModalStatusOpen(false)} title="Update Status">
-        <BodyText>
-          You have completed 3 out of 5 sections for contact Test Holly Joy Phillips. Please now select one of the
-          following options in order to continue
-        </BodyText>
-        <div className="el-flex el-flex-row el-flex-wrap">
-          {[
-            { label: 'Passed', value: 'passed', className: '' },
-            { label: 'Fail', value: 'fail', className: 'el-ml8' },
-            { label: 'Pending', value: 'pending', className: 'el-ml8' },
-            { label: 'Cancelled', value: 'cancelled', className: 'el-ml8' },
-            { label: 'Unchecked', value: 'unchecked', className: 'el-ml8' },
-          ].map(({ label, value, className }, index) => (
-            <InputGroup
-              key={index}
-              type="radio"
-              label={label}
-              className={className}
-              onChange={() => setUserStatus(value)}
-              checked={userStatus === value}
-            />
-          ))}
+  if (userData && identityCheck) {
+    return (
+      <main>
+        <Title hasNoMargin>{`${userData?.forename} ${userData?.surname}`}</Title>
+        <div className="el-flex el-flex-row">
+          <Subtitle hasGreyText hasBoldText>
+            Status: {userData?.identityCheck?.toUpperCase()}
+          </Subtitle>
+          <Icon
+            icon="editSolidSystem"
+            iconSize="smallest"
+            className="el-ml2"
+            onClick={() => setModalStatusOpen(true)}
+          />
         </div>
-      </Modal>
-    </main>
-  )
+        <div>
+          <ProgressBarSteps currentStep={completeStep} numberSteps={totalStep} className="el-mt6" />
+        </div>
+        <div className="el-mt3">
+          <TabsSection
+            activeTabs={activeTabs}
+            setActiveTabs={setActiveTabs}
+            tabName="tab-section"
+            contents={tabContents}
+          />
+        </div>
+        <ModalStatus
+          userData={userData}
+          idCheck={identityCheck!}
+          isModalStatusOpen={isModalStatusOpen}
+          setModalStatusOpen={setModalStatusOpen}
+        />
+      </main>
+    )
+  }
+
+  return <></>
 }
 
 export default ChecklistDetailPage

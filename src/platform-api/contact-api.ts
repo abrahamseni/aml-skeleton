@@ -1,11 +1,11 @@
 import axios from '../axios/axios'
 import { useReapitConnect } from '@reapit/connect-session'
-import { useQuery, QueryKey } from 'react-query'
-import qs from 'qs'
-import { URLS } from '../constants/api'
 import { reapitConnectBrowserSession } from '../core/connect-session'
+import { useQuery, QueryKey } from 'react-query'
 import { ContactModelPagedResult } from '@reapit/foundations-ts-definitions'
 import isEmpty from 'lodash.isempty'
+import qs from 'qs'
+import { URLS } from '../constants/api'
 
 export type SearchContactParam = {
   name?: string

@@ -1,85 +1,118 @@
 import React from 'react'
-import { FlexContainer, Button, elMl4, elMt8, elMy4 } from '@reapit/elements'
-
-import FormField from './form-field'
-import validationSchema from './form-schema/validation-schema'
-import { ValuesType } from './form-schema/form-field'
-import { AddressModel } from '@reapit/foundations-ts-definitions'
-import { SubmitHandler, useForm } from 'react-hook-form'
+import { Button, elWFull, FormLayout, InputWrapFull, useSnack } from '@reapit/elements'
+import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { ContactModelMock } from '../__mocks__'
+import { FormField } from './form-field'
+import { validationSchema, ValuesType } from './form-schema'
+import { RightSideContainer } from './__styles__'
+import { ContactModel } from '@reapit/foundations-ts-definitions'
+import { notificationMessage } from '../../../../constants/notification-message'
+import { useUpdateContact } from '../../../../platform-api/contact-api/update-contact'
+import FormFooter from 'components/ui/form-footer/form-footer'
 
-const AddressInformation: React.FC = (): React.ReactElement => {
-  const [isSecondaryFormActive, setIsSecondaryFormActive] = React.useState<boolean>(false)
+interface AddressInformationProps {
+  userData: ContactModel | undefined
+  switchTabContent: (type: 'forward' | 'backward') => void | undefined
+}
 
-  const { primaryAddress, secondaryAddress, metadata } = ContactModelMock ?? {}
+const AddressInformation: React.FC<AddressInformationProps> = ({ userData, switchTabContent }): React.ReactElement => {
+  // snack notification - snack provider
+  const { success, error } = useSnack()
 
-  // reformat meta data
-  const formattedMetadata = {
+  const [isSecondaryFormActive, setIsSecondaryFormActive] = React.useState<boolean>(!!userData?.secondaryAddress)
+
+  // get user data from parent
+  const { primaryAddress, secondaryAddress, metadata } = userData ?? {}
+
+  // reformat metadata
+  const formattedMetadata: ValuesType['metadata'] = {
     primaryAddress: {
       documentImage: metadata?.primaryAddress?.documentImage ?? '',
       documentType: metadata?.primaryAddress?.documentType ?? '',
+      month: metadata?.primaryAddress?.month ?? '',
+      year: metadata?.primaryAddress?.year ?? '',
     },
     secondaryAddress: {
       documentImage: metadata?.secondaryAddress?.documentImage ?? '',
       documentType: metadata?.secondaryAddress?.documentType ?? '',
+      month: metadata?.secondaryAddress?.month ?? '',
+      year: metadata?.secondaryAddress?.year ?? '',
     },
   }
 
-  // setup value
+  // setup initial values
   const INITIAL_VALUES: ValuesType = {
-    primaryAddress: primaryAddress as AddressModel,
-    secondaryAddress: secondaryAddress as AddressModel,
+    primaryAddress: {
+      type: 'primary',
+      ...primaryAddress,
+    },
+    secondaryAddress: {
+      type: 'secondary',
+      ...secondaryAddress,
+    },
     metadata: formattedMetadata,
   }
 
-  // setup and integrate with initial value
+  // setup and integrate initial value with useForm Hook
   const currentForm = useForm<ValuesType>({
     defaultValues: INITIAL_VALUES,
     resolver: yupResolver(validationSchema),
-    mode: 'onChange',
+    mode: 'onBlur',
   })
 
-  // submit handler
-  const onSubmit: SubmitHandler<ValuesType> = (e) => {
-    console.log(e)
+  const updateContactData = useUpdateContact(userData!.id!, userData!._eTag!)
+
+  // button handler - submit
+  const onSubmitHandler = async (): Promise<void> => {
+    await updateContactData.mutateAsync(
+      {
+        primaryAddress: currentForm.getValues('primaryAddress'),
+        secondaryAddress: currentForm.getValues('secondaryAddress'),
+        metadata: {
+          declarationRisk: userData?.metadata?.declarationRisk,
+          ...currentForm.getValues('metadata'),
+        },
+      },
+      {
+        onSuccess: () => {
+          success(notificationMessage.AIF_SUCCESS, 2000)
+        },
+        onError: () => {
+          error(notificationMessage.AIF_ERROR, 2000)
+        },
+      },
+    )
   }
 
   return (
     <>
-      <form onSubmit={currentForm.handleSubmit(onSubmit)}>
-        <div>
-          <FormField identity="primaryAddress" rhfProps={currentForm} />
-        </div>
-        <FlexContainer isFlexJustifyEnd className={elMy4}>
-          <Button intent="secondary" type="button" onClick={() => setIsSecondaryFormActive(!isSecondaryFormActive)}>
-            Less than 3 Years?
-          </Button>
-        </FlexContainer>
-        {isSecondaryFormActive && (
-          <div>
-            <FormField identity="secondaryAddress" rhfProps={currentForm} />
-          </div>
-        )}
-        <FlexContainer isFlexJustifyBetween className={elMt8}>
-          <div>
-            <Button chevronLeft intent="secondary" type="submit">
-              Previous
-            </Button>
-          </div>
-          <div>
-            <Button
-              intent="success"
-              type="submit"
-              disabled={Object.keys(currentForm.formState.errors).length !== 0 ? true : false}
-            >
-              Save
-            </Button>
-            <Button chevronRight intent="primary" className={elMl4} type="submit">
-              Next
-            </Button>
-          </div>
-        </FlexContainer>
+      <form onSubmit={currentForm.handleSubmit(onSubmitHandler)}>
+        <FormLayout hasMargin className={elWFull}>
+          <FormField identity="primaryAddress" rhfProps={currentForm} data-testid="form.primaryAddress" />
+          <InputWrapFull>
+            <RightSideContainer>
+              <Button
+                data-testid="toggler.extend.form"
+                intent="neutral"
+                type="button"
+                onClick={() => setIsSecondaryFormActive(!isSecondaryFormActive)}
+              >
+                Less than 3 Years ?
+              </Button>
+            </RightSideContainer>
+          </InputWrapFull>
+          {isSecondaryFormActive && (
+            <FormField identity="secondaryAddress" rhfProps={currentForm} data-testid="form.secondaryAddress" />
+          )}
+        </FormLayout>
+        <FormFooter
+          idUser={userData?.id}
+          isFieldError={!!Object.keys(currentForm.formState.errors).length}
+          isFormSubmitting={updateContactData?.isLoading}
+          currentForm={currentForm}
+          switchTabContent={switchTabContent}
+          submitHandler={onSubmitHandler}
+        />
       </form>
     </>
   )

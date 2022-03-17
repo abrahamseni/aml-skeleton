@@ -7,7 +7,13 @@ jest.mock('@linaria/core', () => {
 
 jest.mock('@linaria/react', () => {
   const styled = (tag) => {
-    return jest.fn(() => `mock-styled-${tag}`)
+    if (typeof tag !== 'string') {
+      return jest.fn(() => {
+        return tag
+      })
+    }
+
+    return jest.fn(() => tag)
   }
   return {
     styled: new Proxy(styled, {
@@ -33,6 +39,7 @@ Object.defineProperty(window, 'reapit', {
     config: {
       connectClientId: 'SOME_CLIENT_ID',
       connectOAuthUrl: 'SOME_OAUTH_URL',
+      platformApiUrl: 'https://example.com',
     },
   },
 })
