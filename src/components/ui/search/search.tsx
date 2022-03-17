@@ -61,7 +61,7 @@ export const SearchPage: FC<PaginationProps> = () => {
     setSearchParams({})
   }
 
-  console.log(searchParams)
+  // console.log(searchParams)
 
   return (
     <FlexContainer isFlexAuto isFlexColumn className={cx(elRowGap6)}>

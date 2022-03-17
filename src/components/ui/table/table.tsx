@@ -12,10 +12,38 @@ const status ={
   unchecked:'',
 }
 
+const generateAddress = (address) => {
+
+  // const addressKeys = ['buildingName', 'buildingNumber', 'line1', 'line2', 'line3']
+
+  // let result=''
+  // for(const addressKeys in address){
+  //   if(Object.prototype.hasOwnProperty.call(address,addressKeys)){
+  //     result = address[addressKeys]
+  //     console.log(result)
+
+  //   }
+  // }
+
+  // return result;
+
+  const primaryAddress = address || {}
+  const addressKeys = ['buildingName', 'buildingNumber', 'line1', 'line2', 'line3']
+  const filteredAddressEntries = Object.entries(primaryAddress)
+    .filter(([key, value]) => addressKeys.includes(key) && value)
+    .map(([, value]) => value)
+    .join(', ')
+
+  return <span>{filteredAddressEntries}</span>
+
+}
+
 export const TableResult: FC<TableProps> = (props) => {
   if (!props.items || !props.items.length) return null
 
-  const history = useHistory();
+  const history = useHistory()
+
+  console.log(props.items)
   
   return (
     <Table
@@ -31,7 +59,7 @@ export const TableResult: FC<TableProps> = (props) => {
           },
           {
             label: 'Address',
-            value: primaryAddress?.buildingName+' '+primaryAddress?.line1+' '+primaryAddress?.line2+' '+primaryAddress?.line3+' '+primaryAddress?.line4 ?? '',
+            value: generateAddress(primaryAddress),
             narrowTable: {
               showLabel: true,
             },
