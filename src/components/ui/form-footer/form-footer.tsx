@@ -12,12 +12,12 @@ type FormFooterProps = {
   isPrevHide?: boolean
   isNextHide?: boolean
   isIdInfoHide?: boolean
+  isFormSubmitting?: boolean
   idUser?: string
   isFieldError?: boolean
   submitHandler?: any
   apiData?: any
   currentForm?: any
-  updateForm?: UseMutationResult<ContactModel, AxiosError<any, any>, any, () => void>
 }
 
 const FormFooter = ({
@@ -27,10 +27,10 @@ const FormFooter = ({
   isIdInfoHide = false,
   idUser,
   isFieldError,
+  isFormSubmitting,
   submitHandler,
   apiData,
   currentForm,
-  updateForm,
 }: FormFooterProps) => {
   const onNextHandler = async () => {
     // currentForm.trigger()
@@ -53,7 +53,7 @@ const FormFooter = ({
             chevronLeft
             intent="secondary"
             type="button"
-            disabled={updateForm?.isLoading || isFieldError}
+            disabled={isFormSubmitting || isFieldError}
           >
             Previous
           </Button>
@@ -68,8 +68,8 @@ const FormFooter = ({
             <Button
               intent="success"
               type="submit"
-              disabled={updateForm?.isLoading || isFieldError}
-              loading={updateForm?.isLoading}
+              disabled={isFormSubmitting || isFieldError}
+              loading={isFormSubmitting}
             >
               Save
             </Button>
@@ -79,7 +79,7 @@ const FormFooter = ({
                 chevronRight
                 intent="primary"
                 type="button"
-                disabled={updateForm?.isLoading || isFieldError}
+                disabled={isFormSubmitting || isFieldError}
               >
                 Next
               </Button>

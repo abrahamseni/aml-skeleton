@@ -41,7 +41,6 @@ const PersonalDetails = ({ userData, switchTabContent }: PersonalDetailsProps) =
   } = formPersonalDetails
 
   const onSubmitHandler = async (data: object) => {
-    console.log('submit handler')
     await updateContact.mutate(
       { ...data },
       {
@@ -52,7 +51,7 @@ const PersonalDetails = ({ userData, switchTabContent }: PersonalDetailsProps) =
       },
     )
   }
-  // console.log(Object.keys(formPersonalDetails.formState.errors))
+
   return (
     <form onSubmit={handleSubmit(onSubmitHandler)}>
       <div className="el-flex el-flex-column el-flex-wrap">
@@ -121,7 +120,7 @@ const PersonalDetails = ({ userData, switchTabContent }: PersonalDetailsProps) =
         isPrevHide={true}
         idUser={userData?.id}
         isFieldError={Object.keys(errors).length !== 0}
-        updateForm={updateContact}
+        isFormSubmitting={updateContact?.isLoading}
         currentForm={formPersonalDetails}
         switchTabContent={switchTabContent}
         submitHandler={handleSubmit(onSubmitHandler)}
