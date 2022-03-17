@@ -6,7 +6,7 @@ import {
   IdentityCheckModel,
   UpdateIdentityCheckModel,
 } from '@reapit/foundations-ts-definitions'
-import { useQuery } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 import { reapitConnectBrowserSession } from '../core/connect-session'
 
 export const fetchSingleIdentityCheckByContactId = async (
@@ -80,8 +80,10 @@ export const updateIdentityCheck = async (session: ReapitConnectSession | null, 
 
 export const useUpdateIdentityCheck = () => {
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
+  const queryClient = useQueryClient()
 
-  return (params: UpdateIdentityCheckParams) => {
-    return updateIdentityCheck(connectSession, params)
+  return async (params: UpdateIdentityCheckParams) => {
+    await updateIdentityCheck(connectSession, params)
+    queryClient.invalidateQueries(['fetchSingleIdentityCheckByContactId', { id: params.id }])
   }
 }

@@ -1,41 +1,24 @@
 import React from 'react'
-import { act, fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import IdForm, { IdFormProps } from '../id-form'
 import userEvent from '@testing-library/user-event'
 import { formFields } from '../form-schema/form-field'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import axios from '../../../../../axios/axios'
+import axios from 'axios/axios'
 import AxiosMockAdapter from 'axios-mock-adapter'
 import { identityDocumentTypes } from '../__mocks__'
-import { URLS } from '../../../../../constants/api'
+import { URLS } from 'constants/api'
+import { wait } from 'utils/test'
 
 const axiosMock = new AxiosMockAdapter(axios)
 
 jest.unmock('@reapit/connect-session')
-jest.mock('../../../../../core/connect-session')
+jest.mock('core/connect-session')
 jest.mock('react-pdf/dist/esm/entry.webpack', () => {
   return {
     __esModule: true,
     Document: () => null,
     Page: () => null,
-  }
-})
-jest.mock('@linaria/react', () => {
-  const styled = (tag: any) => {
-    if (typeof tag !== 'string') {
-      return jest.fn(() => {
-        return tag
-      })
-    }
-
-    return jest.fn(() => tag)
-  }
-  return {
-    styled: new Proxy(styled, {
-      get(o, prop) {
-        return o(prop)
-      },
-    }),
   }
 })
 
@@ -215,7 +198,7 @@ type Props = Partial<IdFormProps>
 
 function renderPrimaryId({ onSave, ...rest }: Props = {}) {
   queryClient.clear()
-  
+
   const theOnSave = onSave || (() => {})
   return render(
     <QueryClientProvider client={queryClient}>
@@ -279,10 +262,4 @@ function fileValue(value: string) {
     type: 'file',
     value: value,
   }
-}
-
-async function wait(ms: number) {
-  await act(async () => {
-    await new Promise((resolve) => setTimeout(resolve, ms))
-  })
 }

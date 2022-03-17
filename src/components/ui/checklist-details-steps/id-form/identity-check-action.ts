@@ -1,6 +1,6 @@
 import { useReapitConnect } from '@reapit/connect-session'
 import { ContactModel, IdentityCheckModel } from '@reapit/foundations-ts-definitions'
-import dayjs from 'dayjs'
+import { now } from 'utils/date'
 import { reapitConnectBrowserSession } from '../../../../core/connect-session'
 import { useCreateIdentityCheck, useUpdateIdentityCheck } from '../../../../platform-api/identity-check-api'
 import { getFileExtensionsFromDataUrl } from '../../../../utils/file'
@@ -39,20 +39,21 @@ export const useSaveIdentityDocument = (identityDocumentIndex: 1 | 2) => {
       })
     } else {
       if (identityDocumentIndex === 2) {
-        throw new Error('Cannot create new identityCheck resource if "identityDocument1" property is not provided')
+        throw new Error(
+          'Cannot update "identityDocument2" on identityCheck resource if "identityDocument1" property doesn\'t exist or identityCheck doesn\'t exist',
+        )
       }
       const userCode = connectSession?.loginIdentity.userCode
       if (!userCode) {
-        console.log(
+        throw new Error(
           'You are not currently logged in as negotiator. The Reapit Platform API only supports Identity Checks performed by negotiators. As such, you your data will not be saved and you will need to log in as another user to complete this action.',
         )
-        return
       }
       await createIdentityCheck({
         contactId: contact.id!,
         identityDocument1: newIdentityDocument,
         status: 'pending',
-        checkDate: dayjs().format('YYYY-MM-DD'),
+        checkDate: now().format('YYYY-MM-DD'),
         negotiatorId: userCode,
       } as any)
     }
