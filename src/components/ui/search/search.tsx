@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { FC, HTMLAttributes, useEffect, useState } from 'react'
 import {
   Button,
   ButtonGroup,
@@ -23,6 +23,12 @@ import { useForm } from 'react-hook-form'
 import { SearchContactParam, useFetchContactsBy } from '../../../platform-api/contact-api'
 import { TableResult } from '../table/table'
 
+export interface PaginationProps extends HTMLAttributes<HTMLDivElement> {
+  callback: (nextPage: number) => void
+  currentPage: number
+  numberPages: number
+}
+
 export type SearchableDropdownKey = {
   id: string
   name: string
@@ -32,46 +38,36 @@ export type SearchFieldValue = {
   searchName: string
   searchAddress: string
   searchIdStatus: string
+  searchPageNUmber: number
 }
 
-export type ContactsParams = SearchFieldValue & {
-  pageNumber: number
-}
-
-export const fnChangePage = (setPageNumber: (page: number) => void) => (page: number) => {
-  setPageNumber(page)
-}
-
-export const fnFetchContacts =
-  (search: SearchFieldValue | null, pageNumber: number, fetchContacts: (params: ContactsParams) => void) => () => {
-    if (search) {
-      fetchContacts({ ...search, pageNumber })
-    }
-  }
-
-export const SearchPage: FC = () => {
+export const SearchPage: FC<PaginationProps> = () => {
   const [searchParams, setSearchParams] = React.useState<SearchContactParam | {}>({})
   const { register, handleSubmit, reset } = useForm<SearchFieldValue>()
+  const [currentPage, setCurrentPage] = useState<number>(1)
   const onSubmit = (e: SearchFieldValue) =>
     setSearchParams({
+      pageNumber: currentPage,
       name: e.searchName,
       address: e.searchAddress,
       identityCheck: e.searchIdStatus,
     })
-  const result = useFetchContactsBy(searchParams)
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageNumber, setPageNumber] = useState<number>(1)
-
-  console.log(result)
-  console.log(searchParams)
+ 
+  const result = useFetchContactsBy(searchParams)    
 
   const handleReset = () => {
     reset()
     setSearchParams({})
   }
 
-  const handleChangePage = React.useCallback(fnChangePage(setPageNumber), [pageNumber])
+  useEffect(() => {
+    setCurrentPage
+    onSubmit
+  }, []);
 
+  console.log(currentPage)
+  console.log(searchParams)
+    
   return (
     <FlexContainer isFlexAuto isFlexColumn className={cx(elRowGap6)}>
       <Subtitle>Client Search</Subtitle>
@@ -121,7 +117,7 @@ export const SearchPage: FC = () => {
           </FormLayout>
         </form>
       </FlexContainer>
-      <FlexContainer>       
+      <FlexContainer className={cx(elWFull)}>       
 
         {result.status === 'loading' ? (
            <Loader label="Loading" />
@@ -132,13 +128,13 @@ export const SearchPage: FC = () => {
                   No search results
                 </PersistantNotification>
               ) : (
-                <>
-                  <TableResult items={result?.data?._embedded} />  
-                  {/* <Pagination callback={handleChangePage} currentPage={result?.data?.pageNumber} numberPages={result?.data?.pageSize}/> */}
-                </>
+                <TableResult items={result?.data?._embedded} />  
               )}
             </>
           )}
+      </FlexContainer>
+      <FlexContainer className={cx(elWFull)}>
+        <Pagination onClick={handleSubmit(onSubmit)} callback={setCurrentPage} currentPage={currentPage} numberPages={result?.data?.totalPageCount}/>                  
       </FlexContainer>
     </FlexContainer>
   )

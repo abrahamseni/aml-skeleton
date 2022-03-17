@@ -9,15 +9,16 @@ import isEmpty from 'lodash.isempty'
 import { CONTACTS_PER_PAGE } from '../constants/paginators'
 
 export type SearchContactParam = {
+  pageNumber?: number
   name?: string
-  address?: string
+  address?: string 
   identityCheck?: string
-  
 }
 
 const fetchContactsBy = async (params: SearchContactParam) => {
   try {
     const result = await axios.get(`${URLS.CONTACTS}/?${qs.stringify(params)}`)
+    // const result = await axios.get(`${URLS.CONTACTS}${currentPageNumber}&${qs.stringify(params)}`)
     console.log(result)
     if (result.status < 400) {
       return result.data
