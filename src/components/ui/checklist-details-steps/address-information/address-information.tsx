@@ -28,9 +28,7 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData, switc
   // snack notification - snack provider
   const { success, error } = useSnack()
 
-  const [isSecondaryFormActive, setIsSecondaryFormActive] = React.useState<boolean>(
-    userData?.secondaryAddress !== (null || undefined) ? true : false,
-  )
+  const [isSecondaryFormActive, setIsSecondaryFormActive] = React.useState<boolean>(!!userData?.secondaryAddress)
 
   // local state - state to manage available  user if user already clicked the button
   const [isButtonLoading, setIsButtonLoading] = React.useState<boolean>(false)
@@ -146,25 +144,34 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData, switc
         </FormLayout>
         <FlexContainer isFlexJustifyBetween className={elWFull}>
           <ButtonGroup>
-            <Button onClick={onPreviousHandler} chevronLeft intent="secondary" type="button" disabled={isButtonLoading}>
+            <Button
+              data-testid="button.previous"
+              onClick={onPreviousHandler}
+              chevronLeft
+              intent="secondary"
+              type="button"
+              disabled={isButtonLoading}
+            >
               Previous
             </Button>
           </ButtonGroup>
           <ButtonGroup>
             <Button
+              data-testid="button.submit"
               intent="success"
               type="submit"
-              disabled={Object.keys(currentForm.formState.errors).length !== 0 ? true : false || isButtonLoading}
+              disabled={!!Object.keys(currentForm.formState.errors).length || isButtonLoading}
               loading={updateContactData.isLoading}
             >
               Save
             </Button>
             <Button
+              data-testid="button.next"
               onClick={onNextHandler}
               chevronRight
               intent="primary"
               type="button"
-              disabled={Object.keys(currentForm.formState.errors).length !== 0 ? true : false || isButtonLoading}
+              disabled={!!Object.keys(currentForm.formState.errors).length || isButtonLoading}
             >
               Next
             </Button>

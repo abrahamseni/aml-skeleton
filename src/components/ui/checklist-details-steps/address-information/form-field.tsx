@@ -14,7 +14,12 @@ import {
 import { AvailableFormFieldType, formFields, ValuesType } from './form-schema'
 import { UseFormReturn } from 'react-hook-form'
 import { displayErrorMessage } from '../../../../utils/error-message'
-import { generateLabelField, generateOptionsType, generateOptionsYearsOrMonths } from '../../../../utils/generator'
+import {
+  generateLabelField,
+  generateOptionsType,
+  generateOptionsYearsOrMonths,
+  generateTestId,
+} from '../../../../utils/generator'
 import { cx } from '@linaria/core'
 import { order0 } from './__styles__'
 
@@ -72,8 +77,9 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
         <InputWrap>
           <InputGroup
             type="text"
-            label={generateLabelField(buildingNameField.label)}
             autoComplete="off"
+            label={generateLabelField(buildingNameField.label)}
+            data-testid={generateTestId(buildingNameField.name)}
             {...register(buildingNameField.name)}
           />
           {displayErrorMessage<AvailableFormFieldType, ValuesType>(buildingNameField.name, formState)}
@@ -81,8 +87,9 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
         <InputWrap>
           <InputGroup
             type="text"
-            label={generateLabelField(buildingNumberField.label)}
             autoComplete="off"
+            label={generateLabelField(buildingNumberField.label)}
+            data-testid={generateTestId(buildingNumberField.name)}
             {...register(buildingNumberField.name)}
           />
           {displayErrorMessage<AvailableFormFieldType, ValuesType>(buildingNumberField.name, formState)}
@@ -90,8 +97,9 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
         <InputWrap>
           <InputGroup
             type="text"
-            label={generateLabelField(postcodeField.label, true)}
             autoComplete="off"
+            label={generateLabelField(postcodeField.label, true)}
+            data-testid={generateTestId(postcodeField.name)}
             {...register(postcodeField.name)}
           />
           {displayErrorMessage<AvailableFormFieldType, ValuesType>(postcodeField.name, formState)}
@@ -101,8 +109,9 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
         <InputWrap>
           <InputGroup
             type="text"
-            label={generateLabelField(line1Field.label, true)}
             autoComplete="off"
+            label={generateLabelField(line1Field.label, true)}
+            data-testid={generateTestId(line1Field.name)}
             {...register(line1Field.name)}
           />
           {displayErrorMessage<AvailableFormFieldType, ValuesType>(line1Field.name, formState)}
@@ -110,8 +119,9 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
         <InputWrap>
           <InputGroup
             type="text"
-            label={generateLabelField(line2Field.label)}
             autoComplete="off"
+            label={generateLabelField(line2Field.label)}
+            data-testid={generateTestId(line2Field.name)}
             {...register(line2Field.name)}
           />
           {displayErrorMessage<AvailableFormFieldType, ValuesType>(line2Field.name, formState)}
@@ -119,8 +129,9 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
         <InputWrap>
           <InputGroup
             type="text"
-            label={generateLabelField(line3Field.label, true)}
             autoComplete="off"
+            label={generateLabelField(line3Field.label, true)}
+            data-testid={generateTestId(line3Field.name)}
             {...register(line3Field.name)}
           />
           {displayErrorMessage<AvailableFormFieldType, ValuesType>(line3Field.name, formState)}
@@ -128,32 +139,39 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
         <InputWrap>
           <InputGroup
             type="text"
-            label={generateLabelField(line4Field.label)}
             autoComplete="off"
+            label={generateLabelField(line4Field.label)}
+            data-testid={generateTestId(line4Field.name)}
             {...register(line4Field.name)}
           />
           {displayErrorMessage<AvailableFormFieldType, ValuesType>(line4Field.name, formState)}
         </InputWrap>
       </InputWrapFull>
-      <InputWrapFull>
+      <InputWrapFull data-testid="option.field.wrapper">
         <InputWrap>
           <InputGroup>
             <Label>{generateLabelField(yearField.label, true)}</Label>
-            <Select {...register(yearField.name)}>{generateOptionsYearsOrMonths('years')}</Select>
+            <Select {...register(yearField.name)} data-testid={generateTestId(yearField.name)}>
+              {generateOptionsYearsOrMonths('years')}
+            </Select>
             {displayErrorMessage<AvailableFormFieldType, ValuesType>(yearField.name, formState)}
           </InputGroup>
         </InputWrap>
         <InputWrap>
           <InputGroup>
             <Label>{generateLabelField(monthField.label, true)}</Label>
-            <Select {...register(monthField.name)}>{generateOptionsYearsOrMonths('months')}</Select>
+            <Select {...register(monthField.name)} data-testid={generateTestId(monthField.name)}>
+              {generateOptionsYearsOrMonths('months')}
+            </Select>
             {displayErrorMessage<AvailableFormFieldType, ValuesType>(monthField.name, formState)}
           </InputGroup>
         </InputWrap>
         <InputWrap>
           <InputGroup>
             <Label>{generateLabelField(documentTypeField.label, true)}</Label>
-            <Select {...register(documentTypeField.name)}>{generateOptionsType('documentType')}</Select>
+            <Select {...register(documentTypeField.name)} data-testid={generateTestId(documentTypeField.name)}>
+              {generateOptionsType('documentType')}
+            </Select>
             {displayErrorMessage<AvailableFormFieldType, ValuesType>(documentTypeField.name, formState)}
           </InputGroup>
         </InputWrap>
@@ -161,6 +179,7 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
           <FlexContainer isFlexColumn className={elPl3}>
             <Label className={cx(elMb2, order0)}>{generateLabelField(documentImageField.label, true)}</Label>
             <FileInput
+              data-testid={generateTestId(documentImageField.name)}
               {...register(documentImageField.name)}
               defaultValue={getValues(documentImageField.name)}
               onFileView={() => modalHandler('open')}

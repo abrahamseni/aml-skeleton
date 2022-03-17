@@ -14,7 +14,6 @@ import {
   elMy6,
   elMt6,
   elMb6,
-  InputError,
   useSnack,
   elWFull,
   FileInput,
@@ -24,13 +23,14 @@ import {
 import { cx } from '@linaria/core'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { generateLabelField, generateOptionsType } from '../../../../utils/generator'
-import { formField, ValuesType, validationSchema } from './form-schema'
+import { generateLabelField, generateOptionsType, generateTestId } from '../../../../utils/generator'
+import { formField, ValuesType, validationSchema, AvailableFormFieldType } from './form-schema'
 import { order0 } from './__styles__'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
 import { notificationMessage } from '../../../../constants/notification-message'
 import { useUpdateContact } from '../../../../platform-api/contact-api/update-contact'
 import DocumentPreviewModal from '../id-form/document-preview-modal'
+import { displayErrorMessage } from '../../../../utils/error-message'
 
 interface DeclarationRiskManagementProps {
   userData: ContactModel | undefined
@@ -77,12 +77,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   }
 
   // setup and integrate with initial value
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    getValues,
-  } = useForm<ValuesType>({
+  const { register, handleSubmit, formState, getValues } = useForm<ValuesType>({
     defaultValues: INITIAL_VALUES,
     resolver: yupResolver(validationSchema),
     mode: 'onBlur',
@@ -129,7 +124,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   return (
     <>
       <form onSubmit={handleSubmit<ValuesType>(onSubmitHandler)}>
-        <FormLayout hasMargin className={elWFull}>
+        <FormLayout hasMargin className={elWFull} data-testid="declaration.risk.management.form">
           <InputWrapFull>
             <InputWrap className={elMb6}>
               <FlexContainer isFlexColumn className={elPl3}>
@@ -139,15 +134,18 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
                   defaultValue={declarationForm}
                   onFileView={() => handleModal('declaration', 'open')}
                   accept="image/jpeg, image/png, application/pdf"
+                  data-testid={generateTestId(declarationFormField.name)}
                 />
-                {errors.declarationForm?.message && <InputError message={errors.declarationForm?.message} />}
+                {displayErrorMessage<AvailableFormFieldType, ValuesType>(declarationFormField.name, formState)}
               </FlexContainer>
             </InputWrap>
             <InputWrap className={elMy6}>
               <InputGroup>
-                <Select {...register(typeField.name)}>{generateOptionsType('riskAssessmentType')}</Select>
+                <Select {...register(typeField.name)} data-testid={generateTestId(typeField.name)}>
+                  {generateOptionsType('riskAssessmentType')}
+                </Select>
                 <Label className={cx(order0, elMb2)}>{generateLabelField(typeField.label, true)}</Label>
-                {errors.type?.message && <InputError message={errors.type?.message} />}
+                {displayErrorMessage<AvailableFormFieldType, ValuesType>(typeField.name, formState)}
               </InputGroup>
             </InputWrap>
             <InputWrap className={elMt6}>
@@ -158,30 +156,39 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
                   defaultValue={riskAssessmentForm}
                   onFileView={() => handleModal('riskAssessment', 'open')}
                   accept="image/jpeg, image/png, application/pdf"
+                  data-testid={generateTestId(riskAssessmentFormField.name)}
                 />
-                {errors.riskAssessmentForm?.message && <InputError message={errors.riskAssessmentForm?.message} />}
+                {displayErrorMessage<AvailableFormFieldType, ValuesType>(riskAssessmentFormField.name, formState)}
               </FlexContainer>
             </InputWrap>
             <InputWrap className={elMt6}>
               <InputGroup>
-                <TextArea {...register(reasonField.name)} />
+                <TextArea {...register(reasonField.name)} data-testid={generateTestId(reasonField.name)} />
                 <Label>{generateLabelField(reasonField.label, true)}</Label>
-                {errors.reason?.message && <InputError message={errors.reason?.message} />}
+                {displayErrorMessage<AvailableFormFieldType, ValuesType>(reasonField.name, formState)}
               </InputGroup>
             </InputWrap>
           </InputWrapFull>
         </FormLayout>
         <FlexContainer isFlexJustifyBetween className={elWFull}>
           <ButtonGroup>
-            <Button intent="secondary" onClick={onPreviousHandler} type="button" disabled={isButtonLoading} chevronLeft>
+            <Button
+              data-testid="button.previous"
+              intent="secondary"
+              onClick={onPreviousHandler}
+              type="button"
+              disabled={isButtonLoading}
+              chevronLeft
+            >
               Previous
             </Button>
           </ButtonGroup>
           <ButtonGroup>
             <Button
+              data-testid="button.submit"
               intent="success"
               type="submit"
-              disabled={Object.keys(errors).length !== 0 ? true : false || isButtonLoading}
+              disabled={Object.keys(formState.errors).length !== 0 ? true : false || isButtonLoading}
               loading={updateContactData.isLoading}
             >
               Save
