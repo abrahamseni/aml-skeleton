@@ -14,19 +14,6 @@ const status ={
 
 const generateAddress = (address) => {
 
-  // const addressKeys = ['buildingName', 'buildingNumber', 'line1', 'line2', 'line3']
-
-  // let result=''
-  // for(const addressKeys in address){
-  //   if(Object.prototype.hasOwnProperty.call(address,addressKeys)){
-  //     result = address[addressKeys]
-  //     console.log(result)
-
-  //   }
-  // }
-
-  // return result;
-
   const primaryAddress = address || {}
   const addressKeys = ['buildingName', 'buildingNumber', 'line1', 'line2', 'line3']
   const filteredAddressEntries = Object.entries(primaryAddress)
@@ -42,8 +29,6 @@ export const TableResult: FC<TableProps> = (props) => {
   if (!props.items || !props.items.length) return null
 
   const history = useHistory()
-
-  console.log(props.items)
   
   return (
     <Table
@@ -52,7 +37,7 @@ export const TableResult: FC<TableProps> = (props) => {
         cells: [
           {
             label: 'Name',
-            value: forename+' '+surname ?? '',
+            value: forename + ' ' + surname ?? '',
             narrowTable: {
               showLabel: true,
             },

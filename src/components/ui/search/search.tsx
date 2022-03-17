@@ -61,8 +61,6 @@ export const SearchPage: FC<PaginationProps> = () => {
     setSearchParams({})
   }
 
-  // console.log(searchParams)
-
   return (
     <FlexContainer isFlexAuto isFlexColumn className={cx(elRowGap6)}>
       <Subtitle>Client Search</Subtitle>
@@ -128,14 +126,17 @@ export const SearchPage: FC<PaginationProps> = () => {
             </>
           )}
       </FlexContainer>
-      <FlexContainer className={cx(elWFull)}>
-        <Pagination callback={(nextPage:number)=>setSearchParams(prevValue=>{
-          return{
-            ...prevValue,
-            pageNumber:nextPage
-          }
-        })} currentPage={searchParams.pageNumber!} numberPages={result?.data?.totalPageCount!}/>                  
-      </FlexContainer>
+      {result.status === 'success'?(
+        <FlexContainer className={cx(elWFull)}>
+          <Pagination callback={(nextPage:number)=>setSearchParams(prevValue=>{
+            return{
+              ...prevValue,
+              pageNumber:nextPage
+            }
+          })} currentPage={searchParams.pageNumber!} numberPages={result?.data?.totalPageCount!}/>                  
+        </FlexContainer>
+      ):null}
+      
     </FlexContainer>
   )
 }
