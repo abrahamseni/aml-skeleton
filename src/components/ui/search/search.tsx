@@ -1,4 +1,4 @@
-import React, { FC, HTMLAttributes, useEffect, useState } from 'react'
+import React, { FC, HTMLAttributes } from 'react'
 import {
   Button,
   ButtonGroup,
@@ -38,16 +38,17 @@ export type SearchFieldValue = {
   searchName: string
   searchAddress: string
   searchIdStatus: string
-  searchPageNUmber: number
+  searchPageNumber: number
 }
 
 export const SearchPage: FC<PaginationProps> = () => {
-  const [searchParams, setSearchParams] = React.useState<SearchContactParam | {}>({})
+  const [searchParams, setSearchParams] = React.useState<SearchContactParam >({ pageNumber:1, pageSize:10 })
   const { register, handleSubmit, reset } = useForm<SearchFieldValue>()
-  const [currentPage, setCurrentPage] = useState<number>(1)
+
   const onSubmit = (e: SearchFieldValue) =>
     setSearchParams({
-      pageNumber: currentPage,
+      pageSize:10,
+      pageNumber: 1,
       name: e.searchName,
       address: e.searchAddress,
       identityCheck: e.searchIdStatus,
@@ -60,14 +61,8 @@ export const SearchPage: FC<PaginationProps> = () => {
     setSearchParams({})
   }
 
-  useEffect(() => {
-    setCurrentPage
-    onSubmit
-  }, []);
-
-  console.log(currentPage)
   console.log(searchParams)
-    
+
   return (
     <FlexContainer isFlexAuto isFlexColumn className={cx(elRowGap6)}>
       <Subtitle>Client Search</Subtitle>
@@ -134,7 +129,12 @@ export const SearchPage: FC<PaginationProps> = () => {
           )}
       </FlexContainer>
       <FlexContainer className={cx(elWFull)}>
-        <Pagination onClick={handleSubmit(onSubmit)} callback={setCurrentPage} currentPage={currentPage} numberPages={result?.data?.totalPageCount}/>                  
+        <Pagination callback={(nextPage:number)=>setSearchParams(prevValue=>{
+          return{
+            ...prevValue,
+            pageNumber:nextPage
+          }
+        })} currentPage={searchParams.pageNumber!} numberPages={result?.data?.totalPageCount!}/>                  
       </FlexContainer>
     </FlexContainer>
   )

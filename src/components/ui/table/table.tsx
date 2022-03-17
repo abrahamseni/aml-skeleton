@@ -15,11 +15,11 @@ const status ={
 export const TableResult: FC<TableProps> = (props) => {
   if (!props.items || !props.items.length) return null
 
-  let history = useHistory();
+  const history = useHistory();
   
   return (
     <Table
-      numberColumns={6}
+      numberColumns={5}
       rows={props.items?.map(({ id,surname,forename, primaryAddress, identityCheck }) => ({
         cells: [
           {
@@ -55,17 +55,10 @@ export const TableResult: FC<TableProps> = (props) => {
               </>
             ),
           },
-          {
-            label: '',
-            value: <Button intent="primary" onClick={() => history.push(`/checklist-detail/${id}`)}>Edit</Button>,
-            narrowTable: {
-              showLabel: true,
-            },
-          },
         ],
-        // ctaContent: {
-        //   content: (<Button intent="primary" onClick={() => history.push(`/checklist-detail/${id}`)}>Edit</Button>)
-        // }
+        ctaContent: {
+          cellContent: (<Button intent="primary" onClick={() => history.push(`/checklist-detail/${id}`)}>Edit</Button>)
+        }
       }),
     )}      
     />
