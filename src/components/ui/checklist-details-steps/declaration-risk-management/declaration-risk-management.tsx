@@ -1,7 +1,5 @@
 import React from 'react'
 import {
-  Button,
-  ButtonGroup,
   elMb2,
   FlexContainer,
   InputGroup,
@@ -18,7 +16,6 @@ import {
   elWFull,
   FileInput,
   elPl3,
-  BodyText,
 } from '@reapit/elements'
 import { cx } from '@linaria/core'
 import { useForm } from 'react-hook-form'
@@ -31,6 +28,7 @@ import { notificationMessage } from '../../../../constants/notification-message'
 import { useUpdateContact } from '../../../../platform-api/contact-api/update-contact'
 import DocumentPreviewModal from '../id-form/document-preview-modal'
 import { displayErrorMessage } from '../../../../utils/error-message'
+import FormFooter from 'components/ui/form-footer/form-footer'
 
 interface DeclarationRiskManagementProps {
   userData: ContactModel | undefined
@@ -60,12 +58,6 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
     }
   }
 
-  // local state - button handler
-  const [isGoingToNextSection, setIsGoingToNextSection] = React.useState<boolean>(false)
-
-  // local state - state to manage available  user if user already clicked the button
-  const [isButtonLoading, setIsButtonLoading] = React.useState<boolean>(false)
-
   const { declarationForm, reason, riskAssessmentForm, type } = userData?.metadata?.declarationRisk ?? {}
 
   // setup initial values from context
@@ -77,49 +69,37 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   }
 
   // setup and integrate with initial value
-  const { register, handleSubmit, formState, getValues } = useForm<ValuesType>({
+  const currentForm = useForm<ValuesType>({
     defaultValues: INITIAL_VALUES,
     resolver: yupResolver(validationSchema),
     mode: 'onBlur',
   })
 
+  const { register, handleSubmit, formState, getValues } = currentForm
   // declare form
   const { declarationFormField, riskAssessmentFormField, typeField, reasonField } = formField()
 
   const updateContactData = useUpdateContact(userData!.id!, userData!._eTag!)
 
   // button handler - submit
-  const onSubmitHandler = (): void => {
-    updateContactData.mutate({
-      metadata: {
-        ...userData?.metadata,
-        declarationRisk: getValues(),
+  const onSubmitHandler = async (): Promise<void> => {
+    updateContactData.mutateAsync(
+      {
+        metadata: {
+          ...userData?.metadata,
+          declarationRisk: getValues(),
+        },
       },
-    })
-    setIsButtonLoading(true)
+      {
+        onSuccess: () => {
+          success(notificationMessage.DRM_SUCCESS, 2000)
+        },
+        onError: () => {
+          error(notificationMessage.DRM_ERROR, 2000)
+        },
+      },
+    )
   }
-
-  // button handler - previous
-  const onPreviousHandler = (): void => {
-    switchTabContent('backward')
-  }
-
-  // turn off disabled attribute, if mutate UpdateContactData state is success
-  // later will do more with optimize way :)
-  React.useLayoutEffect((): void => {
-    if (isButtonLoading) {
-      if (updateContactData.isSuccess) {
-        setIsButtonLoading(false)
-        success(notificationMessage.DRM_SUCCESS, 2000)
-        isGoingToNextSection && (setIsGoingToNextSection(false), switchTabContent('forward'))
-      }
-      if (updateContactData.isError) {
-        setIsButtonLoading(false)
-        error(notificationMessage.DRM_ERROR, 2000)
-        isGoingToNextSection && setIsGoingToNextSection(false)
-      }
-    }
-  }, [updateContactData.status])
 
   return (
     <>
@@ -170,37 +150,16 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
             </InputWrap>
           </InputWrapFull>
         </FormLayout>
-        <FlexContainer isFlexJustifyBetween className={elWFull}>
-          <ButtonGroup>
-            <Button
-              data-testid="button.previous"
-              intent="secondary"
-              onClick={onPreviousHandler}
-              type="button"
-              disabled={isButtonLoading}
-              chevronLeft
-            >
-              Previous
-            </Button>
-          </ButtonGroup>
-          <ButtonGroup>
-            <Button
-              data-testid="button.submit"
-              intent="success"
-              type="submit"
-              disabled={Object.keys(formState.errors).length !== 0 ? true : false || isButtonLoading}
-              loading={updateContactData.isLoading}
-            >
-              Save
-            </Button>
-          </ButtonGroup>
-        </FlexContainer>
+        <FormFooter
+          isNextHide={true}
+          idUser={userData?.id}
+          isFieldError={!!Object.keys(formState.errors).length}
+          isFormSubmitting={updateContactData?.isLoading}
+          currentForm={currentForm}
+          switchTabContent={switchTabContent}
+          submitHandler={handleSubmit(onSubmitHandler)}
+        />
       </form>
-      <div className={elMt6}>
-        <BodyText hasNoMargin>
-          * Indicates fields that are required in order to &apos;Complete&apos; this section.
-        </BodyText>
-      </div>
       {/* Modal Declaration Form */}
       <DocumentPreviewModal
         src={getValues(declarationFormField.name)}
