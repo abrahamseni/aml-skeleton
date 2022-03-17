@@ -18,7 +18,6 @@ export type SearchContactParam = {
 const fetchContactsBy = async (params: SearchContactParam) => {
   try {
     const result = await axios.get(`${URLS.CONTACTS}/?${qs.stringify(params)}`)
-    console.log(result)
     if (result.status < 400) {
       return result.data
     }

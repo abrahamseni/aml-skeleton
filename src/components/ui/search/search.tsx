@@ -23,12 +23,6 @@ import { useForm } from 'react-hook-form'
 import { SearchContactParam, useFetchContactsBy } from '../../../platform-api/contact-api'
 import { TableResult } from '../table/table'
 
-export interface PaginationProps extends HTMLAttributes<HTMLDivElement> {
-  callback: (nextPage: number) => void
-  currentPage: number
-  numberPages: number
-}
-
 export type SearchableDropdownKey = {
   id: string
   name: string
@@ -41,20 +35,20 @@ export type SearchFieldValue = {
   searchPageNumber: number
 }
 
-export const SearchPage: FC<PaginationProps> = () => {
-  const [searchParams, setSearchParams] = React.useState<SearchContactParam >({ pageNumber:1, pageSize:10 })
+export const SearchPage: FC = () => {
+  const [searchParams, setSearchParams] = React.useState<SearchContactParam>({ pageNumber: 1, pageSize: 10 })
   const { register, handleSubmit, reset } = useForm<SearchFieldValue>()
 
   const onSubmit = (e: SearchFieldValue) =>
     setSearchParams({
-      pageSize:10,
+      pageSize: 10,
       pageNumber: 1,
       name: e.searchName,
       address: e.searchAddress,
       identityCheck: e.searchIdStatus,
     })
- 
-  const result = useFetchContactsBy(searchParams)    
+
+  const result = useFetchContactsBy(searchParams)
 
   const handleReset = () => {
     reset()
@@ -110,33 +104,37 @@ export const SearchPage: FC<PaginationProps> = () => {
           </FormLayout>
         </form>
       </FlexContainer>
-      <FlexContainer className={cx(elWFull)}>       
-
+      <FlexContainer className={cx(elWFull)}>
         {result.status === 'loading' ? (
-           <Loader label="Loading" />
-          ) : (
-            <>
-              {!searchParams || Number(result.data?._embedded?.length) === 0 ? (
-                <PersistantNotification isExpanded={true} isFullWidth>
-                  No search results
-                </PersistantNotification>
-              ) : (
-                <TableResult items={result?.data?._embedded} />  
-              )}
-            </>
-          )}
+          <Loader label="Loading" />
+        ) : (
+          <>
+            {!searchParams || Number(result.data?._embedded?.length) === 0 ? (
+              <PersistantNotification isExpanded={true} isFullWidth>
+                No search results
+              </PersistantNotification>
+            ) : (
+              <TableResult items={result?.data?._embedded} />
+            )}
+          </>
+        )}
       </FlexContainer>
-      {result.status === 'success'?(
+      {result.status === 'success' ? (
         <FlexContainer className={cx(elWFull)}>
-          <Pagination callback={(nextPage:number)=>setSearchParams(prevValue=>{
-            return{
-              ...prevValue,
-              pageNumber:nextPage
+          <Pagination
+            callback={(nextPage: number) =>
+              setSearchParams((prevValue) => {
+                return {
+                  ...prevValue,
+                  pageNumber: nextPage,
+                }
+              })
             }
-          })} currentPage={searchParams.pageNumber!} numberPages={result?.data?.totalPageCount!}/>                  
+            currentPage={searchParams.pageNumber!}
+            numberPages={result?.data?.totalPageCount!}
+          />
         </FlexContainer>
-      ):null}
-      
+      ) : null}
     </FlexContainer>
   )
 }
