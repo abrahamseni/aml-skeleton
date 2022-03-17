@@ -1,13 +1,14 @@
-import { render, fireEvent, act } from '@testing-library/react'
+import { render, fireEvent } from '@testing-library/react'
 import React from 'react'
 import Axios from '../../../../../axios/axios'
-import { CONTACT_MOCK_DATA_1, CONTACT_MOCK_DATA_2 } from '../../../../../core/__mocks__/contact.mock'
+import { CONTACT_MOCK_DATA_1, CONTACT_MOCK_DATA_2 } from '../../../../../platform-api/__mocks__/contact-api.mock'
 import DeclarationRiskManagement from '../declaration-risk-management'
 import AxiosMockAdapter from 'axios-mock-adapter'
 import { URLS } from '../../../../../constants/api'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { formField } from '../form-schema'
 import { useSnack } from '@reapit/elements'
+import { wait } from 'utils/test'
 
 const axiosMock = new AxiosMockAdapter(Axios)
 
@@ -20,24 +21,7 @@ jest.mock('@reapit/elements', () => {
     })),
   }
 })
-jest.mock('@linaria/react', () => {
-  const styled = (tag: any) => {
-    if (typeof tag !== 'string') {
-      return jest.fn(() => {
-        return tag
-      })
-    }
 
-    return jest.fn(() => tag)
-  }
-  return {
-    styled: new Proxy(styled, {
-      get(o, prop) {
-        return o(prop)
-      },
-    }),
-  }
-})
 jest.unmock('@reapit/connect-session')
 jest.mock('../../../../../core/connect-session')
 
@@ -87,7 +71,7 @@ describe('Declaration Risk Management Form', () => {
   it('should able to click "previous button"', () => {
     const { getByTestId } = renderComponent(defaultDRMProps)
 
-    const previousButton = getByTestId('button.previous')
+    const previousButton = getByTestId('previous-form')
 
     const { switchTabContent } = defaultDRMProps
 
@@ -108,7 +92,7 @@ describe('Declaration Risk Management Form', () => {
   it('should able to click "save button"', async () => {
     const { getByTestId } = renderComponent(defaultDRMProps)
 
-    const submitButton = getByTestId('button.submit')
+    const submitButton = getByTestId('save-form')
 
     const { switchTabContent } = defaultDRMProps
     expect(switchTabContent).not.toBeCalled()
@@ -120,7 +104,7 @@ describe('Declaration Risk Management Form', () => {
     expect(useSnack).toBeCalled()
   })
 
-  it.only('should display error message if required field is empty', async () => {
+  it('should display error message if required field is empty', async () => {
     const { getByTestId, findByTestId } = renderComponent(defaultDRMProps)
 
     // risk assessment type
@@ -163,10 +147,4 @@ const renderComponent = (props: DeclarationRiskManagementProps, type: 'v1' | 'v2
       <DeclarationRiskManagement {...props} userData={SELECTED_MOCK_CONTACT} />
     </QueryClientProvider>,
   )
-}
-
-async function wait(ms: number) {
-  await act(async () => {
-    await new Promise((resolve) => setTimeout(resolve, ms))
-  })
 }

@@ -1,13 +1,14 @@
 import React from 'react'
-import { render, fireEvent, act } from '@testing-library/react'
+import { render, fireEvent } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import { CONTACT_MOCK_DATA_1, CONTACT_MOCK_DATA_2 } from '../../../../../core/__mocks__/contact.mock'
+import { CONTACT_MOCK_DATA_1, CONTACT_MOCK_DATA_2 } from '../../../../../platform-api/__mocks__/contact-api.mock'
 import AddressInformation from '../address-information'
 import { formFields } from '../form-schema'
 import AxiosMockAdapter from 'axios-mock-adapter'
 import Axios from '../../../../../axios/axios'
 import { URLS } from '../../../../../constants/api'
 import { useSnack } from '@reapit/elements'
+import { wait } from 'utils/test'
 
 const axiosMock = new AxiosMockAdapter(Axios)
 
@@ -30,24 +31,6 @@ jest.mock('@reapit/elements', () => {
   }
 })
 
-jest.mock('@linaria/react', () => {
-  const styled = (tag: any) => {
-    if (typeof tag !== 'string') {
-      return jest.fn(() => {
-        return tag
-      })
-    }
-
-    return jest.fn(() => tag)
-  }
-  return {
-    styled: new Proxy(styled, {
-      get(o, prop) {
-        return o(prop)
-      },
-    }),
-  }
-})
 jest.unmock('@reapit/connect-session')
 jest.mock('../../../../../core/connect-session')
 
@@ -151,7 +134,7 @@ describe('Address Information Component', () => {
   it('previous button should able to tap', () => {
     const { getByTestId } = renderComponent(defaultAddressInformationProps)
 
-    const previousButton = getByTestId('button.previous')
+    const previousButton = getByTestId('previous-form')
 
     const { switchTabContent } = defaultAddressInformationProps
 
@@ -172,7 +155,7 @@ describe('Address Information Component', () => {
   it('at first, submit button should not able to tap', async () => {
     const { getByTestId } = renderComponent(defaultAddressInformationProps)
 
-    const submitButton = getByTestId('button.submit')
+    const submitButton = getByTestId('save-form')
 
     const { switchTabContent } = defaultAddressInformationProps
     expect(switchTabContent).not.toBeCalled()
@@ -186,7 +169,7 @@ describe('Address Information Component', () => {
 
   it('at first, next button should not able to tap', async () => {
     const { getByTestId } = renderComponent(defaultAddressInformationProps)
-    const nextButton = getByTestId('button.next')
+    const nextButton = getByTestId('next-form')
 
     const { switchTabContent } = defaultAddressInformationProps
     expect(switchTabContent).not.toBeCalled()
@@ -254,10 +237,4 @@ const renderComponent = (props: AddressInformationProps, typeMock: 'v1' | 'v2' =
       <AddressInformation {...props} userData={SELECTED_MOCK_TYPE} />
     </QueryClientProvider>,
   )
-}
-
-async function wait(ms: number) {
-  await act(async () => {
-    await new Promise((resolve) => setTimeout(resolve, ms))
-  })
 }

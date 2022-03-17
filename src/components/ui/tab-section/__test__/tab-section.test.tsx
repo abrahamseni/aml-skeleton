@@ -1,26 +1,9 @@
 import React from 'react'
-import { render, fireEvent, act } from '@testing-library/react'
+import { render, fireEvent } from '@testing-library/react'
+
+import { wait } from 'utils/test'
 import TabsSection from '../tab-section'
 import { TAB_SECTION_MOCK_CONTENT } from '../__mocks__'
-
-jest.mock('@linaria/react', () => {
-  const styled = (tag: any) => {
-    if (typeof tag !== 'string') {
-      return jest.fn(() => {
-        return tag
-      })
-    }
-
-    return jest.fn(() => tag)
-  }
-  return {
-    styled: new Proxy(styled, {
-      get(o, prop) {
-        return o(prop)
-      },
-    }),
-  }
-})
 
 describe('Tab Section', () => {
   it('should match a snapshot', () => {
@@ -39,7 +22,7 @@ describe('Tab Section', () => {
       expect(tabHeader[2].childNodes[0].textContent).toMatch(/tab-name-3/i)
     })
 
-    it.only('tab header should able to click', async () => {
+    it('tab header should able to click', async () => {
       const { getAllByTestId } = renderComponent(defaultTabsSectionProps)
 
       const { setActiveTabs } = defaultTabsSectionProps
@@ -95,10 +78,4 @@ const defaultTabsSectionProps = {
 
 const renderComponent = (props: TabsSectionProps) => {
   return render(<TabsSection {...props} />)
-}
-
-async function wait(ms: number) {
-  await act(async () => {
-    await new Promise((resolve) => setTimeout(resolve, ms))
-  })
 }

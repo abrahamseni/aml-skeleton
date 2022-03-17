@@ -87,7 +87,7 @@ export const CONTACT_MOCK_DATA_2 = {
     declarationRisk: {
       declarationForm:
         'https://reapit-marketplace-app-media-dev.s3.eu-west-2.amazonaws.com/declaration-Simplified-erw23r.png',
-      reason: 'erw23r',
+      reason: '',
       riskAssessmentForm:
         'https://reapit-marketplace-app-media-dev.s3.eu-west-2.amazonaws.com/riskAssessment-Simplified-erw23r.png',
       type: 'Simplified',
@@ -108,10 +108,10 @@ export const CONTACT_MOCK_DATA_2 = {
     buildingName: 'Primary Address Building Name Test 2',
     buildingNumber: '3',
     countryId: 'GB',
-    line1: 'Chichester Way',
-    line2: 'Watford',
-    line3: 'Hertfordshire',
-    line4: 'qeq',
+    line1: '',
+    line2: '',
+    line3: '',
+    line4: '',
     postcode: 'WD25 9TY',
     type: 'primary',
   },
