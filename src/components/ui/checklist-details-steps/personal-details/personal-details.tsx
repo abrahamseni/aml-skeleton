@@ -21,7 +21,13 @@ type PersonalDetailsProps = {
 const PersonalDetails = ({ userData, switchTabContent }: PersonalDetailsProps) => {
   const { success: successAlert, error: errorAlert } = useSnack()
   const updateContact = useUpdateContact(userData!.id!, userData!._eTag!)
-  const formPersonalDetails = useForm({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    getValues,
+  } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       title: userData?.title,
@@ -34,16 +40,10 @@ const PersonalDetails = ({ userData, switchTabContent }: PersonalDetailsProps) =
       workPhone: userData?.workPhone,
     },
   })
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = formPersonalDetails
 
   const onSubmitHandler = async (): Promise<void> => {
     await updateContact.mutateAsync(
-      { ...formPersonalDetails.getValues() },
+      { ...getValues() },
       {
         onSuccess: () => {
           successAlert(notificationMessage.SUCCESS('personal details'))
@@ -52,7 +52,6 @@ const PersonalDetails = ({ userData, switchTabContent }: PersonalDetailsProps) =
       },
     )
   }
-  // MLK14000025
   return (
     <form onSubmit={handleSubmit(onSubmitHandler)}>
       <div className="el-flex el-flex-column el-flex-wrap">
