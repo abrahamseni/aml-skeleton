@@ -1,3 +1,6 @@
+/* eslint-disable no-confusing-arrow */
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react'
 import {
   elMb2,
@@ -173,13 +176,9 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
           </InputWrapFull>
         </FormLayout>
         <FormFooter
-          isNextHide={true}
           idUser={userData?.id}
           isFieldError={!!Object.keys(formState.errors).length}
           isFormSubmitting={updateContactData?.isLoading}
-          currentForm={currentForm}
-          switchTabContent={switchTabContent}
-          submitHandler={handleSubmit(onSubmitHandler)}
         />
       </form>
       {/* Modal Declaration Form */}

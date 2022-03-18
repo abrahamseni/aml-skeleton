@@ -10,6 +10,7 @@ import validationSchema from './form-schema/validation-schema'
 
 import { useUpdateContact } from '../../../../platform-api/contact-api/update-contact'
 import FormFooter from '../../form-footer/form-footer'
+import { generateLabelField } from 'utils/generator'
 import { notificationMessage } from '../../../../constants/notification-message'
 
 type PersonalDetailsProps = {
@@ -20,7 +21,13 @@ type PersonalDetailsProps = {
 const PersonalDetails = ({ userData, switchTabContent }: PersonalDetailsProps) => {
   const { success: successAlert, error: errorAlert } = useSnack()
   const updateContact = useUpdateContact(userData!.id!, userData!._eTag!)
-  const formPersonalDetails = useForm({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    getValues,
+  } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       title: userData?.title,
@@ -33,16 +40,10 @@ const PersonalDetails = ({ userData, switchTabContent }: PersonalDetailsProps) =
       workPhone: userData?.workPhone,
     },
   })
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = formPersonalDetails
 
-  const onSubmitHandler = async (data: object) => {
-    await updateContact.mutate(
-      { ...data },
+  const onSubmitHandler = async (): Promise<void> => {
+    await updateContact.mutateAsync(
+      { ...getValues() },
       {
         onSuccess: () => {
           successAlert(notificationMessage.SUCCESS('personal details'))
@@ -51,7 +52,6 @@ const PersonalDetails = ({ userData, switchTabContent }: PersonalDetailsProps) =
       },
     )
   }
-
   return (
     <form onSubmit={handleSubmit(onSubmitHandler)}>
       <div className="el-flex el-flex-column el-flex-wrap">
@@ -67,7 +67,7 @@ const PersonalDetails = ({ userData, switchTabContent }: PersonalDetailsProps) =
         </InputGroup>
         <InputGroup className="el-mt6 el-flex1">
           <Input id="surname" type="text" {...register('surname')} />
-          <Label htmlFor="name">Surname</Label>
+          <Label htmlFor="name"> {generateLabelField('surname', true)}</Label>
           {errors.surname?.message && <InputError message={errors.surname.message} />}
         </InputGroup>
       </div>
@@ -105,25 +105,10 @@ const PersonalDetails = ({ userData, switchTabContent }: PersonalDetailsProps) =
           </InputGroup>
         </div>
       </div>
-      {/* <div className="el-flex el-flex-row el-flex-justify-end el-flex-align-center el-mt8">
-        <BodyText hasNoMargin className="el-mr4">
-          RPS Ref: {userData?.id}
-        </BodyText>
-        <Button className="el-mr6" intent="success" type="submit" loading={updateContact.isLoading}>
-          Save
-        </Button>
-        <Button intent="primary" chevronRight type="submit">
-          Next
-        </Button>
-      </div> */}
       <FormFooter
-        isPrevHide={true}
         idUser={userData?.id}
-        isFieldError={Object.keys(errors).length !== 0}
+        isFieldError={!!Object.keys(errors).length}
         isFormSubmitting={updateContact?.isLoading}
-        currentForm={formPersonalDetails}
-        switchTabContent={switchTabContent}
-        submitHandler={handleSubmit(onSubmitHandler)}
       />
     </form>
   )

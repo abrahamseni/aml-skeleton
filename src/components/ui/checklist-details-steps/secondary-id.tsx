@@ -12,13 +12,13 @@ const defaultValues = {
   documentFile: '',
 }
 
-type Props = {
+export type SecondaryIdProps = {
   contact: ContactModel
   idCheck?: IdentityCheckModel
   onSaved?: () => void
 }
 
-const SecondaryId = ({ contact, idCheck, onSaved }: Props) => {
+const SecondaryId = ({ contact, idCheck, onSaved }: SecondaryIdProps) => {
   const saveIdentityDocument = useSaveIdentityDocument(2)
   const [loading, setLoading] = useState(false)
   const { success, error } = useSnack()
