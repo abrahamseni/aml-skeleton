@@ -33,7 +33,7 @@ interface FormFieldProps {
   /**
    * Pass Reach Hook Form hook
    */
-  rhfProps: UseFormReturn<ValuesType, any>
+  rhfProps: UseFormReturn<ValuesType>
 }
 
 export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.ReactElement => {
@@ -49,6 +49,7 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
       setImageSecondaryAddress(option === 'open' ? true : false)
     }
   }
+
   // passed useForm hook from parent
   const { register, getValues, formState } = rhfProps
 
@@ -83,7 +84,7 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
             {...register(buildingNameField.name)}
           />
           {displayErrorMessage(buildingNameField.name, formState) && (
-            <p data-testid={`test.error.${buildingNameField.name}`}>
+            <p data-testid={`test.error.${buildingNameField.name}`} className="el-input-error">
               {displayErrorMessage(buildingNameField.name, formState)}
             </p>
           )}
@@ -97,8 +98,8 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
             {...register(buildingNumberField.name)}
           />
           {displayErrorMessage(buildingNumberField.name, formState) && (
-            <p data-testid={`test.error.${buildingNameField.name}`} className="el-input-error">
-              {displayErrorMessage(buildingNameField.name, formState)}
+            <p data-testid={`test.error.${buildingNumberField.name}`} className="el-input-error">
+              {displayErrorMessage(buildingNumberField.name, formState)}
             </p>
           )}
         </InputWrap>
@@ -111,7 +112,9 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
             {...register(postcodeField.name)}
           />
           {displayErrorMessage(postcodeField.name, formState) && (
-            <p data-testid={`test.error.${postcodeField.name}`}>{displayErrorMessage(postcodeField.name, formState)}</p>
+            <p data-testid={`test.error.${postcodeField.name}`} className="el-input-error">
+              {displayErrorMessage(postcodeField.name, formState)}
+            </p>
           )}
         </InputWrap>
       </InputWrapFull>
