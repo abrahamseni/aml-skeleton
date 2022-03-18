@@ -15,10 +15,9 @@ import FormFooter from 'components/ui/form-footer/form-footer'
 
 interface AddressInformationProps {
   userData: ContactModel | undefined
-  switchTabContent: (type: 'forward' | 'backward') => void | undefined
 }
 
-const AddressInformation: React.FC<AddressInformationProps> = ({ userData, switchTabContent }): React.ReactElement => {
+const AddressInformation: React.FC<AddressInformationProps> = ({ userData }): React.ReactElement => {
   // snack notification - snack provider
   const { success, error } = useSnack()
 

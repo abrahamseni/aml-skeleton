@@ -24,25 +24,21 @@ import { cx } from '@linaria/core'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { generateLabelField, generateOptionsType, generateTestId } from '../../../../utils/generator'
-import { formField, ValuesType, validationSchema, AvailableFormFieldType } from './form-schema'
+import { formField, ValuesType, validationSchema } from './form-schema'
 import { order0 } from './__styles__'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
 import { notificationMessage } from '../../../../constants/notification-message'
 import { useUpdateContact } from '../../../../platform-api/contact-api/update-contact'
 import DocumentPreviewModal from '../id-form/document-preview-modal'
-import { displayErrorMessage } from '../../../../utils/error-message'
 import FormFooter from 'components/ui/form-footer/form-footer'
+import { displayErrorMessage } from 'utils/error-message'
 
 interface DeclarationRiskManagementProps {
   userData: ContactModel | undefined
-  switchTabContent: (type: 'forward' | 'backward') => void | undefined
 }
 
 // render view
-const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
-  userData,
-  switchTabContent,
-}): React.ReactElement => {
+const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({ userData }): React.ReactElement => {
   // snack notification - snack provider
   const { success, error } = useSnack()
   // local state - modal handler
@@ -72,13 +68,12 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   }
 
   // setup and integrate with initial value
-  const currentForm = useForm<ValuesType>({
+  const { register, handleSubmit, formState, getValues } = useForm<ValuesType>({
     defaultValues: INITIAL_VALUES,
     resolver: yupResolver(validationSchema),
     mode: 'onBlur',
   })
 
-  const { register, handleSubmit, formState, getValues } = currentForm
   // declare form
   const { declarationFormField, riskAssessmentFormField, typeField, reasonField } = formField()
 
@@ -86,7 +81,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
 
   // button handler - submit
   const onSubmitHandler = async (): Promise<void> => {
-    updateContactData.mutateAsync(
+    await updateContactData.mutateAsync(
       {
         metadata: {
           ...userData?.metadata,
@@ -119,16 +114,30 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
                   accept="image/jpeg, image/png, application/pdf"
                   data-testid={generateTestId(declarationFormField.name)}
                 />
-                {displayErrorMessage<AvailableFormFieldType, ValuesType>(declarationFormField.name, formState)}
+                {displayErrorMessage(declarationFormField.name, formState) && (
+                  <p data-testid={`test.error.${declarationFormField.name}`} className="el-input-error">
+                    {displayErrorMessage(declarationFormField.name, formState)}
+                  </p>
+                )}
               </FlexContainer>
             </InputWrap>
             <InputWrap className={elMy6}>
               <InputGroup>
                 <Select {...register(typeField.name)} data-testid={generateTestId(typeField.name)}>
-                  {generateOptionsType('riskAssessmentType')}
+                  {generateOptionsType('riskAssessmentType').map((v) => {
+                    return (
+                      <option key={v.value} value={v.value}>
+                        {v.label}
+                      </option>
+                    )
+                  })}
                 </Select>
                 <Label className={cx(order0, elMb2)}>{generateLabelField(typeField.label, true)}</Label>
-                {displayErrorMessage<AvailableFormFieldType, ValuesType>(typeField.name, formState)}
+                {displayErrorMessage(typeField.name, formState) && (
+                  <p data-testid={`test.error.${typeField.name}`} className="el-input-error">
+                    {displayErrorMessage(typeField.name, formState)}
+                  </p>
+                )}
               </InputGroup>
             </InputWrap>
             <InputWrap className={elMt6}>
@@ -141,14 +150,22 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
                   accept="image/jpeg, image/png, application/pdf"
                   data-testid={generateTestId(riskAssessmentFormField.name)}
                 />
-                {displayErrorMessage<AvailableFormFieldType, ValuesType>(riskAssessmentFormField.name, formState)}
+                {displayErrorMessage(riskAssessmentForm.name, formState) && (
+                  <p data-testid={`test.error.${riskAssessmentForm.name}`} className="el-input-error">
+                    {displayErrorMessage(riskAssessmentForm.name, formState)}
+                  </p>
+                )}
               </FlexContainer>
             </InputWrap>
             <InputWrap className={elMt6}>
               <InputGroup>
                 <TextArea {...register(reasonField.name)} data-testid={generateTestId(reasonField.name)} />
                 <Label>{generateLabelField(reasonField.label, true)}</Label>
-                {displayErrorMessage<AvailableFormFieldType, ValuesType>(reasonField.name, formState)}
+                {displayErrorMessage(reasonField.name, formState) && (
+                  <p data-testid={`test.error.${reasonField.name}`} className="el-input-error">
+                    {displayErrorMessage(reasonField.name, formState)}
+                  </p>
+                )}
               </InputGroup>
             </InputWrap>
           </InputWrapFull>

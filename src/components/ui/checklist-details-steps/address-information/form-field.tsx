@@ -11,7 +11,7 @@ import {
   FileInput,
   elPl3,
 } from '@reapit/elements'
-import { AvailableFormFieldType, formFields, ValuesType } from './form-schema'
+import { formFields, ValuesType } from './form-schema'
 import { UseFormReturn } from 'react-hook-form'
 import { displayErrorMessage } from '../../../../utils/error-message'
 import {
@@ -33,7 +33,7 @@ interface FormFieldProps {
   /**
    * Pass Reach Hook Form hook
    */
-  rhfProps: UseFormReturn<ValuesType, any>
+  rhfProps: UseFormReturn<ValuesType>
 }
 
 export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.ReactElement => {
@@ -49,6 +49,7 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
       setImageSecondaryAddress(option === 'open' ? true : false)
     }
   }
+
   // passed useForm hook from parent
   const { register, getValues, formState } = rhfProps
 
@@ -82,7 +83,11 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
             data-testid={generateTestId(buildingNameField.name)}
             {...register(buildingNameField.name)}
           />
-          {displayErrorMessage<AvailableFormFieldType, ValuesType>(buildingNameField.name, formState)}
+          {displayErrorMessage(buildingNameField.name, formState) && (
+            <p data-testid={`test.error.${buildingNameField.name}`} className="el-input-error">
+              {displayErrorMessage(buildingNameField.name, formState)}
+            </p>
+          )}
         </InputWrap>
         <InputWrap>
           <InputGroup
@@ -92,7 +97,11 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
             data-testid={generateTestId(buildingNumberField.name)}
             {...register(buildingNumberField.name)}
           />
-          {displayErrorMessage<AvailableFormFieldType, ValuesType>(buildingNumberField.name, formState)}
+          {displayErrorMessage(buildingNumberField.name, formState) && (
+            <p data-testid={`test.error.${buildingNumberField.name}`} className="el-input-error">
+              {displayErrorMessage(buildingNumberField.name, formState)}
+            </p>
+          )}
         </InputWrap>
         <InputWrap>
           <InputGroup
@@ -102,7 +111,11 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
             data-testid={generateTestId(postcodeField.name)}
             {...register(postcodeField.name)}
           />
-          {displayErrorMessage<AvailableFormFieldType, ValuesType>(postcodeField.name, formState)}
+          {displayErrorMessage(postcodeField.name, formState) && (
+            <p data-testid={`test.error.${postcodeField.name}`} className="el-input-error">
+              {displayErrorMessage(postcodeField.name, formState)}
+            </p>
+          )}
         </InputWrap>
       </InputWrapFull>
       <InputWrapFull>
@@ -114,7 +127,11 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
             data-testid={generateTestId(line1Field.name)}
             {...register(line1Field.name)}
           />
-          {displayErrorMessage<AvailableFormFieldType, ValuesType>(line1Field.name, formState)}
+          {displayErrorMessage(line1Field.name, formState) && (
+            <p data-testid={`test.error.${line1Field.name}`} className="el-input-error">
+              {displayErrorMessage(line1Field.name, formState)}
+            </p>
+          )}
         </InputWrap>
         <InputWrap>
           <InputGroup
@@ -124,7 +141,11 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
             data-testid={generateTestId(line2Field.name)}
             {...register(line2Field.name)}
           />
-          {displayErrorMessage<AvailableFormFieldType, ValuesType>(line2Field.name, formState)}
+          {displayErrorMessage(line2Field.name, formState) && (
+            <p data-testid={`test.error.${line2Field.name}`} className="el-input-error">
+              {displayErrorMessage(line2Field.name, formState)}
+            </p>
+          )}
         </InputWrap>
         <InputWrap>
           <InputGroup
@@ -134,7 +155,11 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
             data-testid={generateTestId(line3Field.name)}
             {...register(line3Field.name)}
           />
-          {displayErrorMessage<AvailableFormFieldType, ValuesType>(line3Field.name, formState)}
+          {displayErrorMessage(line3Field.name, formState) && (
+            <p data-testid={`test.error.${line3Field.name}`} className="el-input-error">
+              {displayErrorMessage(line3Field.name, formState)}
+            </p>
+          )}
         </InputWrap>
         <InputWrap>
           <InputGroup
@@ -144,7 +169,11 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
             data-testid={generateTestId(line4Field.name)}
             {...register(line4Field.name)}
           />
-          {displayErrorMessage<AvailableFormFieldType, ValuesType>(line4Field.name, formState)}
+          {displayErrorMessage(line4Field.name, formState) && (
+            <p data-testid={`test.error.${line4Field.name}`} className="el-input-error">
+              {displayErrorMessage(line4Field.name, formState)}
+            </p>
+          )}
         </InputWrap>
       </InputWrapFull>
       <InputWrapFull data-testid="option.field.wrapper">
@@ -152,27 +181,57 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
           <InputGroup>
             <Label>{generateLabelField(yearField.label, true)}</Label>
             <Select {...register(yearField.name)} data-testid={generateTestId(yearField.name)}>
-              {generateOptionsYearsOrMonths('years')}
+              {generateOptionsYearsOrMonths('years').map((v) => {
+                return (
+                  <option key={v.value} value={v.value}>
+                    {v.label}
+                  </option>
+                )
+              })}
             </Select>
-            {displayErrorMessage<AvailableFormFieldType, ValuesType>(yearField.name, formState)}
+            {displayErrorMessage(yearField.name, formState) && (
+              <p data-testid={`test.error.${yearField.name}`} className="el-input-error">
+                {displayErrorMessage(yearField.name, formState)}
+              </p>
+            )}
           </InputGroup>
         </InputWrap>
         <InputWrap>
           <InputGroup>
             <Label>{generateLabelField(monthField.label, true)}</Label>
             <Select {...register(monthField.name)} data-testid={generateTestId(monthField.name)}>
-              {generateOptionsYearsOrMonths('months')}
+              {generateOptionsYearsOrMonths('months').map((v) => {
+                return (
+                  <option key={v.value} value={v.value}>
+                    {v.label}
+                  </option>
+                )
+              })}
             </Select>
-            {displayErrorMessage<AvailableFormFieldType, ValuesType>(monthField.name, formState)}
+            {displayErrorMessage(monthField.name, formState) && (
+              <p data-testid={`test.error.${monthField.name}`} className="el-input-error">
+                {displayErrorMessage(monthField.name, formState)}
+              </p>
+            )}
           </InputGroup>
         </InputWrap>
         <InputWrap>
           <InputGroup>
             <Label>{generateLabelField(documentTypeField.label, true)}</Label>
             <Select {...register(documentTypeField.name)} data-testid={generateTestId(documentTypeField.name)}>
-              {generateOptionsType('documentType')}
+              {generateOptionsType('documentType').map((v) => {
+                return (
+                  <option key={v.value} value={v.value}>
+                    {v.label}
+                  </option>
+                )
+              })}
             </Select>
-            {displayErrorMessage<AvailableFormFieldType, ValuesType>(documentTypeField.name, formState)}
+            {displayErrorMessage(documentTypeField.name, formState) && (
+              <p data-testid={`test.error.${documentTypeField.name}`} className="el-input-error">
+                {displayErrorMessage(documentTypeField.name, formState)}
+              </p>
+            )}
           </InputGroup>
         </InputWrap>
         <InputWrap className={elMt4}>
@@ -185,7 +244,11 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
               onFileView={() => modalHandler('open')}
               accept="image/jpeg, image/png, application/pdf"
             />
-            {displayErrorMessage<AvailableFormFieldType, ValuesType>(documentImageField.name, formState)}
+            {displayErrorMessage(documentImageField.name, formState) && (
+              <p data-testid={`test.error.${documentImageField.name}`} className="el-input-error">
+                {displayErrorMessage(documentImageField.name, formState)}
+              </p>
+            )}
           </FlexContainer>
         </InputWrap>
       </InputWrapFull>

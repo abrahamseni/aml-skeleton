@@ -34,11 +34,10 @@ interface GenerateTabsContentProps {
   querySingleContact: UseQueryResult<ContactModel, Error>
   queryIdentityCheck: UseQueryResult<IdentityCheckModel | undefined, unknown>
   queryIdentityDocumentTypes: UseQueryResult<Required<ListItemModel>[] | undefined>
-  switchTabSection: (type: 'forward' | 'backward') => void
 }
 
 export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectionProps['contents'] => {
-  const { querySingleContact, queryIdentityCheck, queryIdentityDocumentTypes, switchTabSection } = props
+  const { querySingleContact, queryIdentityCheck, queryIdentityDocumentTypes } = props
 
   // single contact
   const { data: userData } = querySingleContact
@@ -50,7 +49,7 @@ export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectio
   return [
     {
       name: 'Personal',
-      content: <PersonalDetails userData={userData!} switchTabContent={switchTabSection} />,
+      content: <PersonalDetails userData={userData!} />,
       status: isCompletedProfile(userData),
     },
     {
@@ -65,13 +64,13 @@ export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectio
     },
     {
       name: 'Address Information',
-      content: <AddressInformation userData={userData} switchTabContent={switchTabSection} />,
-      status: isCompletedAddress(userData!),
+      content: <AddressInformation userData={userData} />,
+      status: isCompletedAddress(userData),
     },
     {
       name: 'Declaration Risk Management',
-      content: <DeclarationRiskManagement userData={userData!} switchTabContent={switchTabSection} />,
-      status: isCompletedDeclarationRisk(userData!),
+      content: <DeclarationRiskManagement userData={userData} />,
+      status: isCompletedDeclarationRisk(userData),
     },
   ]
 }
@@ -97,27 +96,14 @@ export const ChecklistDetailPage: FC = () => {
   // local state - tab pagination handler
   const [activeTabs, setActiveTabs] = React.useState<number>(0)
 
-  // data is available from here //
-  // change current active tab content with this fn
-  const switchTabSection = (type: 'forward' | 'backward'): void => {
-    switch (type) {
-      case 'forward':
-        if (activeTabs < tabContents.length - 1) setActiveTabs((prev) => prev + 1)
-        break
-      case 'backward':
-        if (activeTabs > 0) setActiveTabs((prev) => prev - 1)
-        break
-    }
-  }
   // render tab contents
   const tabContents = generateTabsContent({
     querySingleContact,
     queryIdentityCheck,
     queryIdentityDocumentTypes,
-    switchTabSection,
   })
   // progress bar indicator
-  const { complete: completeStep, total: totalStep } = generateProgressBarResult({ tabContents })
+  const currentProgressBarStatus = generateProgressBarResult({ tabContents })
 
   if (
     (userDataIsFetching && !userData) ||
@@ -151,25 +137,27 @@ export const ChecklistDetailPage: FC = () => {
     )
   }
 
-  if (userData) {
+  if (userData && identityCheck) {
     return (
       <main>
         <Title hasNoMargin>{`${userData?.forename} ${userData?.surname}`}</Title>
-        {identityCheck && (
-          <div className="el-flex el-flex-row">
-            <Subtitle hasGreyText hasBoldText>
-              Status: {userData?.identityCheck?.toUpperCase()}
-            </Subtitle>
-            <Icon
-              icon="editSolidSystem"
-              iconSize="smallest"
-              className="el-ml2"
-              onClick={() => setModalStatusOpen(true)}
-            />
-          </div>
-        )}
+        <div className="el-flex el-flex-row">
+          <Subtitle hasGreyText hasBoldText>
+            Status: {identityCheck.status?.toUpperCase()}
+          </Subtitle>
+          <Icon
+            icon="editSolidSystem"
+            iconSize="smallest"
+            className="el-ml2"
+            onClick={() => setModalStatusOpen(true)}
+          />
+        </div>
         <div>
-          <ProgressBarSteps currentStep={completeStep} numberSteps={totalStep} className="el-mt6" />
+          <ProgressBarSteps
+            currentStep={currentProgressBarStatus.complete}
+            numberSteps={currentProgressBarStatus.total}
+            className="el-mt6"
+          />
         </div>
         <div className="el-mt3">
           <TabsSection
@@ -184,6 +172,7 @@ export const ChecklistDetailPage: FC = () => {
           idCheck={identityCheck!}
           isModalStatusOpen={isModalStatusOpen}
           setModalStatusOpen={setModalStatusOpen}
+          progressBarStatus={currentProgressBarStatus}
         />
       </main>
     )
