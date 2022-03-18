@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Subtitle, useSnack } from '@reapit/elements'
 import IdForm, { ValuesType } from './id-form'
-import { ContactModel, IdentityCheckModel } from '@reapit/foundations-ts-definitions'
+import { ContactModel, IdentityCheckModel, ListItemModel } from '@reapit/foundations-ts-definitions'
 import { useSaveIdentityDocument } from './id-form/identity-check-action'
 import { notificationMessage } from 'constants/notification-message'
 
@@ -15,10 +15,11 @@ const defaultValues = {
 export type SecondaryIdProps = {
   contact: ContactModel
   idCheck?: IdentityCheckModel
+  idDocTypes?: Required<ListItemModel>[]
   onSaved?: () => void
 }
 
-const SecondaryId = ({ contact, idCheck, onSaved }: SecondaryIdProps) => {
+const SecondaryId = ({ contact, idCheck, idDocTypes, onSaved }: SecondaryIdProps) => {
   const saveIdentityDocument = useSaveIdentityDocument(2)
   const [loading, setLoading] = useState(false)
   const { success, error } = useSnack()
@@ -80,6 +81,7 @@ const SecondaryId = ({ contact, idCheck, onSaved }: SecondaryIdProps) => {
       <Subtitle>Secondary ID</Subtitle>
       <IdForm
         defaultValues={getDefaultValues()}
+        idDocTypes={idDocTypes}
         rpsRef={contact.id}
         noticeText={getNoticeText()}
         loading={loading}
