@@ -7,20 +7,20 @@ import AxiosMockAdapter from 'axios-mock-adapter'
 import { URLS } from '../../../../../constants/api'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { formField } from '../form-schema'
-import { useSnack } from '@reapit/elements'
 import { wait } from 'utils/test'
+import { success } from 'utils/mocks/useSnack'
 
 const axiosMock = new AxiosMockAdapter(Axios)
 
-jest.mock('@reapit/elements', () => {
+jest.mock('react-pdf/dist/esm/entry.webpack', () => {
   return {
-    ...jest.requireActual('@reapit/elements'),
-    useSnack: jest.fn(() => ({
-      success: jest.fn().mockImplementation(() => 'Success Notification') as jest.Mock<any>,
-      error: jest.fn().mockImplementation(() => 'Error Notification') as jest.Mock<any>,
-    })),
+    __esModule: true,
+    Document: () => null,
+    Page: () => null,
   }
 })
+
+jest.mock('@reapit/elements', () => jest.requireActual('utils/mocks/reapit-element-mocks'))
 
 jest.unmock('@reapit/connect-session')
 jest.mock('../../../../../core/connect-session')
@@ -68,40 +68,17 @@ describe('Declaration Risk Management Form', () => {
     expect(testReasonField.value).toMatch(/Change Test Reason/i)
   })
 
-  it('should able to click "previous button"', () => {
-    const { getByTestId } = renderComponent(defaultDRMProps)
-
-    const previousButton = getByTestId('previous-form')
-
-    const { switchTabContent } = defaultDRMProps
-
-    expect(switchTabContent).not.toBeCalled()
-
-    fireEvent.click(previousButton)
-
-    expect(switchTabContent).toBeCalled()
-    expect(switchTabContent).toHaveBeenCalledWith('backward')
-
-    fireEvent.click(previousButton)
-    fireEvent.click(previousButton)
-    fireEvent.click(previousButton)
-
-    expect(switchTabContent).toBeCalledTimes(4)
-  })
-
-  it('should able to click "save button"', async () => {
+  it('should able to click "save button", and return notification if success', async () => {
     const { getByTestId } = renderComponent(defaultDRMProps)
 
     const submitButton = getByTestId('save-form')
-
-    const { switchTabContent } = defaultDRMProps
-    expect(switchTabContent).not.toBeCalled()
 
     axiosMock.onPatch(`${URLS.CONTACTS}/${CONTACT_MOCK_DATA_1.id}`).reply(204)
     fireEvent.click(submitButton)
     await wait(0)
 
-    expect(useSnack).toBeCalled()
+    expect(success).toBeCalledTimes(1)
+    expect(success.mock.calls[0][0]).toMatch(/Successfully update declaration risk management/i)
   })
 
   it('should display error message if required field is empty', async () => {
@@ -120,6 +97,8 @@ describe('Declaration Risk Management Form', () => {
     expect(errorMessage).not.toBeUndefined
     expect(errorMessage.textContent).toMatch(/Required/i)
   })
+
+  it.todo('should able to click "save button", and return notification if error ')
 })
 
 const queryClient = new QueryClient({
@@ -134,7 +113,6 @@ type DeclarationRiskManagementProps = React.ComponentPropsWithRef<typeof Declara
 
 const defaultDRMProps: DeclarationRiskManagementProps = {
   userData: CONTACT_MOCK_DATA_1,
-  switchTabContent: jest.fn(),
 }
 
 const renderComponent = (props: DeclarationRiskManagementProps, type: 'v1' | 'v2' = 'v1') => {

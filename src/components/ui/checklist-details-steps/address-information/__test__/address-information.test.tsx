@@ -7,8 +7,8 @@ import { formFields } from '../form-schema'
 import AxiosMockAdapter from 'axios-mock-adapter'
 import Axios from '../../../../../axios/axios'
 import { URLS } from '../../../../../constants/api'
-import { useSnack } from '@reapit/elements'
 import { wait } from 'utils/test'
+import { success } from 'utils/mocks/useSnack'
 
 const axiosMock = new AxiosMockAdapter(Axios)
 
@@ -21,15 +21,15 @@ const { buildingNameField: secondaryBuildingNameField } = formFields('secondaryA
 
 type AddressInformationProps = React.ComponentPropsWithRef<typeof AddressInformation>
 
-jest.mock('@reapit/elements', () => {
+jest.mock('react-pdf/dist/esm/entry.webpack', () => {
   return {
-    ...jest.requireActual('@reapit/elements'),
-    useSnack: jest.fn(() => ({
-      success: jest.fn().mockImplementation(() => 'Success Notification'),
-      error: jest.fn().mockImplementation(() => 'Error Notification'),
-    })),
+    __esModule: true,
+    Document: () => null,
+    Page: () => null,
   }
 })
+
+jest.mock('@reapit/elements', () => jest.requireActual('utils/mocks/reapit-element-mocks'))
 
 jest.unmock('@reapit/connect-session')
 jest.mock('../../../../../core/connect-session')
@@ -128,28 +128,6 @@ describe('Address Information Component', () => {
 
     expect(primaryBuildingNameFields.value).toMatch(/Primary Address Building Name Test 2/i)
     expect(secondaryBuildingNameFields.value).toMatch(/Secondary Address Building Name Test 2/i)
-    // expect(secondaryBuildingNameFields).toBeUndefined()
-  })
-
-  it('previous button should able to tap', () => {
-    const { getByTestId } = renderComponent(defaultAddressInformationProps)
-
-    const previousButton = getByTestId('previous-form')
-
-    const { switchTabContent } = defaultAddressInformationProps
-
-    expect(switchTabContent).not.toBeCalled()
-
-    fireEvent.click(previousButton)
-
-    expect(switchTabContent).toBeCalled()
-    expect(switchTabContent).toHaveBeenCalledWith('backward')
-
-    fireEvent.click(previousButton)
-    fireEvent.click(previousButton)
-    fireEvent.click(previousButton)
-
-    expect(switchTabContent).toBeCalledTimes(4)
   })
 
   it('at first, submit button should not able to tap', async () => {
@@ -157,31 +135,12 @@ describe('Address Information Component', () => {
 
     const submitButton = getByTestId('save-form')
 
-    const { switchTabContent } = defaultAddressInformationProps
-    expect(switchTabContent).not.toBeCalled()
-
     axiosMock.onPatch(`${URLS.CONTACTS}/${CONTACT_MOCK_DATA_1.id}`).reply(204)
     fireEvent.click(submitButton)
     await wait(0)
 
-    expect(useSnack).toBeCalled()
-  })
-
-  it('at first, next button should not able to tap', async () => {
-    const { getByTestId } = renderComponent(defaultAddressInformationProps)
-    const nextButton = getByTestId('next-form')
-
-    const { switchTabContent } = defaultAddressInformationProps
-    expect(switchTabContent).not.toBeCalled()
-
-    axiosMock.onPatch(`${URLS.CONTACTS}/${CONTACT_MOCK_DATA_1.id}`).reply(204)
-    fireEvent.click(nextButton)
-    await wait(0)
-
-    expect(switchTabContent).toBeCalled()
-    expect(switchTabContent).toHaveBeenCalledWith('forward')
-
-    // rest
+    expect(success).toBeCalledTimes(1)
+    expect(success.mock.calls[0][0]).toMatch(/Successfully update address data/i)
   })
 
   it('should able to change the field value', () => {
@@ -213,7 +172,6 @@ describe('Address Information Component', () => {
 
 const defaultAddressInformationProps: AddressInformationProps = {
   userData: CONTACT_MOCK_DATA_1,
-  switchTabContent: jest.fn(),
 }
 
 const queryClient = new QueryClient({
