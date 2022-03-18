@@ -100,9 +100,9 @@ describe('secondary id', () => {
         },
         {
           id: 'C',
-          value: 'C val'
-        }
-      ]
+          value: 'C val',
+        },
+      ],
     })
 
     const { idDocTypes } = getIdFormProps()

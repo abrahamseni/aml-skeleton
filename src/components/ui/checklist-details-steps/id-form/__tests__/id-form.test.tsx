@@ -9,6 +9,8 @@ import AxiosMockAdapter from 'axios-mock-adapter'
 import { identityDocumentTypes } from '../__mocks__/identity-document-types'
 import { URLS } from 'constants/api'
 import { wait } from 'utils/test'
+import DocumentPreviewModal, { DocumentPreviewModalProps } from '../document-preview-modal'
+import { downloadDocument as downloadDocumentMock } from 'platform-api/document-api'
 
 const axiosMock = new AxiosMockAdapter(axios)
 
@@ -21,6 +23,19 @@ jest.mock('react-pdf/dist/esm/entry.webpack', () => {
     Page: () => null,
   }
 })
+jest.mock('../document-preview-modal', () => {
+  const DocumentPreviewModal = jest.requireActual('../document-preview-modal')
+  const DocumentPreviewModalMock = jest.fn(() => <></>)
+  return {
+    __esModule: true,
+    ...DocumentPreviewModal,
+    DocumentPreviewModal: DocumentPreviewModalMock,
+    default: DocumentPreviewModalMock,
+  }
+})
+jest.mock('platform-api/document-api')
+
+const downloadDocument: jest.Mock = downloadDocumentMock as any
 
 describe('id form', () => {
   beforeEach(() => {
@@ -42,6 +57,29 @@ describe('id form', () => {
     await wait(0)
 
     await assertFormValues(defaultValues)
+  })
+
+  test('do not save if form is invalid', async () => {
+    const defaultValues = {
+      idType: '',
+      idReference: '',
+      expiryDate: '',
+      documentFile: '',
+    }
+    const onSave = jest.fn()
+    setup({
+      defaultValues,
+      onSave,
+    })
+
+    await wait(0)
+
+    const saveButton = await screen.findByTestId('save-form')
+    userEvent.click(saveButton)
+
+    await wait(0)
+
+    expect(onSave).toBeCalledTimes(0)
   })
 
   test('error message from validation is correct', async () => {
@@ -79,6 +117,57 @@ describe('id form', () => {
 
     expect(onSave).toBeCalledTimes(1)
     expect(onSave.mock.calls[0]).toEqual([expectedValue])
+  })
+
+  test('can show document preview from data url', async () => {
+    const defaultValues = {
+      idType: '',
+      idReference: '',
+      expiryDate: '',
+      documentFile: 'data:documentFile',
+    }
+    setup({
+      defaultValues,
+    })
+
+    const previewButton = await screen.findByTestId('input.documentFile.preview-button')
+
+    userEvent.click(previewButton)
+
+    await wait(0)
+
+    const { src, isOpen } = getDocumentPreviewModalProps()
+
+    expect(src).toBe('data:documentFile')
+    expect(isOpen).toBe(true)
+  })
+
+  test('can show document preview from document id', async () => {
+    const documentId = 'RPT20000039'
+
+    const blobUrl = 'blob:http://example.com/123'
+    downloadDocument.mockReturnValueOnce(Promise.resolve(blobUrl))
+
+    const defaultValues = {
+      idType: '',
+      idReference: '',
+      expiryDate: '',
+      documentFile: documentId,
+    }
+    setup({
+      defaultValues,
+    })
+
+    const previewButton = await screen.findByTestId('input.documentFile.preview-button')
+
+    userEvent.click(previewButton)
+
+    await wait(0)
+
+    const { src, isOpen } = getDocumentPreviewModalProps()
+
+    expect(src).toBe(blobUrl)
+    expect(isOpen).toBe(true)
   })
 
   test('can show notice text', async () => {
@@ -134,6 +223,11 @@ function setup(props: Props = {}) {
     .onGet(`${window.reapit.config.platformApiUrl}${URLS.CONFIGURATION_DOCUMENT_TYPES}`)
     .reply(200, identityDocumentTypes)
   renderIdForm(props)
+}
+
+function getDocumentPreviewModalProps(): DocumentPreviewModalProps {
+  const DocumentPreviewModalMock: jest.Mock = DocumentPreviewModal as any
+  return DocumentPreviewModalMock.mock.calls.slice(-1)[0][0]
 }
 
 async function createDataUrl(content: string): Promise<string> {
