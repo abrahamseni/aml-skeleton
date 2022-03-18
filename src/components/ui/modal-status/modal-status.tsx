@@ -13,12 +13,13 @@ type Props = {
 
 const ModalStatus = ({ userData, idCheck, isModalStatusOpen, setModalStatusOpen }: Props) => {
   const [userStatus, setUserStatus] = useState<string>(userData!.identityCheck! || 'passed')
-  const updateStatus = useUpdateIdentityCheck()
+  const { updateIdentityCheck } = useUpdateIdentityCheck()
   // const createIdentityCheck = useCreateIdentityCheck()
 
   const handleUpdateStatus = () => {
-    updateStatus({ id: idCheck.id!, _eTag: idCheck._eTag!, status: userStatus })
+    return updateIdentityCheck({ id: idCheck.id!, _eTag: idCheck._eTag!, status: userStatus })
   }
+
   return (
     <Modal isOpen={isModalStatusOpen} onModalClose={() => setModalStatusOpen(false)} title="Update Status">
       <BodyText>
