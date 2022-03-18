@@ -32,11 +32,10 @@ import { generateProgressBarResult } from '../../../utils/generator'
 interface GenerateTabsContentProps {
   querySingleContact: UseQueryResult<ContactModel, Error>
   queryIdentityCheck: UseQueryResult<IdentityCheckModel | undefined, unknown>
-  switchTabSection: (type: 'forward' | 'backward') => void
 }
 
 export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectionProps['contents'] => {
-  const { querySingleContact, queryIdentityCheck, switchTabSection } = props
+  const { querySingleContact, queryIdentityCheck } = props
 
   // single contact
   const { data: userData } = querySingleContact
@@ -46,7 +45,7 @@ export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectio
   return [
     {
       name: 'Personal',
-      content: <PersonalDetails userData={userData!} switchTabContent={switchTabSection} />,
+      content: <PersonalDetails userData={userData!} />,
       status: isCompletedProfile(userData),
     },
     {
@@ -61,13 +60,13 @@ export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectio
     },
     {
       name: 'Address Information',
-      content: <AddressInformation userData={userData} switchTabContent={switchTabSection} />,
-      status: isCompletedAddress(userData!),
+      content: <AddressInformation userData={userData} />,
+      status: isCompletedAddress(userData),
     },
     {
       name: 'Declaration Risk Management',
-      content: <DeclarationRiskManagement userData={userData!} switchTabContent={switchTabSection} />,
-      status: isCompletedDeclarationRisk(userData!),
+      content: <DeclarationRiskManagement userData={userData} />,
+      status: isCompletedDeclarationRisk(userData),
     },
   ]
 }
@@ -87,19 +86,8 @@ export const ChecklistDetailPage: FC = () => {
   const [activeTabs, setActiveTabs] = React.useState<number>(0)
 
   // data is available from here //
-  // change current active tab content with this fn
-  const switchTabSection = (type: 'forward' | 'backward'): void => {
-    switch (type) {
-      case 'forward':
-        if (activeTabs < tabContents.length - 1) setActiveTabs((prev) => prev + 1)
-        break
-      case 'backward':
-        if (activeTabs > 0) setActiveTabs((prev) => prev - 1)
-        break
-    }
-  }
   // render tab contents
-  const tabContents = generateTabsContent({ querySingleContact, queryIdentityCheck, switchTabSection })
+  const tabContents = generateTabsContent({ querySingleContact, queryIdentityCheck })
   // progress bar indicator
   const { complete: completeStep, total: totalStep } = generateProgressBarResult({ tabContents })
 

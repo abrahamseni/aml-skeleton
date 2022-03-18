@@ -35,14 +35,10 @@ import { displayErrorMessage } from 'utils/error-message'
 
 interface DeclarationRiskManagementProps {
   userData: ContactModel | undefined
-  switchTabContent: (type: 'forward' | 'backward') => void | undefined
 }
 
 // render view
-const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
-  userData,
-  switchTabContent,
-}): React.ReactElement => {
+const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({ userData }): React.ReactElement => {
   // snack notification - snack provider
   const { success, error } = useSnack()
   // local state - modal handler
@@ -72,13 +68,12 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
   }
 
   // setup and integrate with initial value
-  const currentForm = useForm<ValuesType>({
+  const { register, handleSubmit, formState, getValues } = useForm<ValuesType>({
     defaultValues: INITIAL_VALUES,
     resolver: yupResolver(validationSchema),
     mode: 'onBlur',
   })
 
-  const { register, handleSubmit, formState, getValues } = currentForm
   // declare form
   const { declarationFormField, riskAssessmentFormField, typeField, reasonField } = formField()
 

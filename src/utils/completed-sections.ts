@@ -40,7 +40,7 @@ export const isCompletedAddress = (contact?: ContactModel | null) => {
   return !!isValidPrimaryAddress
 }
 
-export const isCompletedDeclarationRisk = (contact: ContactModel | null) => {
+export const isCompletedDeclarationRisk = (contact?: ContactModel | null) => {
   const isValidContactWithDeclarationRisk =
     contact?.metadata?.declarationRisk?.reason &&
     contact?.metadata?.declarationRisk?.type &&

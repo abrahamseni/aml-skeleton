@@ -15,10 +15,9 @@ import { notificationMessage } from '../../../../constants/notification-message'
 
 type PersonalDetailsProps = {
   userData: ContactModel
-  switchTabContent: (type: 'forward' | 'backward') => void | undefined
 }
 
-const PersonalDetails = ({ userData, switchTabContent }: PersonalDetailsProps) => {
+const PersonalDetails = ({ userData }: PersonalDetailsProps) => {
   const { success: successAlert, error: errorAlert } = useSnack()
   const updateContact = useUpdateContact(userData!.id!, userData!._eTag!)
   const {
