@@ -14,7 +14,11 @@ type Props = {
 const ModalStatus = ({ userData, idCheck, isModalStatusOpen, setModalStatusOpen }: Props) => {
   const [userStatus, setUserStatus] = useState<string>(userData!.identityCheck! || 'passed')
   const updateStatus = useUpdateIdentityCheck()
+  // const createIdentityCheck = useCreateIdentityCheck()
 
+  const handleUpdateStatus = () => {
+    updateStatus({ id: idCheck.id!, _eTag: idCheck._eTag!, status: userStatus })
+  }
   return (
     <Modal isOpen={isModalStatusOpen} onModalClose={() => setModalStatusOpen(false)} title="Update Status">
       <BodyText>
@@ -41,10 +45,7 @@ const ModalStatus = ({ userData, idCheck, isModalStatusOpen, setModalStatusOpen 
         ))}
       </div>
       <div className="el-flex el-flex-justify-end el-mt6">
-        <Button
-          intent="primary"
-          onClick={() => updateStatus({ id: idCheck.id!, _eTag: idCheck._eTag!, status: userStatus })}
-        >
+        <Button intent="primary" onClick={handleUpdateStatus}>
           Save Status
         </Button>
       </div>
