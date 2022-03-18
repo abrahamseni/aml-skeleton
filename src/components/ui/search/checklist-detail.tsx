@@ -33,19 +33,11 @@ import { useGetIdentityDocumentTypes } from 'platform-api/configuration-api'
 interface GenerateTabsContentProps {
   querySingleContact: UseQueryResult<ContactModel, Error>
   queryIdentityCheck: UseQueryResult<IdentityCheckModel | undefined, unknown>
-<<<<<<< HEAD
-}
-
-export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectionProps['contents'] => {
-  const { querySingleContact, queryIdentityCheck } = props
-=======
   queryIdentityDocumentTypes: UseQueryResult<Required<ListItemModel>[] | undefined>
-  switchTabSection: (type: 'forward' | 'backward') => void
 }
 
 export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectionProps['contents'] => {
-  const { querySingleContact, queryIdentityCheck, queryIdentityDocumentTypes, switchTabSection } = props
->>>>>>> azka/form-personal-details
+  const { querySingleContact, queryIdentityCheck, queryIdentityDocumentTypes } = props
 
   // single contact
   const { data: userData } = querySingleContact
@@ -106,16 +98,11 @@ export const ChecklistDetailPage: FC = () => {
 
   // data is available from here //
   // render tab contents
-<<<<<<< HEAD
-  const tabContents = generateTabsContent({ querySingleContact, queryIdentityCheck })
-=======
   const tabContents = generateTabsContent({
     querySingleContact,
     queryIdentityCheck,
     queryIdentityDocumentTypes,
-    switchTabSection,
   })
->>>>>>> azka/form-personal-details
   // progress bar indicator
   const { complete: completeStep, total: totalStep } = generateProgressBarResult({ tabContents })
 
