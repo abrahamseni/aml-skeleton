@@ -61,12 +61,11 @@ export const IdForm: FC<IdFormProps> = ({
     const documentFile = getValues('documentFile')
     let document = ''
     if (!isDataUrl(documentFile)) {
-      const data = await downloadDocument({ documentId: documentFile })
+      const data = await downloadDocument(documentFile)
       document = data || ''
     } else {
       document = documentFile
     }
-
     setDocumentPreviewState({ isOpen: true, loading: false, document: document })
   }
 
@@ -152,11 +151,7 @@ export const IdForm: FC<IdFormProps> = ({
           onModalClose={() => setDocumentPreviewState({ isOpen: false, loading: false, document: '' })}
         />
       </div>
-      <FormFooter
-        idUser={rpsRef || ''}
-        isFieldError={!!Object.keys(errors).length}
-        isFormSubmitting={!!loading}
-      />
+      <FormFooter idUser={rpsRef || ''} isFieldError={!!Object.keys(errors).length} isFormSubmitting={!!loading} />
     </form>
   )
 }

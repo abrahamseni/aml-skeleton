@@ -34,6 +34,7 @@ export interface FileInputProps extends Omit<React.InputHTMLAttributes<HTMLInput
   fileName?: string
   onBlur?: (e: { target: EventTarget & HTMLInputElement; type: string }) => void
   invalid?: boolean
+  'data-testid'?: string
 }
 
 export type FileInputWrapped = React.ForwardRefExoticComponent<
@@ -118,6 +119,7 @@ export const FileInput: FileInputWrapped = forwardRef(
       id,
       disabled,
       invalid,
+      'data-testid': testID,
       ...rest
     },
     ref: React.ForwardedRef<React.InputHTMLAttributes<HTMLInputElement>>,
@@ -140,6 +142,13 @@ export const FileInput: FileInputWrapped = forwardRef(
       onBlur && onBlur(blurEvent)
     }
 
+    function testIDPrefix() {
+      if (!testID) {
+        return ''
+      }
+      return `${testID}.`
+    }
+
     return (
       <ElFileInputWrap>
         {label && <Label>{label}</Label>}
@@ -148,7 +157,7 @@ export const FileInput: FileInputWrapped = forwardRef(
             {fileUrl ? 'Change' : 'Upload'}
           </Button>
           <ElFileInput
-            data-testid="el-file-input"
+            data-testid={testIDPrefix() + 'file-input'}
             accept={accept}
             type="file"
             onChange={handleFileChange(setFileName, fileName, onFileUpload)}
@@ -160,6 +169,7 @@ export const FileInput: FileInputWrapped = forwardRef(
             onChange={onInputHiddenChange}
             defaultValue={defaultValue}
             ref={ref as LegacyRef<HTMLInputElement>}
+            data-testid={testID}
           />
           {fileUrl ? (
             <ElFileInputIconContainer>
@@ -169,6 +179,7 @@ export const FileInput: FileInputWrapped = forwardRef(
                   className={elMr4}
                   intent="primary"
                   icon="previewSystem"
+                  data-testid={testIDPrefix() + 'preview-button'}
                 />
               )}
               <Icon
@@ -176,6 +187,7 @@ export const FileInput: FileInputWrapped = forwardRef(
                 className={cx(elMr4, disabled && ElIconDisabled)}
                 intent="primary"
                 icon="cancelSolidSystem"
+                data-testid={testIDPrefix() + 'clear-button'}
               />
             </ElFileInputIconContainer>
           ) : (

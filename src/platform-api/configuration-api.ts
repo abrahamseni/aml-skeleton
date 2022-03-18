@@ -7,7 +7,7 @@ import { useQuery, UseQueryResult } from 'react-query'
 
 export const getIdentityDocumentTypes = async (): Promise<Required<ListItemModel>[] | undefined> => {
   const response = await axios.get(`${URLS.CONFIGURATION_DOCUMENT_TYPES}`)
-  const idDocTypes: Required<ListItemModel>[] = response.data 
+  const idDocTypes: Required<ListItemModel>[] = response.data
   return idDocTypes.filter((type) => type.id !== '')
 }
 

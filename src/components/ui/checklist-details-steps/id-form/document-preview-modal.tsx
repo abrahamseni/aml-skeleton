@@ -8,12 +8,12 @@ import { styled } from '@linaria/react'
 import { css } from '@linaria/core'
 import { isObjectUrl } from '../../../../utils/url'
 
-interface Props extends ModalProps {
+export interface DocumentPreviewModalProps extends ModalProps {
   src?: string
   loading?: boolean
 }
 
-export const DocumentPreviewModal: FC<Props> = ({ src, isOpen, onModalClose, loading }) => {
+export const DocumentPreviewModal: FC<DocumentPreviewModalProps> = ({ src, isOpen, onModalClose, loading }) => {
   const [pdfPreviewIsVisible, setPdfPreviewIsVisible] = useState(false)
   const [pdfNumPages, setPdfNumPages] = useState(0)
 
