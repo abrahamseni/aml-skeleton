@@ -1,3 +1,6 @@
+/* eslint-disable no-confusing-arrow */
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react'
 import { Button, elWFull, FormLayout, InputWrapFull, useSnack } from '@reapit/elements'
 import { useForm } from 'react-hook-form'
@@ -109,9 +112,6 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData, switc
           idUser={userData?.id}
           isFieldError={!!Object.keys(currentForm.formState.errors).length}
           isFormSubmitting={updateContactData?.isLoading}
-          currentForm={currentForm}
-          switchTabContent={switchTabContent}
-          submitHandler={onSubmitHandler}
         />
       </form>
     </>

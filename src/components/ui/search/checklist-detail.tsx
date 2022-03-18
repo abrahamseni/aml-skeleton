@@ -127,7 +127,7 @@ export const ChecklistDetailPage: FC = () => {
     )
   }
 
-  if (userData && identityCheck) {
+  if (userData) {
     return (
       <main>
         <Title hasNoMargin>{`${userData?.forename} ${userData?.surname}`}</Title>
@@ -163,7 +163,7 @@ export const ChecklistDetailPage: FC = () => {
     )
   }
 
-  return <></>
+  return <Loader fullPage label="Please wait..." />
 }
 
 export default ChecklistDetailPage
