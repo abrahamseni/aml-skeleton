@@ -26,7 +26,7 @@ const TabsSection: React.FC<TabsSectionProps> = ({
         </div>
         <div className="el-tabs-footer"></div>
       </div>
-      <div>{contents[activeTabs].content}</div>
+      <div data-testid="test.active.tab.content">{contents[activeTabs].content}</div>
     </>
   )
 }
@@ -53,16 +53,17 @@ const generateTableContent = (props: GenerateTableContents): React.ReactNode => 
           value={`tab-${index}-fw`}
           checked={activeTabs === index ? true : false}
           onClick={() => setActiveTabs(index)}
+          data-testid="test.tab.header"
         />
         <label htmlFor={`tab-${index}-fw`} className="el-tabs-label">
           <span className="el-tabs-item">
             <FlexContainer isFlexAlignCenter isFlexJustifyEnd>
-              <div>
+              <div data-testid="test.tab.name">
                 <BodyText hasNoMargin hasGreyText hasBoldText={activeTabs === index ? true : false}>
                   {v.name}
                 </BodyText>
               </div>
-              <div className={elMl6}>
+              <div data-testid="test.status.indicator" className={elMl6}>
                 <StatusIndicator intent={v.status ? 'success' : 'neutral'} />
               </div>
             </FlexContainer>

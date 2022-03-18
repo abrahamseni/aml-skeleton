@@ -1,5 +1,4 @@
 import React from 'react'
-import { InputError } from '@reapit/elements'
 import { FormState } from 'react-hook-form'
 
 import {
@@ -119,7 +118,11 @@ export const displayErrorMessage = <T extends AvailableFieldNameType, U extends 
   }
 
   if (errorMessage) {
-    return <InputError data-testid={fieldName} message={errorMessage} />
+    return (
+      <p data-testid={`test.error.${fieldName}`} className="el-input-error">
+        {errorMessage}
+      </p>
+    )
   }
 
   return undefined

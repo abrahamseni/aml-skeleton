@@ -93,6 +93,9 @@ export const generateLabelField = (text: string, isRequired: boolean = false): s
   return text
 }
 
+export const generateTestId = (test: string): string => {
+  return `test.${test}`
+}
 interface GenerateProgressBarProps {
   tabContents: TabsSectionProps['contents']
 }
@@ -113,10 +116,6 @@ export const generateProgressBarResult = ({ tabContents }: GenerateProgressBarPr
     switch (v.status) {
       case true:
         result.complete += 1
-        result.total += 1
-        break
-      case false:
-        result.notComplete += 1
         result.total += 1
         break
       default:
