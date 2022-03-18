@@ -36,13 +36,26 @@ const PrimaryId = ({ contact, idCheck, idDocTypes, onSaved }: PrimaryIdProps) =>
     if (!idCheck) {
       return defaultValues
     }
-    const idDoc = idCheck.identityDocument1!
-    return {
-      idType: idDoc.typeId!,
-      idReference: idDoc.details!,
-      expiryDate: idDoc.expiry!,
-      documentFile: idDoc.documentId!,
+    if (!idCheck.identityDocument1) {
+      return defaultValues
     }
+    const idDoc = idCheck.identityDocument1
+    return {
+      idType: idDoc.typeId || '',
+      idReference: idDoc.details || '',
+      expiryDate: idDoc.expiry || '',
+      documentFile: idDoc.documentId || '',
+    }
+  }
+
+  function getIdDocTypes() {
+    if (!idCheck) {
+      return idDocTypes
+    }
+    if (!idCheck.identityDocument2) {
+      return idDocTypes
+    }
+    return idDocTypes?.filter((type) => type.id !== idCheck.identityDocument2?.typeId)
   }
 
   async function save(values: ValuesType) {
@@ -79,7 +92,7 @@ const PrimaryId = ({ contact, idCheck, idDocTypes, onSaved }: PrimaryIdProps) =>
       <Subtitle>Primary ID</Subtitle>
       <IdForm
         defaultValues={getDefaultValues()}
-        idDocTypes={idDocTypes}
+        idDocTypes={getIdDocTypes()}
         rpsRef={contact.id}
         loading={loading}
         onSave={save}

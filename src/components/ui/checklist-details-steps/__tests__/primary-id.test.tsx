@@ -67,6 +67,52 @@ describe('primary id', () => {
     expect(defaultValues).toEqual(expectedDefaultValues)
   })
 
+  test('exclude id type option that has been selected by secondary id form', async () => {
+    setup({
+      idCheck: {
+        identityDocument1: {
+          typeId: '',
+          details: '',
+          expiry: '',
+          documentId: '',
+        },
+        identityDocument2: {
+          typeId: 'A',
+          details: '',
+          expiry: '',
+          documentId: '',
+        },
+      },
+      idDocTypes: [
+        {
+          id: 'A',
+          value: 'A val',
+        },
+        {
+          id: 'B',
+          value: 'B val',
+        },
+        {
+          id: 'C',
+          value: 'C val'
+        }
+      ]
+    })
+
+    const { idDocTypes } = getIdFormProps()
+
+    expect(idDocTypes).toEqual([
+      {
+        id: 'B',
+        value: 'B val',
+      },
+      {
+        id: 'C',
+        value: 'C val'
+      }
+    ])
+  })
+
   test('can show RPS Ref', async () => {
     const expectedRpsRef = 'c123'
     setup({
