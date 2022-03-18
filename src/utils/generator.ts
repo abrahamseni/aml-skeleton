@@ -85,7 +85,7 @@ interface GenerateProgressBarProps {
   tabContents: TabsSectionProps['contents']
 }
 
-interface GenerateProgressBarResult {
+export interface GenerateProgressBarResult {
   notComplete: number
   complete: number
   total: number

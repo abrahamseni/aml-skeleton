@@ -96,7 +96,6 @@ export const ChecklistDetailPage: FC = () => {
   // local state - tab pagination handler
   const [activeTabs, setActiveTabs] = React.useState<number>(0)
 
-  // data is available from here //
   // render tab contents
   const tabContents = generateTabsContent({
     querySingleContact,
@@ -104,7 +103,7 @@ export const ChecklistDetailPage: FC = () => {
     queryIdentityDocumentTypes,
   })
   // progress bar indicator
-  const { complete: completeStep, total: totalStep } = generateProgressBarResult({ tabContents })
+  const currentProgressBarStatus = generateProgressBarResult({ tabContents })
 
   if (
     (userDataIsFetching && !userData) ||
@@ -138,13 +137,13 @@ export const ChecklistDetailPage: FC = () => {
     )
   }
 
-  if (userData) {
+  if (userData && identityCheck) {
     return (
       <main>
         <Title hasNoMargin>{`${userData?.forename} ${userData?.surname}`}</Title>
         <div className="el-flex el-flex-row">
           <Subtitle hasGreyText hasBoldText>
-            Status: {userData?.identityCheck?.toUpperCase()}
+            Status: {identityCheck.status?.toUpperCase()}
           </Subtitle>
           <Icon
             icon="editSolidSystem"
@@ -154,7 +153,11 @@ export const ChecklistDetailPage: FC = () => {
           />
         </div>
         <div>
-          <ProgressBarSteps currentStep={completeStep} numberSteps={totalStep} className="el-mt6" />
+          <ProgressBarSteps
+            currentStep={currentProgressBarStatus.complete}
+            numberSteps={currentProgressBarStatus.total}
+            className="el-mt6"
+          />
         </div>
         <div className="el-mt3">
           <TabsSection
@@ -169,6 +172,7 @@ export const ChecklistDetailPage: FC = () => {
           idCheck={identityCheck!}
           isModalStatusOpen={isModalStatusOpen}
           setModalStatusOpen={setModalStatusOpen}
+          progressBarStatus={currentProgressBarStatus}
         />
       </main>
     )

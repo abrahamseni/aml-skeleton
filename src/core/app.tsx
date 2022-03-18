@@ -4,7 +4,7 @@ import { ReactQueryDevtools } from 'react-query/devtools'
 
 import Router from './router'
 import ErrorBoundary from '../components/hocs/error-boundary'
-import { MediaStateProvider, NavStateProvider } from '@reapit/elements'
+import { MediaStateProvider, NavStateProvider, SnackProvider } from '@reapit/elements'
 import '@reapit/elements/dist/index.css'
 
 const queryClient = new QueryClient({
@@ -21,7 +21,9 @@ const App: FC = () => (
     <QueryClientProvider client={queryClient}>
       <NavStateProvider>
         <MediaStateProvider>
-          <Router />
+          <SnackProvider>
+            <Router />
+          </SnackProvider>
         </MediaStateProvider>
       </NavStateProvider>
       <ReactQueryDevtools />
