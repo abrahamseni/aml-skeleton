@@ -7,7 +7,7 @@ import IdForm, { IdFormProps } from '../id-form/id-form'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import axios from 'axios'
 import AxiosMockAdapter from 'axios-mock-adapter'
-import { identityDocumentTypes } from '../id-form/__mocks__'
+import { identityDocumentTypes } from '../id-form/__mocks__/identity-document-types'
 import { URLS } from '../../../../constants/api'
 import '@alex_neo/jest-expect-message'
 import { success, error } from 'utils/mocks/useSnack'
@@ -73,6 +73,52 @@ describe('secondary id', () => {
     expect(defaultValues).toEqual(expectedDefaultValues)
   })
 
+  test('exclude id type option that has been selected by primary id form', async () => {
+    setup({
+      idCheck: {
+        identityDocument1: {
+          typeId: 'C',
+          details: '',
+          expiry: '',
+          documentId: '',
+        },
+        identityDocument2: {
+          typeId: '',
+          details: '',
+          expiry: '',
+          documentId: '',
+        },
+      },
+      idDocTypes: [
+        {
+          id: 'A',
+          value: 'A val',
+        },
+        {
+          id: 'B',
+          value: 'B val',
+        },
+        {
+          id: 'C',
+          value: 'C val'
+        }
+      ]
+    })
+
+    const { idDocTypes } = getIdFormProps()
+
+    expect(idDocTypes).toEqual([
+      {
+        id: 'A',
+        value: 'A val',
+      },
+      {
+        id: 'B',
+        value: 'B val',
+      },
+    ])
+  })
+
   test('can show RPS Ref', async () => {
     const expectedRpsRef = 'c123'
     setup({
@@ -103,38 +149,17 @@ describe('secondary id', () => {
     })
 
     expect(saveIdentityDocument).toBeCalledTimes(1)
-    expect(saveIdentityDocument.mock.calls[0]).toEqual([{ id: 'c123' }, undefined, expectedValue])
-    expect(success).toBeCalledTimes(1)
-    expect(success.mock.calls[0][0]).toBe('Successfully update secondary id')
-  })
+    expect(saveIdentityDocument.mock.calls[0][0]).toEqual({ id: 'c123' })
+    expect(saveIdentityDocument.mock.calls[0][1]).toEqual(undefined)
+    expect(saveIdentityDocument.mock.calls[0][2]).toEqual(expectedValue)
 
-  test('can go to next', async () => {
-    setup()
-
-    const expectedValue = {
-      idType: 'DL',
-      idReference: 'Hello Refa',
-      expiryDate: '2021-10-24',
-      documentFile: 'this is document',
-    }
-
-    const { onNext } = getIdFormProps()
-
-    await act(async () => {
-      onNext!(expectedValue)
-    })
-
-    expect(saveIdentityDocument).toBeCalledTimes(1)
-    expect(saveIdentityDocument.mock.calls[0]).toEqual([{ id: 'c123' }, undefined, expectedValue])
+    saveIdentityDocument.mock.calls[0][3].onSuccess()
     expect(success).toBeCalledTimes(1)
     expect(success.mock.calls[0][0]).toBe('Successfully update secondary id')
   })
 
   test('show error notification when failed to save', async () => {
     setup()
-    saveIdentityDocument.mockImplementationOnce(() => {
-      throw new Error()
-    })
 
     const expectedValue = {
       idType: 'DL',
@@ -150,6 +175,8 @@ describe('secondary id', () => {
     })
 
     expect(saveIdentityDocument).toBeCalledTimes(1)
+
+    saveIdentityDocument.mock.calls[0][3].onError()
     expect(error).toBeCalledTimes(1)
     expect(error.mock.calls[0][0]).toBe('Cannot update secondary id, try to reload your browser')
   })

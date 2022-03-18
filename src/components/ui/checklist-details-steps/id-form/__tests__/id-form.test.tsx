@@ -6,7 +6,7 @@ import { formFields } from '../form-schema/form-field'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import axios from 'axios/axios'
 import AxiosMockAdapter from 'axios-mock-adapter'
-import { identityDocumentTypes } from '../__mocks__'
+import { identityDocumentTypes } from '../__mocks__/identity-document-types'
 import { URLS } from 'constants/api'
 import { wait } from 'utils/test'
 
@@ -49,7 +49,7 @@ describe('id form', () => {
 
     await wait(0)
 
-    const saveButton = await screen.findByTestId('saveButton')
+    const saveButton = await screen.findByTestId('save-form')
     userEvent.click(saveButton)
 
     await wait(0)
@@ -72,48 +72,13 @@ describe('id form', () => {
 
     const expectedValue = await fillFormWithValidValue()
 
-    const saveButton = await screen.findByTestId('saveButton')
+    const saveButton = await screen.findByTestId('save-form')
     userEvent.click(saveButton)
 
     await wait(0)
 
     expect(onSave).toBeCalledTimes(1)
     expect(onSave.mock.calls[0]).toEqual([expectedValue])
-  })
-
-  test('can go to next', async () => {
-    const onNext = jest.fn()
-    setup({
-      onNext: onNext,
-    })
-
-    await wait(0)
-
-    const expectedValue = await fillFormWithValidValue()
-
-    const nextButton = await screen.findByTestId('nextButton')
-    userEvent.click(nextButton)
-
-    await wait(0)
-
-    expect(onNext).toBeCalledTimes(1)
-    expect(onNext.mock.calls[0]).toEqual([expectedValue])
-  })
-
-  test('can go to previous', async () => {
-    const onPrevious = jest.fn()
-    setup({
-      onPrevious: onPrevious,
-    })
-
-    await wait(0)
-
-    const previousButton = await screen.findByTestId('previousButton')
-    userEvent.click(previousButton)
-
-    await wait(0)
-
-    expect(onPrevious).toBeCalledTimes(1)
   })
 
   test('can show notice text', async () => {
@@ -132,15 +97,16 @@ describe('id form', () => {
 
   test('can show RPS Ref', async () => {
     const rpsRef = '123456'
+    const expectedText = `RPS Ref: ${rpsRef}`
     setup({
       rpsRef: rpsRef,
     })
 
     await wait(0)
 
-    const rpsRetTextEl = await screen.findByTestId('rpsRefText')
+    const rpsRetTextEl = await screen.findByText(expectedText)
 
-    expect(rpsRetTextEl.textContent).toBe(rpsRef)
+    expect(rpsRetTextEl.textContent).toBe(expectedText)
   })
 })
 
@@ -167,7 +133,7 @@ function setup(props: Props = {}) {
   axiosMock
     .onGet(`${window.reapit.config.platformApiUrl}${URLS.CONFIGURATION_DOCUMENT_TYPES}`)
     .reply(200, identityDocumentTypes)
-  renderPrimaryId(props)
+  renderIdForm(props)
 }
 
 async function createDataUrl(content: string): Promise<string> {
@@ -196,13 +162,13 @@ const queryClient = new QueryClient({
 
 type Props = Partial<IdFormProps>
 
-function renderPrimaryId({ onSave, ...rest }: Props = {}) {
+function renderIdForm({ onSave, ...rest }: Props = {}) {
   queryClient.clear()
 
   const theOnSave = onSave || (() => {})
   return render(
     <QueryClientProvider client={queryClient}>
-      <IdForm onSave={theOnSave} {...rest} />
+      <IdForm idDocTypes={identityDocumentTypes} onSave={theOnSave} {...rest} />
     </QueryClientProvider>,
   )
 }

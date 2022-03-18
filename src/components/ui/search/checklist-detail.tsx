@@ -6,7 +6,7 @@ import { useReapitConnect } from '@reapit/connect-session'
 import { Subtitle, Title, Icon, ProgressBarSteps, Loader, PersistantNotification, BodyText } from '@reapit/elements'
 import { useParams } from 'react-router'
 import { UseQueryResult } from 'react-query'
-import { ContactModel, IdentityCheckModel } from '@reapit/foundations-ts-definitions'
+import { ContactModel, IdentityCheckModel, ListItemModel } from '@reapit/foundations-ts-definitions'
 import { Link } from 'react-router-dom'
 import PersonalDetails from '../checklist-details-steps/personal-details'
 import PrimaryId from '../checklist-details-steps/primary-id'
@@ -28,21 +28,25 @@ import {
 } from '../../../utils/completed-sections'
 import { TabsSectionProps } from '../tab-section/tab-section'
 import { generateProgressBarResult } from '../../../utils/generator'
+import { useGetIdentityDocumentTypes } from 'platform-api/configuration-api'
 
 interface GenerateTabsContentProps {
   querySingleContact: UseQueryResult<ContactModel, Error>
   queryIdentityCheck: UseQueryResult<IdentityCheckModel | undefined, unknown>
+  queryIdentityDocumentTypes: UseQueryResult<Required<ListItemModel>[] | undefined>
   switchTabSection: (type: 'forward' | 'backward') => void
 }
 
 export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectionProps['contents'] => {
-  const { querySingleContact, queryIdentityCheck, switchTabSection } = props
+  const { querySingleContact, queryIdentityCheck, queryIdentityDocumentTypes, switchTabSection } = props
 
   // single contact
   const { data: userData } = querySingleContact
 
   // identity check
   const { data: idCheck, refetch: refetchIdCheck } = queryIdentityCheck
+
+  const { data: idDocTypes } = queryIdentityDocumentTypes
   return [
     {
       name: 'Personal',
@@ -51,12 +55,12 @@ export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectio
     },
     {
       name: 'Primary ID',
-      content: <PrimaryId contact={userData!} idCheck={idCheck} onSaved={refetchIdCheck} />,
+      content: <PrimaryId contact={userData!} idCheck={idCheck} idDocTypes={idDocTypes} onSaved={refetchIdCheck} />,
       status: isCompletedPrimaryID(idCheck),
     },
     {
       name: 'Secondary ID',
-      content: <SecondaryId contact={userData!} idCheck={idCheck} onSaved={refetchIdCheck} />,
+      content: <SecondaryId contact={userData!} idCheck={idCheck} idDocTypes={idDocTypes} onSaved={refetchIdCheck} />,
       status: isCompletedSecondaryID(idCheck),
     },
     {
@@ -82,6 +86,13 @@ export const ChecklistDetailPage: FC = () => {
   const queryIdentityCheck = useFetchSingleIdentityCheckByContactId(id)
   const { data: identityCheck, isFetching: identityCheckIsFetching, isError: identityCheckIsError } = queryIdentityCheck
 
+  const queryIdentityDocumentTypes = useGetIdentityDocumentTypes()
+  const {
+    data: identityDocumentTypes,
+    isFetching: identityDocumentTypesIsFetching,
+    isError: identityDocumentTypesIsError,
+  } = queryIdentityDocumentTypes
+
   const [isModalStatusOpen, setModalStatusOpen] = useState<boolean>(false)
   // local state - tab pagination handler
   const [activeTabs, setActiveTabs] = React.useState<number>(0)
@@ -99,15 +110,28 @@ export const ChecklistDetailPage: FC = () => {
     }
   }
   // render tab contents
-  const tabContents = generateTabsContent({ querySingleContact, queryIdentityCheck, switchTabSection })
+  const tabContents = generateTabsContent({
+    querySingleContact,
+    queryIdentityCheck,
+    queryIdentityDocumentTypes,
+    switchTabSection,
+  })
   // progress bar indicator
   const { complete: completeStep, total: totalStep } = generateProgressBarResult({ tabContents })
 
-  if ((userDataIsFetching && !userData) || (identityCheckIsFetching && !userData)) {
+  if (
+    (userDataIsFetching && !userData) ||
+    (identityCheckIsFetching && !userData) ||
+    (identityDocumentTypesIsFetching && !userData)
+  ) {
     return <Loader fullPage label="Please wait..." />
   }
 
-  if ((!userData && userDataIsError) || (!identityCheck && identityCheckIsError)) {
+  if (
+    (!userData && userDataIsError) ||
+    (!identityCheck && identityCheckIsError) ||
+    (!identityDocumentTypes && identityDocumentTypesIsError)
+  ) {
     return (
       <>
         <Link to={Routes.SEARCH}>
