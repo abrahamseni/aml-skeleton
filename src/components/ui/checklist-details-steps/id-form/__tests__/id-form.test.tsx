@@ -6,7 +6,7 @@ import { formFields } from '../form-schema/form-field'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import axios from 'axios/axios'
 import AxiosMockAdapter from 'axios-mock-adapter'
-import { identityDocumentTypes } from '../__mocks__'
+import { identityDocumentTypes } from '../__mocks__/identity-document-types'
 import { URLS } from 'constants/api'
 import { wait } from 'utils/test'
 
@@ -167,7 +167,7 @@ function setup(props: Props = {}) {
   axiosMock
     .onGet(`${window.reapit.config.platformApiUrl}${URLS.CONFIGURATION_DOCUMENT_TYPES}`)
     .reply(200, identityDocumentTypes)
-  renderPrimaryId(props)
+  renderIdForm(props)
 }
 
 async function createDataUrl(content: string): Promise<string> {
@@ -196,13 +196,13 @@ const queryClient = new QueryClient({
 
 type Props = Partial<IdFormProps>
 
-function renderPrimaryId({ onSave, ...rest }: Props = {}) {
+function renderIdForm({ onSave, ...rest }: Props = {}) {
   queryClient.clear()
 
   const theOnSave = onSave || (() => {})
   return render(
     <QueryClientProvider client={queryClient}>
-      <IdForm onSave={theOnSave} {...rest} />
+      <IdForm idDocTypes={identityDocumentTypes} onSave={theOnSave} {...rest} />
     </QueryClientProvider>,
   )
 }

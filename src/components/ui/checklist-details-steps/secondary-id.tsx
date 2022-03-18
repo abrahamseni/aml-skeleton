@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Subtitle, useSnack } from '@reapit/elements'
 import IdForm, { ValuesType } from './id-form'
-import { ContactModel, IdentityCheckModel } from '@reapit/foundations-ts-definitions'
+import { ContactModel, IdentityCheckModel, ListItemModel } from '@reapit/foundations-ts-definitions'
 import { useSaveIdentityDocument } from './id-form/identity-check-action'
 import { notificationMessage } from 'constants/notification-message'
 
@@ -15,10 +15,11 @@ const defaultValues = {
 export type SecondaryIdProps = {
   contact: ContactModel
   idCheck?: IdentityCheckModel
+  idDocTypes?: Required<ListItemModel>[]
   onSaved?: () => void
 }
 
-const SecondaryId = ({ contact, idCheck, onSaved }: SecondaryIdProps) => {
+const SecondaryId = ({ contact, idCheck, idDocTypes, onSaved }: SecondaryIdProps) => {
   const saveIdentityDocument = useSaveIdentityDocument(2)
   const [loading, setLoading] = useState(false)
   const { success, error } = useSnack()
@@ -47,8 +48,6 @@ const SecondaryId = ({ contact, idCheck, onSaved }: SecondaryIdProps) => {
   }
 
   async function save(values: ValuesType) {
-    console.log('save')
-
     await doSave(values)
   }
 
@@ -57,23 +56,24 @@ const SecondaryId = ({ contact, idCheck, onSaved }: SecondaryIdProps) => {
   }
 
   async function goToNext(values: ValuesType) {
-    console.log('next')
-
     await doSave(values)
   }
 
   async function doSave(values: ValuesType) {
     setLoading(true)
 
-    try {
-      await saveIdentityDocument(contact, idCheck, values)
-      success(notificationMessage.PI2_SUCCESS)
-    } catch (ignored) {
-      error(notificationMessage.PI2_ERROR)
-    }
-
-    setLoading(false)
-    onSaved && onSaved()
+    saveIdentityDocument(contact, idCheck, values, {
+      onSuccess() {
+        success(notificationMessage.PI2_SUCCESS)
+        onSaved && onSaved()
+      },
+      onError() {
+        error(notificationMessage.PI2_ERROR)
+      },
+      onSettled() {
+        setLoading(false)
+      },
+    })
   }
 
   return (
@@ -81,6 +81,7 @@ const SecondaryId = ({ contact, idCheck, onSaved }: SecondaryIdProps) => {
       <Subtitle>Secondary ID</Subtitle>
       <IdForm
         defaultValues={getDefaultValues()}
+        idDocTypes={idDocTypes}
         rpsRef={contact.id}
         noticeText={getNoticeText()}
         loading={loading}

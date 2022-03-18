@@ -2,9 +2,7 @@ import React, { FC, useState } from 'react'
 import { Button, InputGroup, Label, Select, FlexContainer, ButtonGroup, Input, Loader } from '@reapit/elements'
 import { FileInput, FileInputProps } from './file-input'
 import { useForm, UseFormRegister, UseFormRegisterReturn } from 'react-hook-form'
-import { useGetIdentityDocumentTypes } from 'platform-api/configuration-api'
 import { formFields, ValuesType } from './form-schema/form-field'
-import { identityDocumentTypes } from './__mocks__'
 import DocumentPreviewModal from './document-preview-modal'
 import { useDownloadDocument } from 'platform-api/document-api'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -12,6 +10,7 @@ import { isDataUrl } from 'utils/url'
 import validationSchema from './form-schema/validation-schema'
 import { SaveButtonGroup, LoaderContainer } from './__styles__/id-form.style'
 import { generateLabelField } from 'utils/generator'
+import { ListItemModel } from '@reapit/foundations-ts-definitions'
 
 const defaultValuesConst = {
   idType: '',
@@ -22,6 +21,7 @@ const defaultValuesConst = {
 
 export type IdFormProps = {
   defaultValues?: ValuesType
+  idDocTypes?: Required<ListItemModel>[]
   onSave: (values: ValuesType) => void
   onPrevious?: () => void
   onNext?: (values: ValuesType) => void
@@ -33,6 +33,7 @@ export type IdFormProps = {
 
 export const IdForm: FC<IdFormProps> = ({
   defaultValues,
+  idDocTypes,
   onSave,
   onNext,
   onPrevious,
@@ -51,8 +52,6 @@ export const IdForm: FC<IdFormProps> = ({
     resolver: yupResolver(validationSchema),
     mode: 'onBlur',
   })
-  const { data: identityDocumentTypesData } = useGetIdentityDocumentTypes()
-  identityDocumentTypesData
   const [documentPreviewState, setDocumentPreviewState] = useState({
     isOpen: false,
     loading: true,
@@ -98,8 +97,8 @@ export const IdForm: FC<IdFormProps> = ({
           disabled={disabled}
           data-testid={`input.${formFields.idType.name}`}
         >
-          {identityDocumentTypes &&
-            identityDocumentTypes.map((opt) => (
+          {idDocTypes &&
+            idDocTypes.map((opt) => (
               <option key={opt.id} value={opt.id}>
                 {opt.value}
               </option>
