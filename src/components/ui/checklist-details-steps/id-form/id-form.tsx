@@ -1,7 +1,7 @@
 import React, { FC, useState } from 'react'
 import { Button, InputGroup, Label, Select, FlexContainer, ButtonGroup, Input, Loader } from '@reapit/elements'
-import { FileInput, FileInputProps } from './file-input'
-import { useForm, UseFormRegister, UseFormRegisterReturn } from 'react-hook-form'
+import { FileInput } from './file-input'
+import { useForm } from 'react-hook-form'
 import { formFields, ValuesType } from './form-schema/form-field'
 import DocumentPreviewModal from './document-preview-modal'
 import { useDownloadDocument } from 'platform-api/document-api'
@@ -143,15 +143,14 @@ export const IdForm: FC<IdFormProps> = ({
         )}
       </InputGroup>
       <div className="el-my3">
-        <MyFileInput
+        <FileInput
           label={generateLabelField(formFields.documentFile.label, true)}
-          name={formFields.documentFile.name}
           defaultValue={getValues('documentFile')}
           onFileView={openDocumentPreview}
-          register={register}
           accept="image/jpeg, image/png, application/pdf"
           disabled={disabled}
           invalid={errors.documentFile ? true : false}
+          {...register(formFields.documentFile.name)}
           data-testid={`input.${formFields.documentFile.name}`}
         />
         {errors.documentFile?.message && (
@@ -203,30 +202,6 @@ export const IdForm: FC<IdFormProps> = ({
       </FlexContainer>
     </div>
   )
-}
-
-interface MyFIleInputProps extends FileInputProps {
-  register?: UseFormRegister<any>
-}
-
-const MyFileInput: FC<MyFIleInputProps> = ({ name, onChange, register, ...props }) => {
-  function changeValue(e: React.ChangeEvent<HTMLInputElement>) {
-    onChange && onChange(e)
-    const validationProps = getValidationProps()
-    validationProps.onChange && validationProps.onChange(e)
-  }
-
-  function getValidationProps(): Partial<UseFormRegisterReturn> {
-    if (register !== undefined && name !== undefined) {
-      return register(name)
-    }
-
-    return {
-      onChange: (): any => {},
-    }
-  }
-
-  return <FileInput {...getValidationProps()} {...props} onChange={changeValue} />
 }
 
 export default IdForm
