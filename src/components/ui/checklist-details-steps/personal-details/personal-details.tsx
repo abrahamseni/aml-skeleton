@@ -10,6 +10,7 @@ import validationSchema from './form-schema/validation-schema'
 
 import { useUpdateContact } from '../../../../platform-api/contact-api/update-contact'
 import FormFooter from '../../form-footer/form-footer'
+import { generateLabelField } from 'utils/generator'
 import { notificationMessage } from '../../../../constants/notification-message'
 
 type PersonalDetailsProps = {
@@ -67,7 +68,7 @@ const PersonalDetails = ({ userData, switchTabContent }: PersonalDetailsProps) =
         </InputGroup>
         <InputGroup className="el-mt6 el-flex1">
           <Input id="surname" type="text" {...register('surname')} />
-          <Label htmlFor="name">Surname</Label>
+          <Label htmlFor="name"> {generateLabelField('surname', true)}</Label>
           {errors.surname?.message && <InputError message={errors.surname.message} />}
         </InputGroup>
       </div>
@@ -106,12 +107,9 @@ const PersonalDetails = ({ userData, switchTabContent }: PersonalDetailsProps) =
         </div>
       </div>
       <FormFooter
-        isPrevHide={true}
         idUser={userData?.id}
         isFieldError={!!Object.keys(errors).length}
         isFormSubmitting={updateContact?.isLoading}
-        switchTabContent={switchTabContent}
-        submitHandler={onSubmitHandler}
       />
     </form>
   )
