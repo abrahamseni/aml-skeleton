@@ -1,16 +1,16 @@
 import React, { FC, useState } from 'react'
-import { Button, InputGroup, Label, Select, FlexContainer, ButtonGroup, Input, Loader } from '@reapit/elements'
-import { FileInput, FileInputProps } from './file-input'
-import { useForm, UseFormRegister, UseFormRegisterReturn } from 'react-hook-form'
+import { InputGroup, Label, Select, Input } from '@reapit/elements'
+import { FileInput } from './file-input'
+import { useForm } from 'react-hook-form'
 import { formFields, ValuesType } from './form-schema/form-field'
 import DocumentPreviewModal from './document-preview-modal'
 import { useDownloadDocument } from 'platform-api/document-api'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { isDataUrl } from 'utils/url'
 import validationSchema from './form-schema/validation-schema'
-import { SaveButtonGroup, LoaderContainer } from './__styles__/id-form.style'
 import { generateLabelField } from 'utils/generator'
 import { ListItemModel } from '@reapit/foundations-ts-definitions'
+import FormFooter from 'components/ui/form-footer/form-footer'
 
 const defaultValuesConst = {
   idType: '',
@@ -23,8 +23,6 @@ export type IdFormProps = {
   defaultValues?: ValuesType
   idDocTypes?: Required<ListItemModel>[]
   onSave: (values: ValuesType) => void
-  onPrevious?: () => void
-  onNext?: (values: ValuesType) => void
   noticeText?: string
   rpsRef?: string
   disabled?: boolean
@@ -35,8 +33,6 @@ export const IdForm: FC<IdFormProps> = ({
   defaultValues,
   idDocTypes,
   onSave,
-  onNext,
-  onPrevious,
   noticeText,
   rpsRef,
   disabled,
@@ -75,20 +71,11 @@ export const IdForm: FC<IdFormProps> = ({
   }
 
   function save(values: ValuesType) {
-    // alert(JSON.stringify(values, null, 2))
     onSave(values)
   }
 
-  function goToPrevious() {
-    onPrevious && onPrevious()
-  }
-
-  function goToNext(values: ValuesType) {
-    onNext && onNext(values)
-  }
-
   return (
-    <div>
+    <form onSubmit={handleSubmit(save)}>
       {noticeText && <p data-testid="noticeText">*{noticeText}</p>}
       <InputGroup className="el-my3">
         <Label>{generateLabelField(formFields.idType.label, true)}</Label>
@@ -143,15 +130,14 @@ export const IdForm: FC<IdFormProps> = ({
         )}
       </InputGroup>
       <div className="el-my3">
-        <MyFileInput
+        <FileInput
           label={generateLabelField(formFields.documentFile.label, true)}
-          name={formFields.documentFile.name}
           defaultValue={getValues('documentFile')}
           onFileView={openDocumentPreview}
-          register={register}
           accept="image/jpeg, image/png, application/pdf"
           disabled={disabled}
           invalid={errors.documentFile ? true : false}
+          {...register(formFields.documentFile.name)}
           data-testid={`input.${formFields.documentFile.name}`}
         />
         {errors.documentFile?.message && (
@@ -166,67 +152,13 @@ export const IdForm: FC<IdFormProps> = ({
           onModalClose={() => setDocumentPreviewState({ isOpen: false, loading: false, document: '' })}
         />
       </div>
-      <FlexContainer isFlexJustifyBetween className="el-mt8">
-        <ButtonGroup>
-          <Button intent="secondary" chevronLeft onClick={goToPrevious} data-testid="previousButton">
-            Previous
-          </Button>
-        </ButtonGroup>
-        <FlexContainer isFlexAlignCenter>
-          <div className="el-mr4">
-            <span>RPS Ref:</span>
-            <span className="el-ml1" data-testid="rpsRefText">
-              {rpsRef || ''}
-            </span>
-          </div>
-          {!loading ? (
-            <SaveButtonGroup>
-              <Button intent="success" disabled={disabled} onClick={handleSubmit(save)} data-testid="saveButton">
-                Save
-              </Button>
-              <Button
-                intent="primary"
-                chevronRight
-                disabled={disabled}
-                onClick={handleSubmit(goToNext)}
-                data-testid="nextButton"
-              >
-                Next
-              </Button>
-            </SaveButtonGroup>
-          ) : (
-            <LoaderContainer>
-              <Loader label="Please wait" />
-            </LoaderContainer>
-          )}
-        </FlexContainer>
-      </FlexContainer>
-    </div>
+      <FormFooter
+        idUser={rpsRef || ''}
+        isFieldError={!!Object.keys(errors).length}
+        isFormSubmitting={!!loading}
+      />
+    </form>
   )
-}
-
-interface MyFIleInputProps extends FileInputProps {
-  register?: UseFormRegister<any>
-}
-
-const MyFileInput: FC<MyFIleInputProps> = ({ name, onChange, register, ...props }) => {
-  function changeValue(e: React.ChangeEvent<HTMLInputElement>) {
-    onChange && onChange(e)
-    const validationProps = getValidationProps()
-    validationProps.onChange && validationProps.onChange(e)
-  }
-
-  function getValidationProps(): Partial<UseFormRegisterReturn> {
-    if (register !== undefined && name !== undefined) {
-      return register(name)
-    }
-
-    return {
-      onChange: (): any => {},
-    }
-  }
-
-  return <FileInput {...getValidationProps()} {...props} onChange={changeValue} />
 }
 
 export default IdForm

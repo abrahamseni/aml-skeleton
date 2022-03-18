@@ -33,11 +33,21 @@ const SecondaryId = ({ contact, idCheck, idDocTypes, onSaved }: SecondaryIdProps
     }
     const idDoc = idCheck.identityDocument2
     return {
-      idType: idDoc.typeId!,
-      idReference: idDoc.details!,
-      expiryDate: idDoc.expiry!,
-      documentFile: idDoc.documentId!,
+      idType: idDoc.typeId || '',
+      idReference: idDoc.details || '',
+      expiryDate: idDoc.expiry || '',
+      documentFile: idDoc.documentId || '',
     }
+  }
+
+  function getIdDocTypes() {
+    if (!idCheck) {
+      return idDocTypes
+    }
+    if (!idCheck.identityDocument1) {
+      return idDocTypes
+    }
+    return idDocTypes?.filter((type) => type.id !== idCheck.identityDocument1?.typeId)
   }
 
   function getNoticeText() {
@@ -48,18 +58,6 @@ const SecondaryId = ({ contact, idCheck, idDocTypes, onSaved }: SecondaryIdProps
   }
 
   async function save(values: ValuesType) {
-    await doSave(values)
-  }
-
-  function goToPrevious() {
-    console.log('previous')
-  }
-
-  async function goToNext(values: ValuesType) {
-    await doSave(values)
-  }
-
-  async function doSave(values: ValuesType) {
     setLoading(true)
 
     saveIdentityDocument(contact, idCheck, values, {
@@ -81,14 +79,12 @@ const SecondaryId = ({ contact, idCheck, idDocTypes, onSaved }: SecondaryIdProps
       <Subtitle>Secondary ID</Subtitle>
       <IdForm
         defaultValues={getDefaultValues()}
-        idDocTypes={idDocTypes}
+        idDocTypes={getIdDocTypes()}
         rpsRef={contact.id}
         noticeText={getNoticeText()}
         loading={loading}
         disabled={idCheck ? false : true}
         onSave={save}
-        onPrevious={goToPrevious}
-        onNext={goToNext}
       />
     </>
   )
