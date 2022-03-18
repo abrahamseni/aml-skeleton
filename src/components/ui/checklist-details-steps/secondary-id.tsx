@@ -47,8 +47,6 @@ const SecondaryId = ({ contact, idCheck, onSaved }: SecondaryIdProps) => {
   }
 
   async function save(values: ValuesType) {
-    console.log('save')
-
     await doSave(values)
   }
 
@@ -57,23 +55,24 @@ const SecondaryId = ({ contact, idCheck, onSaved }: SecondaryIdProps) => {
   }
 
   async function goToNext(values: ValuesType) {
-    console.log('next')
-
     await doSave(values)
   }
 
   async function doSave(values: ValuesType) {
     setLoading(true)
 
-    try {
-      await saveIdentityDocument(contact, idCheck, values)
-      success(notificationMessage.PI2_SUCCESS)
-    } catch (ignored) {
-      error(notificationMessage.PI2_ERROR)
-    }
-
-    setLoading(false)
-    onSaved && onSaved()
+    saveIdentityDocument(contact, idCheck, values, {
+      onSuccess() {
+        success(notificationMessage.PI2_SUCCESS)
+        onSaved && onSaved()
+      },
+      onError() {
+        error(notificationMessage.PI2_ERROR)
+      },
+      onSettled() {
+        setLoading(false)
+      },
+    })
   }
 
   return (

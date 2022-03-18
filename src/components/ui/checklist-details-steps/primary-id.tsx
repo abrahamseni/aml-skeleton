@@ -45,8 +45,6 @@ const PrimaryId = ({ contact, idCheck, onSaved }: PrimaryIdProps) => {
   }
 
   async function save(values: ValuesType) {
-    // console.log('save')
-
     await doSave(values)
   }
 
@@ -55,23 +53,24 @@ const PrimaryId = ({ contact, idCheck, onSaved }: PrimaryIdProps) => {
   }
 
   async function goToNext(values: ValuesType) {
-    console.log('next')
-
     await doSave(values)
   }
 
   async function doSave(values: ValuesType) {
     setLoading(true)
 
-    try {
-      await saveIdentityDocument(contact, idCheck, values)
-      success(notificationMessage.PI1_SUCCESS)
-    } catch (ignored) {
-      error(notificationMessage.PI1_ERROR)
-    }
-
-    setLoading(false)
-    onSaved && onSaved()
+    saveIdentityDocument(contact, idCheck, values, {
+      onSuccess() {
+        success(notificationMessage.PI1_SUCCESS)
+        onSaved && onSaved()
+      },
+      onError() {
+        error(notificationMessage.PI1_ERROR)
+      },
+      onSettled() {
+        setLoading(false)
+      },
+    })
   }
 
   return (

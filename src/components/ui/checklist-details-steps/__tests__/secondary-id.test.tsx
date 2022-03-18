@@ -103,7 +103,11 @@ describe('secondary id', () => {
     })
 
     expect(saveIdentityDocument).toBeCalledTimes(1)
-    expect(saveIdentityDocument.mock.calls[0]).toEqual([{ id: 'c123' }, undefined, expectedValue])
+    expect(saveIdentityDocument.mock.calls[0][0]).toEqual({ id: 'c123' })
+    expect(saveIdentityDocument.mock.calls[0][1]).toEqual(undefined)
+    expect(saveIdentityDocument.mock.calls[0][2]).toEqual(expectedValue)
+
+    saveIdentityDocument.mock.calls[0][3].onSuccess()
     expect(success).toBeCalledTimes(1)
     expect(success.mock.calls[0][0]).toBe('Successfully update secondary id')
   })
@@ -125,16 +129,17 @@ describe('secondary id', () => {
     })
 
     expect(saveIdentityDocument).toBeCalledTimes(1)
-    expect(saveIdentityDocument.mock.calls[0]).toEqual([{ id: 'c123' }, undefined, expectedValue])
+    expect(saveIdentityDocument.mock.calls[0][0]).toEqual({ id: 'c123' })
+    expect(saveIdentityDocument.mock.calls[0][1]).toEqual(undefined)
+    expect(saveIdentityDocument.mock.calls[0][2]).toEqual(expectedValue)
+
+    saveIdentityDocument.mock.calls[0][3].onSuccess()
     expect(success).toBeCalledTimes(1)
     expect(success.mock.calls[0][0]).toBe('Successfully update secondary id')
   })
 
   test('show error notification when failed to save', async () => {
     setup()
-    saveIdentityDocument.mockImplementationOnce(() => {
-      throw new Error()
-    })
 
     const expectedValue = {
       idType: 'DL',
@@ -150,6 +155,8 @@ describe('secondary id', () => {
     })
 
     expect(saveIdentityDocument).toBeCalledTimes(1)
+
+    saveIdentityDocument.mock.calls[0][3].onError()
     expect(error).toBeCalledTimes(1)
     expect(error.mock.calls[0][0]).toBe('Cannot update secondary id, try to reload your browser')
   })
