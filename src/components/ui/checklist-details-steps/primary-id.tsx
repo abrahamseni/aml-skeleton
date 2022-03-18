@@ -5,14 +5,6 @@ import { ContactModel, IdentityCheckModel, ListItemModel } from '@reapit/foundat
 import { useSaveIdentityDocument } from './id-form/identity-check-action'
 import { notificationMessage } from 'constants/notification-message'
 
-// const defaultValues = {
-//   idType: 'DL',
-//   idReference: 'Hello',
-//   expiryDate: '',
-//   // documentFile: 'https://via.placeholder.com/150',
-//   documentFile: 'MKT22000005', // BDF15002338
-// }
-
 const defaultValues = {
   idType: '',
   idReference: '',
@@ -58,19 +50,7 @@ const PrimaryId = ({ contact, idCheck, idDocTypes, onSaved }: PrimaryIdProps) =>
     return idDocTypes?.filter((type) => type.id !== idCheck.identityDocument2?.typeId)
   }
 
-  async function save(values: ValuesType) {
-    await doSave(values)
-  }
-
-  function goToPrevious() {
-    console.log('previous')
-  }
-
-  async function goToNext(values: ValuesType) {
-    await doSave(values)
-  }
-
-  async function doSave(values: ValuesType) {
+  function save(values: ValuesType) {
     setLoading(true)
 
     saveIdentityDocument(contact, idCheck, values, {
@@ -96,8 +76,6 @@ const PrimaryId = ({ contact, idCheck, idDocTypes, onSaved }: PrimaryIdProps) =>
         rpsRef={contact.id}
         loading={loading}
         onSave={save}
-        onPrevious={goToPrevious}
-        onNext={goToNext}
       />
     </>
   )

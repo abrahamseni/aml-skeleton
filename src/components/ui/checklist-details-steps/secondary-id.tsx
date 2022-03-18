@@ -58,18 +58,6 @@ const SecondaryId = ({ contact, idCheck, idDocTypes, onSaved }: SecondaryIdProps
   }
 
   async function save(values: ValuesType) {
-    await doSave(values)
-  }
-
-  function goToPrevious() {
-    console.log('previous')
-  }
-
-  async function goToNext(values: ValuesType) {
-    await doSave(values)
-  }
-
-  async function doSave(values: ValuesType) {
     setLoading(true)
 
     saveIdentityDocument(contact, idCheck, values, {
@@ -97,8 +85,6 @@ const SecondaryId = ({ contact, idCheck, idDocTypes, onSaved }: SecondaryIdProps
         loading={loading}
         disabled={idCheck ? false : true}
         onSave={save}
-        onPrevious={goToPrevious}
-        onNext={goToNext}
       />
     </>
   )
