@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { FC, useState } from 'react'
 import { reapitConnectBrowserSession } from '../../../core/connect-session'
 import { useReapitConnect } from '@reapit/connect-session'
@@ -79,6 +77,7 @@ export const ChecklistDetailPage: FC = () => {
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
   const { id } = useParams<{ id: string }>()
 
+  // query data
   const querySingleContact = useSingleContact(connectSession, id)
   const { data: userData, isFetching: userDataIsFetching, isError: userDataIsError } = querySingleContact
 
@@ -96,12 +95,15 @@ export const ChecklistDetailPage: FC = () => {
   // local state - tab pagination handler
   const [activeTabs, setActiveTabs] = React.useState<number>(0)
 
+  const changeActiveTabs = React.useCallback((index: number) => setActiveTabs(index), [activeTabs])
+
   // render tab contents
   const tabContents = generateTabsContent({
     querySingleContact,
     queryIdentityCheck,
     queryIdentityDocumentTypes,
   })
+
   // progress bar indicator
   const currentProgressBarStatus = generateProgressBarResult({ tabContents })
 
@@ -137,13 +139,13 @@ export const ChecklistDetailPage: FC = () => {
     )
   }
 
-  if (userData && identityCheck) {
+  if (userData) {
     return (
       <main>
         <Title hasNoMargin>{`${userData?.forename} ${userData?.surname}`}</Title>
         <div className="el-flex el-flex-row">
           <Subtitle hasGreyText hasBoldText>
-            Status: {identityCheck.status?.toUpperCase()}
+            Status: {userData.identityCheck?.toUpperCase()}
           </Subtitle>
           <Icon
             icon="editSolidSystem"
@@ -162,7 +164,7 @@ export const ChecklistDetailPage: FC = () => {
         <div className="el-mt3">
           <TabsSection
             activeTabs={activeTabs}
-            setActiveTabs={setActiveTabs}
+            setActiveTabs={changeActiveTabs}
             tabName="tab-section"
             contents={tabContents}
           />

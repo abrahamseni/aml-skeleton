@@ -36,7 +36,7 @@ interface FormFieldProps {
   rhfProps: UseFormReturn<ValuesType>
 }
 
-export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.ReactElement => {
+const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.ReactElement => {
   // local state - modal handler
   const [imagePrimaryAddress, setImagePrimaryAddress] = React.useState<boolean>(false)
   const [imageSecondaryAddress, setImageSecondaryAddress] = React.useState<boolean>(false)
@@ -261,3 +261,5 @@ export const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): Rea
     </>
   )
 }
+
+export default React.memo(FormField)
