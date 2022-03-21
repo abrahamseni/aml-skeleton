@@ -80,8 +80,8 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({ u
   const updateContactData = useUpdateContact(userData!.id!, userData!._eTag!)
 
   // button handler - submit
-  const onSubmitHandler = async (): Promise<void> => {
-    await updateContactData.mutateAsync(
+  const onSubmitHandler = () => {
+    updateContactData.mutate(
       {
         metadata: {
           ...userData?.metadata,

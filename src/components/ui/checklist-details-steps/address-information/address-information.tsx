@@ -63,8 +63,8 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData }): Re
   const updateContactData = useUpdateContact(userData!.id!, userData!._eTag!)
 
   // button handler - submit
-  const onSubmitHandler = async (): Promise<void> => {
-    await updateContactData.mutateAsync(
+  const onSubmitHandler = () => {
+    updateContactData.mutate(
       {
         primaryAddress: currentForm.getValues('primaryAddress'),
         secondaryAddress: currentForm.getValues('secondaryAddress'),
