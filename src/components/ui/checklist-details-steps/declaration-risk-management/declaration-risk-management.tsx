@@ -150,9 +150,9 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({ u
                   accept="image/jpeg, image/png, application/pdf"
                   data-testid={generateTestId(riskAssessmentFormField.name)}
                 />
-                {displayErrorMessage(riskAssessmentForm.name, formState) && (
-                  <p data-testid={`test.error.${riskAssessmentForm.name}`} className="el-input-error">
-                    {displayErrorMessage(riskAssessmentForm.name, formState)}
+                {displayErrorMessage(riskAssessmentFormField.name, formState) && (
+                  <p data-testid={`test.error.${riskAssessmentFormField.name}`} className="el-input-error">
+                    {displayErrorMessage(riskAssessmentFormField.name, formState)}
                   </p>
                 )}
               </FlexContainer>
@@ -192,4 +192,4 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({ u
   )
 }
 
-export default DeclarationRiskManagement
+export default React.memo(DeclarationRiskManagement)

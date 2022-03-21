@@ -1,16 +1,14 @@
-/* eslint-disable no-confusing-arrow */
-/* eslint-disable no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react'
 import { Button, elWFull, FormLayout, InputWrapFull, useSnack } from '@reapit/elements'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { FormField } from './form-field'
 import { validationSchema, ValuesType } from './form-schema'
 import { RightSideContainer } from './__styles__'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
 import { notificationMessage } from '../../../../constants/notification-message'
 import { useUpdateContact } from '../../../../platform-api/contact-api/update-contact'
+
+import FormField from './form-field'
 import FormFooter from 'components/ui/form-footer/form-footer'
 
 interface AddressInformationProps {
@@ -117,4 +115,4 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData }): Re
   )
 }
 
-export default AddressInformation
+export default React.memo(AddressInformation)

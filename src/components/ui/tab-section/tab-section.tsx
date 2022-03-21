@@ -9,7 +9,7 @@ export interface TabsSectionProps {
     status?: boolean
   }[]
   activeTabs: number
-  setActiveTabs: React.Dispatch<React.SetStateAction<number>>
+  setActiveTabs: (index: number) => void
 }
 
 const TabsSection: React.FC<TabsSectionProps> = ({
@@ -22,7 +22,7 @@ const TabsSection: React.FC<TabsSectionProps> = ({
     <>
       <div className="el-tabs-full-width el-tabs-wrap">
         <div className="el-tabs-options-wrap">
-          {generateTableContent({ activeTabs, setActiveTabs, contents, tabName })}
+          {React.useMemo(() => generateTableContent({ activeTabs, setActiveTabs, contents, tabName }), [activeTabs])}
         </div>
         <div className="el-tabs-footer"></div>
       </div>
@@ -31,11 +31,8 @@ const TabsSection: React.FC<TabsSectionProps> = ({
   )
 }
 
-export default TabsSection
+export default React.memo(TabsSection)
 
-/**
- * Will be better if we use Callback
- */
 interface GenerateTableContents extends TabsSectionProps {}
 
 const generateTableContent = (props: GenerateTableContents): React.ReactNode => {
