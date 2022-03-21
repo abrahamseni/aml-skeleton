@@ -11,13 +11,17 @@ import {
   InputWrap,
   InputWrapFull,
   Label,
+  Pagination,
   Select,
   Subtitle,
+  PersistantNotification,
+  Loader,
 } from '@reapit/elements'
 import { cx } from '@linaria/core'
 import { ID_STATUS } from '../../../constants/id-status'
 import { useForm } from 'react-hook-form'
 import { SearchContactParam, useFetchContactsBy } from '../../../platform-api/contact-api'
+import { TableResult } from '../table/table'
 
 export type SearchableDropdownKey = {
   id: string
@@ -28,19 +32,28 @@ export type SearchFieldValue = {
   searchName: string
   searchAddress: string
   searchIdStatus: string
+  searchPageNumber: number
 }
 
 export const SearchPage: FC = () => {
-  const [searchParams, setSearchParams] = React.useState<SearchContactParam | {}>({})
-  const { register, handleSubmit } = useForm<SearchFieldValue>()
+  const [searchParams, setSearchParams] = React.useState<SearchContactParam>({ pageNumber: 1, pageSize: 10 })
+  const { register, handleSubmit, reset } = useForm<SearchFieldValue>()
+
   const onSubmit = (e: SearchFieldValue) =>
     setSearchParams({
+      pageSize: 10,
+      pageNumber: 1,
       name: e.searchName,
       address: e.searchAddress,
       identityCheck: e.searchIdStatus,
     })
+
   const result = useFetchContactsBy(searchParams)
-  console.log(result)
+
+  const handleReset = () => {
+    reset()
+    setSearchParams({})
+  }
 
   return (
     <FlexContainer isFlexAuto isFlexColumn className={cx(elRowGap6)}>
@@ -80,7 +93,7 @@ export const SearchPage: FC = () => {
             </InputWrap>
             <InputWrapFull>
               <ButtonGroup alignment="right">
-                <Button type="reset" intent="low">
+                <Button type="reset" intent="low" onClick={handleReset}>
                   Reset form
                 </Button>
                 <Button type="submit" intent="primary" chevronRight>
@@ -91,7 +104,37 @@ export const SearchPage: FC = () => {
           </FormLayout>
         </form>
       </FlexContainer>
-      <FlexContainer>Table</FlexContainer>
+      <FlexContainer className={cx(elWFull)}>
+        {result.status === 'loading' ? (
+          <Loader label="Loading" />
+        ) : (
+          <>
+            {!searchParams || Number(result.data?._embedded?.length) === 0 ? (
+              <PersistantNotification isExpanded={true} isFullWidth>
+                No search results
+              </PersistantNotification>
+            ) : (
+              <TableResult items={result?.data?._embedded} />
+            )}
+          </>
+        )}
+      </FlexContainer>
+      {result.status === 'success' ? (
+        <FlexContainer className={cx(elWFull)}>
+          <Pagination
+            callback={(nextPage: number) =>
+              setSearchParams((prevValue) => {
+                return {
+                  ...prevValue,
+                  pageNumber: nextPage,
+                }
+              })
+            }
+            currentPage={searchParams.pageNumber!}
+            numberPages={result?.data?.totalPageCount!}
+          />
+        </FlexContainer>
+      ) : null}
     </FlexContainer>
   )
 }
