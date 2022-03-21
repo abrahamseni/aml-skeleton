@@ -8,7 +8,7 @@ import { URLS } from '../../../../../constants/api'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { formField } from '../form-schema'
 import { wait } from 'utils/test'
-import { success } from 'utils/mocks/useSnack'
+import { error, success } from 'utils/mocks/useSnack'
 
 const axiosMock = new AxiosMockAdapter(Axios)
 
@@ -32,73 +32,91 @@ describe('Declaration Risk Management Form', () => {
     jest.clearAllMocks()
     axiosMock.reset()
   })
-  it('should match a snapshot', () => {
-    expect(renderComponent(defaultDRMProps)).toMatchSnapshot()
+
+  describe('snapshot', () => {
+    it('should match a snapshot', () => {
+      expect(renderComponent(defaultDRMProps)).toMatchSnapshot()
+    })
   })
 
-  it('should render 4 fields', () => {
-    const { getByTestId } = renderComponent(defaultDRMProps)
+  describe('DOM', () => {
+    it('should render 4 fields', () => {
+      const { getByTestId } = renderComponent(defaultDRMProps)
 
-    const formChildElement = getByTestId('declaration.risk.management.form').childNodes[0].childNodes.length
+      const formChildElement = getByTestId('declaration.risk.management.form').childNodes[0].childNodes.length
 
-    expect(formChildElement).toEqual(4)
+      expect(formChildElement).toEqual(4)
+    })
+
+    it('the fields should able to automatically fill with default value and able to change', () => {
+      const { getByTestId } = renderComponent(defaultDRMProps)
+
+      // declaration file
+      const testDeclarationFileField = getByTestId(`test.${declarationFormField.name}`) as HTMLInputElement
+      expect(testDeclarationFileField.value).toMatch(/urlRiskAssessmentForm.png/i)
+
+      // risk assessment type
+      const testTypeField = getByTestId(`test.${typeField.name}`) as HTMLSelectElement
+      expect(testTypeField.value).toMatch(/Simplified/i)
+      // risk assessment file
+      const testAssessmentFormField = getByTestId(`test.${riskAssessmentFormField.name}`) as HTMLInputElement
+      expect(testAssessmentFormField.value).toMatch(/urlRiskAssessmentForm.png/i)
+      // for reason
+      const testReasonField = getByTestId(`test.${reasonField.name}`) as HTMLTextAreaElement
+      expect(testReasonField.value).toMatch(/erw23r/i)
+
+      fireEvent.change(testTypeField, { target: { value: 'Enhanced' } })
+      expect(testTypeField.value).toMatch(/Enhanced/i)
+
+      fireEvent.change(testReasonField, { target: { value: 'Change Test Reason' } })
+      expect(testReasonField.value).toMatch(/Change Test Reason/i)
+    })
+
+    it('should display error message if required field is empty', async () => {
+      const { getByTestId, findByTestId } = renderComponent(defaultDRMProps)
+
+      // risk assessment type
+      const testTypeField = getByTestId(`test.${typeField.name}`) as HTMLSelectElement
+      expect(testTypeField.value).toMatch(/Simplified/i)
+
+      fireEvent.change(testTypeField, { target: { value: '' } })
+      fireEvent.blur(testTypeField)
+
+      const errorMessage = await findByTestId(`test.error.${typeField.name}`)
+      expect(errorMessage).not.toBeUndefined
+      expect(errorMessage.textContent).toMatch(/Required/i)
+    })
   })
 
-  it('the fields should able to automatically fill with default value and able to change', () => {
-    const { getByTestId } = renderComponent(defaultDRMProps)
+  describe('integration', () => {
+    it('should able to click "save button", and return notification if success', async () => {
+      const { getByTestId } = renderComponent(defaultDRMProps)
 
-    // declaration file
-    const testDeclarationFileField = getByTestId(`test.${declarationFormField.name}`) as HTMLInputElement
-    expect(testDeclarationFileField.value).toMatch(/urlRiskAssessmentForm.png/i)
+      const submitButton = getByTestId('save-form')
 
-    // risk assessment type
-    const testTypeField = getByTestId(`test.${typeField.name}`) as HTMLSelectElement
-    expect(testTypeField.value).toMatch(/Simplified/i)
-    // risk assessment file
-    const testAssessmentFormField = getByTestId(`test.${riskAssessmentFormField.name}`) as HTMLInputElement
-    expect(testAssessmentFormField.value).toMatch(/urlRiskAssessmentForm.png/i)
-    // for reason
-    const testReasonField = getByTestId(`test.${reasonField.name}`) as HTMLTextAreaElement
-    expect(testReasonField.value).toMatch(/erw23r/i)
+      axiosMock.onPatch(`${URLS.CONTACTS}/${CONTACT_MOCK_DATA_1.id}`).reply(204)
+      fireEvent.click(submitButton)
+      await wait(0)
 
-    fireEvent.change(testTypeField, { target: { value: 'Enhanced' } })
-    expect(testTypeField.value).toMatch(/Enhanced/i)
+      expect(axiosMock.history.patch[0].url).toEqual('/contacts/MLK16000071')
+      expect(success).toBeCalledTimes(1)
+      expect(success.mock.calls[0][0]).toMatch(/Successfully update declaration risk management/i)
+    })
 
-    fireEvent.change(testReasonField, { target: { value: 'Change Test Reason' } })
-    expect(testReasonField.value).toMatch(/Change Test Reason/i)
+    it('should able to click "save button", and return notification if error', async () => {
+      const { getByTestId } = renderComponent(defaultDRMProps)
+
+      const submitButton = getByTestId('save-form')
+
+      axiosMock.onPatch(`${URLS.CONTACTS}/${CONTACT_MOCK_DATA_1.id}`).reply(500)
+      fireEvent.click(submitButton)
+      await wait(0)
+
+      expect(axiosMock.history.patch[0].url).toEqual('/contacts/MLK16000071')
+      expect(error).toBeCalledTimes(1)
+      expect(error.mock.calls[0][0]).toMatch(/Something is not working, try to reload your browser/i)
+    })
   })
-
-  it('should able to click "save button", and return notification if success', async () => {
-    const { getByTestId } = renderComponent(defaultDRMProps)
-
-    const submitButton = getByTestId('save-form')
-
-    axiosMock.onPatch(`${URLS.CONTACTS}/${CONTACT_MOCK_DATA_1.id}`).reply(204)
-    fireEvent.click(submitButton)
-    await wait(0)
-
-    expect(success).toBeCalledTimes(1)
-    expect(success.mock.calls[0][0]).toMatch(/Successfully update declaration risk management/i)
-  })
-
-  it('should display error message if required field is empty', async () => {
-    const { getByTestId, findByTestId } = renderComponent(defaultDRMProps)
-
-    // risk assessment type
-    const testTypeField = getByTestId(`test.${typeField.name}`) as HTMLSelectElement
-    expect(testTypeField.value).toMatch(/Simplified/i)
-
-    fireEvent.change(testTypeField, { target: { value: '' } })
-    await wait(0)
-    fireEvent.blur(testTypeField)
-    await wait(0)
-
-    const errorMessage = await findByTestId(`test.error.${typeField.name}`)
-    expect(errorMessage).not.toBeUndefined
-    expect(errorMessage.textContent).toMatch(/Required/i)
-  })
-
-  it.todo('should able to click "save button", and return notification if error ')
 })
 
 const queryClient = new QueryClient({

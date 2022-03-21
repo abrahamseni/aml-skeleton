@@ -8,9 +8,11 @@ import AxiosMockAdapter from 'axios-mock-adapter'
 import Axios from '../../../../../axios/axios'
 import { URLS } from '../../../../../constants/api'
 import { wait } from 'utils/test'
-import { success } from 'utils/mocks/useSnack'
+import { error, success } from 'utils/mocks/useSnack'
 
-const axiosMock = new AxiosMockAdapter(Axios)
+const axiosMock = new AxiosMockAdapter(Axios, {
+  onNoMatch: 'throwException',
+})
 
 const {
   buildingNameField: primaryBuildingNameField,
@@ -71,12 +73,12 @@ describe('Address Information Component', () => {
   it('should render exactly 11 field (when secondary address is null)', () => {
     const { container, getByTestId } = renderComponent(defaultAddressInformationProps)
 
-    const totalTextFields = container.querySelectorAll('[type="text"]').length
+    const totalTextFields = container.querySelectorAll<HTMLInputElement>('[type="text"]')
     const totalOptionFields = getByTestId('option.field.wrapper').childNodes.length
 
-    expect(totalTextFields).toEqual(7)
+    expect(totalTextFields.length).toEqual(7)
     expect(totalOptionFields).toEqual(4)
-    expect(totalTextFields + totalOptionFields).toEqual(11)
+    expect(totalTextFields.length + totalOptionFields).toEqual(11)
   })
 
   it('should able to click "less than 3 years?" button, then the fields should extend the form', () => {
@@ -137,10 +139,28 @@ describe('Address Information Component', () => {
 
     axiosMock.onPatch(`${URLS.CONTACTS}/${CONTACT_MOCK_DATA_1.id}`).reply(204)
     fireEvent.click(submitButton)
+
     await wait(0)
 
+    expect(axiosMock.history.patch[0].url).toEqual('/contacts/MLK16000071')
     expect(success).toBeCalledTimes(1)
     expect(success.mock.calls[0][0]).toMatch(/Successfully update address data/i)
+  })
+
+  it('show error notification if request is cancelled or error', async () => {
+    const { getByTestId } = renderComponent(defaultAddressInformationProps)
+
+    const submitButton = getByTestId('save-form')
+
+    axiosMock.onPatch(`${URLS.CONTACTS}/${CONTACT_MOCK_DATA_1.id}`).reply(500)
+
+    fireEvent.click(submitButton)
+
+    await wait(0)
+
+    expect(axiosMock.history.patch[0].url).toEqual('/contacts/MLK16000071')
+    expect(error).toBeCalledTimes(1)
+    expect(error.mock.calls[0][0]).toMatch(/Something is not working, try to reload your browser/i)
   })
 
   it('should able to change the field value', () => {

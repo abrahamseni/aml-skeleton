@@ -27,7 +27,7 @@ describe('Tab Section', () => {
 
       const { setActiveTabs } = defaultTabsSectionProps
 
-      const tabHeader = getAllByTestId('test.tab.header')
+      const tabHeader = getAllByTestId('test.tab.header') as HTMLLabelElement[]
       const tabContent = getAllByTestId('test.active.tab.content')[0].childNodes[0]
 
       expect(setActiveTabs).not.toBeCalled()
@@ -37,23 +37,23 @@ describe('Tab Section', () => {
       expect(tabContent.textContent).toMatch(/test section 3/i)
       expect(setActiveTabs).toBeCalled()
 
-      await wait(0)
-
-      console.log(setActiveTabs.mockReturnValue)
       fireEvent.click(tabHeader[1])
+
+      expect(setActiveTabs).toHaveBeenCalledTimes(2)
       expect(tabContent.textContent).toMatch(/test section 3/i)
 
       await wait(0)
 
       fireEvent.click(tabHeader[2])
+      expect(setActiveTabs).toHaveBeenCalledTimes(3)
       expect(tabContent.textContent).toMatch(/test section 3/i)
 
       await wait(0)
 
-      fireEvent.click(tabHeader[2])
-      expect(tabContent.textContent).toMatch(/test section 3/i)
+      fireEvent.click(tabHeader[1])
 
-      expect(setActiveTabs).toBeCalledTimes(4)
+      expect(setActiveTabs).toHaveBeenCalledTimes(4)
+      expect(tabContent.textContent).toMatch(/test section 3/i)
     })
 
     it('should show correct status indicator node type', () => {

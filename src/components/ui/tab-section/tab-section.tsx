@@ -52,10 +52,13 @@ const generateTableContent = (props: GenerateTableContents): React.ReactNode => 
           className="el-tabs"
           value={`tab-${index}-fw`}
           checked={activeTabs === index ? true : false}
-          onClick={() => setActiveTabs(index)}
-          data-testid="test.tab.header"
         />
-        <label htmlFor={`tab-${index}-fw`} className="el-tabs-label">
+        <label
+          htmlFor={`tab-${index}-fw`}
+          className="el-tabs-label"
+          data-testid="test.tab.header"
+          onClick={() => setActiveTabs(index)}
+        >
           <span className="el-tabs-item">
             <FlexContainer isFlexAlignCenter isFlexJustifyEnd>
               <div data-testid="test.tab.name">
