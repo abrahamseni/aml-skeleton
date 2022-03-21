@@ -23,7 +23,7 @@ import {
 import { cx } from '@linaria/core'
 import { order0 } from './__styles__'
 
-import DocumentPreviewModal from '../id-form/document-preview-modal'
+import DocumentPreviewModal from 'components/ui/ui/document-preview-modal'
 
 interface FormFieldProps {
   /**

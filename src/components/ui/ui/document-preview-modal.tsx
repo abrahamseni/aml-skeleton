@@ -6,7 +6,7 @@ import Modal from './modal'
 import { modalMaxHeight, modalHeaderHeight, modalBodyPadding } from './__styles__/modal.style'
 import { styled } from '@linaria/react'
 import { css } from '@linaria/core'
-import { isObjectUrl } from '../../../../utils/url'
+import { isObjectUrl } from '../../../utils/url'
 
 export interface DocumentPreviewModalProps extends ModalProps {
   src?: string
@@ -62,7 +62,7 @@ export const DocumentPreviewModal: FC<DocumentPreviewModalProps> = ({ src, isOpe
             <PdfContainer>
               <SizeMe>
                 {({ size }) => (
-                  <Document file={src} onLoadSuccess={onPdfPreviewLoadSuccess}>
+                  <Document file={src} onLoadSuccess={onPdfPreviewLoadSuccess} renderMode="svg">
                     {getPdfPages(size.width)}
                   </Document>
                 )}
@@ -89,7 +89,7 @@ export const DocumentPreviewModal: FC<DocumentPreviewModalProps> = ({ src, isOpe
   )
 }
 
-export const footerHeight = '141.233px'
+export const footerHeight = '8.827rem'
 
 const Body = styled.div`
   max-height: calc(${modalMaxHeight} - ${modalHeaderHeight} - ${footerHeight} - (2 * ${modalBodyPadding}));

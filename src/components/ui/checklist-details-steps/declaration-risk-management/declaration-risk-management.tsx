@@ -29,7 +29,7 @@ import { order0 } from './__styles__'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
 import { notificationMessage } from '../../../../constants/notification-message'
 import { useUpdateContact } from '../../../../platform-api/contact-api/update-contact'
-import DocumentPreviewModal from '../id-form/document-preview-modal'
+import DocumentPreviewModal from 'components/ui/ui/document-preview-modal'
 import FormFooter from 'components/ui/form-footer/form-footer'
 import { displayErrorMessage } from 'utils/error-message'
 
