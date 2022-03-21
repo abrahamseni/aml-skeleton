@@ -6,7 +6,7 @@ import Modal from './modal'
 import { modalMaxHeight, modalHeaderHeight, modalBodyPadding } from './__styles__/modal.style'
 import { styled } from '@linaria/react'
 import { css } from '@linaria/core'
-import { isObjectUrl } from '../../../../utils/url'
+import { isObjectUrl } from '../../../utils/url'
 
 export interface DocumentPreviewModalProps extends ModalProps {
   src?: string

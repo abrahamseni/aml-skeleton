@@ -9,7 +9,7 @@ import AxiosMockAdapter from 'axios-mock-adapter'
 import { identityDocumentTypes } from '../__mocks__/identity-document-types'
 import { URLS } from 'constants/api'
 import { wait } from 'utils/test'
-import DocumentPreviewModal, { DocumentPreviewModalProps } from '../document-preview-modal'
+import DocumentPreviewModal, { DocumentPreviewModalProps } from 'components/ui/ui/document-preview-modal'
 import { downloadDocument as downloadDocumentMock } from 'platform-api/document-api'
 
 const axiosMock = new AxiosMockAdapter(axios)
