@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { FC, useState } from 'react'
 import { reapitConnectBrowserSession } from '../../../core/connect-session'
 import { useReapitConnect } from '@reapit/connect-session'
@@ -34,11 +32,10 @@ interface GenerateTabsContentProps {
   querySingleContact: UseQueryResult<ContactModel, Error>
   queryIdentityCheck: UseQueryResult<IdentityCheckModel | undefined, unknown>
   queryIdentityDocumentTypes: UseQueryResult<Required<ListItemModel>[] | undefined>
-  switchTabSection: (type: 'forward' | 'backward') => void
 }
 
 export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectionProps['contents'] => {
-  const { querySingleContact, queryIdentityCheck, queryIdentityDocumentTypes, switchTabSection } = props
+  const { querySingleContact, queryIdentityCheck, queryIdentityDocumentTypes } = props
 
   // single contact
   const { data: userData } = querySingleContact
@@ -65,13 +62,13 @@ export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectio
     },
     {
       name: 'Address Information',
-      content: <AddressInformation userData={userData} switchTabContent={switchTabSection} />,
-      status: isCompletedAddress(userData!),
+      content: <AddressInformation userData={userData} />,
+      status: isCompletedAddress(userData),
     },
     {
       name: 'Declaration Risk Management',
-      content: <DeclarationRiskManagement userData={userData!} switchTabContent={switchTabSection} />,
-      status: isCompletedDeclarationRisk(userData!),
+      content: <DeclarationRiskManagement userData={userData} />,
+      status: isCompletedDeclarationRisk(userData),
     },
   ]
 }
@@ -80,6 +77,7 @@ export const ChecklistDetailPage: FC = () => {
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
   const { id } = useParams<{ id: string }>()
 
+  // query data
   const querySingleContact = useSingleContact(connectSession, id)
   const { data: userData, isFetching: userDataIsFetching, isError: userDataIsError } = querySingleContact
 
@@ -97,27 +95,17 @@ export const ChecklistDetailPage: FC = () => {
   // local state - tab pagination handler
   const [activeTabs, setActiveTabs] = React.useState<number>(0)
 
-  // data is available from here //
-  // change current active tab content with this fn
-  const switchTabSection = (type: 'forward' | 'backward'): void => {
-    switch (type) {
-      case 'forward':
-        if (activeTabs < tabContents.length - 1) setActiveTabs((prev) => prev + 1)
-        break
-      case 'backward':
-        if (activeTabs > 0) setActiveTabs((prev) => prev - 1)
-        break
-    }
-  }
+  const changeActiveTabs = React.useCallback((index: number) => setActiveTabs(index), [activeTabs])
+
   // render tab contents
   const tabContents = generateTabsContent({
     querySingleContact,
     queryIdentityCheck,
     queryIdentityDocumentTypes,
-    switchTabSection,
   })
+
   // progress bar indicator
-  const { complete: completeStep, total: totalStep } = generateProgressBarResult({ tabContents })
+  const currentProgressBarStatus = generateProgressBarResult({ tabContents })
 
   if (
     (userDataIsFetching && !userData) ||
@@ -171,12 +159,16 @@ export const ChecklistDetailPage: FC = () => {
         </div>
 
         <div>
-          <ProgressBarSteps currentStep={completeStep} numberSteps={totalStep} className="el-mt6" />
+          <ProgressBarSteps
+            currentStep={currentProgressBarStatus.complete}
+            numberSteps={currentProgressBarStatus.total}
+            className="el-mt6"
+          />
         </div>
         <div className="el-mt3">
           <TabsSection
             activeTabs={activeTabs}
-            setActiveTabs={setActiveTabs}
+            setActiveTabs={changeActiveTabs}
             tabName="tab-section"
             contents={tabContents}
           />
@@ -186,6 +178,7 @@ export const ChecklistDetailPage: FC = () => {
           idCheck={identityCheck!}
           isModalStatusOpen={isModalStatusOpen}
           setModalStatusOpen={setModalStatusOpen}
+          progressBarStatus={currentProgressBarStatus}
         />
       </main>
     )

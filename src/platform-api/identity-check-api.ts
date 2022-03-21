@@ -44,16 +44,19 @@ export const useCreateIdentityCheck = () => {
 interface UpdateIdentityCheckParams extends UpdateIdentityCheckModel {
   id: string
   _eTag: string
+  contactId?: string
 }
 
 export const updateIdentityCheck = async (params: UpdateIdentityCheckParams) => {
-  const { id, _eTag, ...restParams } = params
+  const { id, _eTag, contactId, ...restParams } = params
 
   await axios.patch(`${URLS.ID_CHECKS}/${id}`, restParams, {
     headers: {
       'If-Match': _eTag,
     },
   })
+
+  return contactId
 }
 
 export const useUpdateIdentityCheck = () => {
@@ -63,8 +66,8 @@ export const useUpdateIdentityCheck = () => {
       return updateIdentityCheck(params)
     },
     {
-      onSuccess(data, variables) {
-        queryClient.invalidateQueries(['fetchSingleIdentityCheckByContactId', { id: variables.id }])
+      onSuccess(contactDataId) {
+        queryClient.invalidateQueries(['fetchSingleIdentityCheckByContactId', { id: contactDataId }])
       },
     },
   )
