@@ -50,7 +50,7 @@ export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectio
   return [
     {
       name: 'Personal',
-      content: <PersonalDetails userData={userData!} switchTabContent={switchTabSection} />,
+      content: <PersonalDetails userData={userData!} />,
       status: isCompletedProfile(userData),
     },
     {
@@ -155,19 +155,21 @@ export const ChecklistDetailPage: FC = () => {
     return (
       <main>
         <Title hasNoMargin>{`${userData?.forename} ${userData?.surname}`}</Title>
-        {identityCheck && (
-          <div className="el-flex el-flex-row">
-            <Subtitle hasGreyText hasBoldText>
-              Status: {userData?.identityCheck?.toUpperCase()}
-            </Subtitle>
+
+        <div className="el-flex el-flex-row">
+          <Subtitle hasGreyText hasBoldText>
+            Status: {userData?.identityCheck?.toUpperCase()}
+          </Subtitle>
+          {identityCheck && (
             <Icon
               icon="editSolidSystem"
               iconSize="smallest"
               className="el-ml2"
               onClick={() => setModalStatusOpen(true)}
             />
-          </div>
-        )}
+          )}
+        </div>
+
         <div>
           <ProgressBarSteps currentStep={completeStep} numberSteps={totalStep} className="el-mt6" />
         </div>
