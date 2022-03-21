@@ -8,8 +8,10 @@ import qs from 'qs'
 import { URLS } from '../constants/api'
 
 export type SearchContactParam = {
+  pageNumber?: number
+  pageSize?: number
   name?: string
-  address?: string
+  address?: string 
   identityCheck?: string
 }
 
@@ -27,7 +29,7 @@ const fetchContactsBy = async (params: SearchContactParam) => {
 export const useFetchContactsBy = (params: SearchContactParam) => {
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
   const beginFetch = () => !!(connectSession?.accessToken && !isEmpty(params))
-
+  
   const contactListResult = useQuery<
     ContactModelPagedResult,
     Error,
