@@ -22,7 +22,10 @@ const TabsSection: React.FC<TabsSectionProps> = ({
     <>
       <div className="el-tabs-full-width el-tabs-wrap">
         <div className="el-tabs-options-wrap">
-          {React.useMemo(() => generateTableContent({ activeTabs, setActiveTabs, contents, tabName }), [activeTabs])}
+          {React.useMemo(
+            () => generateTableContent({ activeTabs, setActiveTabs, contents, tabName }),
+            [activeTabs, contents],
+          )}
         </div>
         <div className="el-tabs-footer"></div>
       </div>

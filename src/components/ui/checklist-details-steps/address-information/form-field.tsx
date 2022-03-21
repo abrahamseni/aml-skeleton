@@ -262,4 +262,4 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
   )
 }
 
-export default React.memo(FormField)
+export default FormField
