@@ -143,17 +143,21 @@ export const ChecklistDetailPage: FC = () => {
     return (
       <main>
         <Title hasNoMargin>{`${userData?.forename} ${userData?.surname}`}</Title>
+
         <div className="el-flex el-flex-row">
           <Subtitle hasGreyText hasBoldText>
-            Status: {userData.identityCheck?.toUpperCase()}
+            Status: {userData?.identityCheck?.toUpperCase()}
           </Subtitle>
-          <Icon
-            icon="editSolidSystem"
-            iconSize="smallest"
-            className="el-ml2"
-            onClick={() => setModalStatusOpen(true)}
-          />
+          {identityCheck && (
+            <Icon
+              icon="editSolidSystem"
+              iconSize="smallest"
+              className="el-ml2"
+              onClick={() => setModalStatusOpen(true)}
+            />
+          )}
         </div>
+
         <div>
           <ProgressBarSteps
             currentStep={currentProgressBarStatus.complete}

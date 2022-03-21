@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react'
-import { Input, InputGroup, Label, Button, SmallText, InputError, useSnack } from '@reapit/elements'
+import { Input, InputGroup, Label, SmallText, InputError, useSnack } from '@reapit/elements'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
@@ -24,7 +24,6 @@ const PersonalDetails = ({ userData }: PersonalDetailsProps) => {
     register,
     handleSubmit,
     formState: { errors },
-    reset,
     getValues,
   } = useForm({
     resolver: yupResolver(validationSchema),
@@ -51,34 +50,35 @@ const PersonalDetails = ({ userData }: PersonalDetailsProps) => {
       },
     )
   }
+
   return (
     <form onSubmit={handleSubmit(onSubmitHandler)}>
       <div className="el-flex el-flex-column el-flex-wrap">
         <InputGroup className="el-flex1">
           <Input id="title" type="text" {...register('title')} />
-          <Label htmlFor="name">Title</Label>
+          <Label htmlFor="name">{generateLabelField('Title', true)}</Label>
           {errors.title?.message && <InputError message={errors.title.message} />}
         </InputGroup>
         <InputGroup className="el-mt6 el-flex1">
           <Input id="forename" type="text" {...register('forename')} />
-          <Label htmlFor="name">Forename</Label>
+          <Label htmlFor="name">{generateLabelField('Forename', true)}</Label>
           {errors.forename?.message && <InputError message={errors.forename.message} />}
         </InputGroup>
         <InputGroup className="el-mt6 el-flex1">
           <Input id="surname" type="text" {...register('surname')} />
-          <Label htmlFor="name"> {generateLabelField('surname', true)}</Label>
+          <Label htmlFor="name"> {generateLabelField('Surname', true)}</Label>
           {errors.surname?.message && <InputError message={errors.surname.message} />}
         </InputGroup>
       </div>
       <div className="el-mt6 el-flex el-flex-column el-flex-wrap el-w6">
         <InputGroup className="el-flex1">
-          <Input id="dob" type="date" {...register('dateOfBirth')} />
-          <Label htmlFor="name">Date Of Birth</Label>
+          <Input id="dateOfBirth" type="date" {...register('dateOfBirth')} />
+          <Label htmlFor="name">{generateLabelField('Date Of Birth', true)}</Label>
           {errors.dateOfBirth?.message && <InputError message={errors.dateOfBirth.message} />}
         </InputGroup>
         <InputGroup className="el-mt6 el-flex1">
           <Input id="email" type="email" {...register('email')} />
-          <Label htmlFor="name">Email</Label>
+          <Label htmlFor="name">{generateLabelField('Email', true)}</Label>
           {errors.email?.message && <InputError message={errors.email.message} />}
         </InputGroup>
       </div>
