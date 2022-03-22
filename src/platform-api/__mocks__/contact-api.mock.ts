@@ -83,7 +83,13 @@ export const CONTACT_MOCK_DATA_2 = {
   identityCheck: 'pass',
   marketingConsent: 'notAsked',
   metadata: {
-    secondaryAddress: {},
+    secondaryAddress: {
+      documentImage:
+        'https://reapit-marketplace-app-media-dev.s3.eu-west-2.amazonaws.com/MLK16000071-primary-address-id(2).png',
+      documentType: 'Mortgage Statement or Mortgage Redemption Statement',
+      month: '8',
+      year: '1',
+    },
     declarationRisk: {
       declarationForm:
         'https://reapit-marketplace-app-media-dev.s3.eu-west-2.amazonaws.com/declaration-Simplified-erw23r.png',
