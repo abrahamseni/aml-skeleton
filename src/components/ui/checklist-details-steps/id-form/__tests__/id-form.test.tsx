@@ -1,5 +1,5 @@
 import React from 'react'
-import { act, render, screen } from '@testing-library/react'
+import { act, render, screen, fireEvent } from '@testing-library/react'
 import IdForm, { IdFormProps } from '../id-form'
 import userEvent from '@testing-library/user-event'
 import { formFields } from '../form-schema/form-field'
@@ -17,7 +17,6 @@ const axiosMock = new AxiosMockAdapter(axios)
 
 jest.unmock('@reapit/connect-session')
 jest.mock('core/connect-session')
-jest.mock('components/ui/ui/file-input')
 jest.mock('react-pdf/dist/esm/entry.webpack', () => {
   return {
     __esModule: true,
@@ -36,6 +35,7 @@ jest.mock('components/ui/ui/document-preview-modal', () => {
   }
 })
 jest.mock('platform-api/document-api')
+jest.mock('@reapit/elements', () => jest.requireActual('utils/mocks/reapit-element-mocks'))
 
 const downloadDocument: jest.Mock = downloadDocumentMock as any
 
@@ -59,13 +59,7 @@ describe('id form', () => {
 
     await wait(0)
 
-    await assertFormValues({
-      ...defaultValues,
-      documentFile: customValue({
-        url: 'data:documentFile',
-        size: undefined,
-      }),
-    })
+    await assertFormValues(defaultValues)
   })
 
   test('do not save if form is invalid', async () => {
@@ -117,11 +111,7 @@ describe('id form', () => {
 
     await wait(0)
 
-    const validValues = await fillFormWithValidValue()
-    const expectedValue = {
-      ...validValues,
-      documentFile: validValues.documentFile.url,
-    }
+    const expectedValue = await fillFormWithValidValue()
 
     const saveButton = await screen.findByTestId('save-form')
     userEvent.click(saveButton)
@@ -218,17 +208,14 @@ async function fillFormWithValidValue() {
     idType: 'DL',
     idReference: 'Hello Refa',
     expiryDate: '2021-10-24',
-    documentFile: {
-      url: documentDataUrl,
-      size: undefined,
-    },
+    documentFile: documentDataUrl,
   }
 
   await fillForm({
     [formFields.idType.name]: selectValue(validValues.idType),
     [formFields.idReference.name]: validValues.idReference,
     [formFields.expiryDate.name]: validValues.expiryDate,
-    [formFields.documentFile.name]: customValue(validValues.documentFile),
+    [formFields.documentFile.name]: fileValue(validValues.documentFile),
   })
 
   return validValues
@@ -283,24 +270,13 @@ function renderIdForm({ onSave, ...rest }: Props = {}) {
   )
 }
 
-async function assertFormValues(values: { [name: string]: any }, getName?: (name: string) => string) {
+async function assertFormValues(values: { [name: string]: string }, getName?: (name: string) => string) {
   const defaultGetName = (name: string) => `input.${name}`
   getName = getName || defaultGetName
 
   for (const [name, value] of Object.entries<any>(values)) {
-    let val = value
-    let type = undefined
-    if (typeof value !== 'string') {
-      val = value.value
-      type = value.type
-    }
-
-    if (type !== 'custom') {
-      const messageEl: HTMLInputElement = await screen.findByTestId(getName(name))
-      expect(messageEl.value, `incorrect value for input "${name}"`).toBe(val)
-    } else {
-      expect(propsRepo.props[getName(name)].value, `incorrect value for input "${name}"`).toEqual(val)
-    }
+    const messageEl: HTMLInputElement = await screen.findByTestId(getName(name))
+    expect(messageEl.value, `incorrect value for input "${name}"`).toBe(value)
   }
 }
 
@@ -326,21 +302,13 @@ async function fillForm(values: any, getName?: (name: string) => string) {
       type = value.type
     }
 
-    if (type !== 'custom') {
-      const inputEl = await screen.findByTestId(getName(name))
-
-      if (type === 'select') {
-        userEvent.selectOptions(inputEl, val)
-      } else {
-        userEvent.type(inputEl, val)
-      }
+    const inputEl = await screen.findByTestId(getName(name))
+    if (type === 'select') {
+      userEvent.selectOptions(inputEl, val)
+    } else if (type === 'file') {
+      fireEvent.change(inputEl, { target: { value: val } })
     } else {
-      propsRepo.props[getName(name)].onChange({
-        target: {
-          name: name,
-          value: val,
-        },
-      })
+      userEvent.type(inputEl, val)
     }
   }
 }
@@ -352,9 +320,9 @@ function selectValue(value: string) {
   }
 }
 
-function customValue(value: any) {
+function fileValue(value: string) {
   return {
-    type: 'custom',
+    type: 'file',
     value: value,
   }
 }

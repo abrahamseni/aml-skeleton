@@ -25,8 +25,7 @@ export class FileValidation extends Yup.BaseSchema {
           return false
         }
 
-        const url = value.url
-        if (url !== undefined && typeof url === 'string' && url !== '') {
+        if (typeof value === 'string' && value !== '') {
           return true
         }
 
@@ -51,11 +50,17 @@ export class FileValidation extends Yup.BaseSchema {
           return true
         }
 
-        const size = value.size
-        if (isAbsent(size) || typeof size !== 'number') {
+        if (typeof value !== 'string' || value === '') {
           return true
         }
-        if (size <= bytes) {
+
+        const base64 = value as string
+        const base64Token = 'base64,'
+        const onlyBase64 = base64.substring(base64.indexOf(base64Token) + base64Token.length)
+        const decoded = window.atob(onlyBase64)
+
+        const fileSize = decoded.length
+        if (fileSize <= bytes) {
           return true
         }
 

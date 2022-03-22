@@ -1,7 +1,6 @@
 import React, { FC, useState } from 'react'
 import { InputGroup, Label, Select, Input } from '@reapit/elements'
-import { FileInput } from 'components/ui/ui/file-input'
-import { NestedValue, UnpackNestedValue, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { formFields, ValuesType } from './form-schema/form-field'
 import DocumentPreviewModal from 'components/ui/ui/document-preview-modal'
 import { useDownloadDocument } from 'platform-api/document-api'
@@ -11,6 +10,7 @@ import validationSchema from './form-schema/validation-schema'
 import { generateLabelField } from 'utils/generator'
 import { ListItemModel } from '@reapit/foundations-ts-definitions'
 import FormFooter from 'components/ui/form-footer/form-footer'
+import FileInput from 'components/ui/ui/file-input'
 
 const defaultValuesConst = {
   idType: '',
@@ -43,9 +43,9 @@ export const IdForm: FC<IdFormProps> = ({
     handleSubmit,
     getValues,
     formState: { errors },
-  } = useForm<ValidatableValues>({
-    defaultValues: defaultValues ? toValidatableValues(defaultValues) : toValidatableValues(defaultValuesConst),
-    resolver: yupResolver(validationSchema) as any,
+  } = useForm<ValuesType>({
+    defaultValues: defaultValues || defaultValuesConst,
+    resolver: yupResolver(validationSchema),
     mode: 'onBlur',
   })
   const [documentPreviewState, setDocumentPreviewState] = useState({
@@ -58,23 +58,19 @@ export const IdForm: FC<IdFormProps> = ({
   async function openDocumentPreview() {
     setDocumentPreviewState({ isOpen: true, loading: true, document: '' })
 
-    const documentUrl = getValues('documentFile').url
+    const documentFile = getValues('documentFile')
     let document = ''
-    if (!isDataUrl(documentUrl)) {
-      const data = await downloadDocument(documentUrl)
+    if (!isDataUrl(documentFile)) {
+      const data = await downloadDocument(documentFile)
       document = data || ''
     } else {
-      document = documentUrl
+      document = documentFile
     }
     setDocumentPreviewState({ isOpen: true, loading: false, document: document })
   }
 
-  function save(values: UnpackNestedValue<ValidatableValues>) {
-    const result = {
-      ...values,
-      documentFile: values.documentFile.url,
-    }
-    onSave(result)
+  function save(values: ValuesType) {
+    onSave(values)
   }
 
   return (
@@ -134,11 +130,10 @@ export const IdForm: FC<IdFormProps> = ({
       <div className="el-my3">
         <FileInput
           label={generateLabelField(formFields.documentFile.label, true)}
-          value={getValues('documentFile')}
+          defaultValue={getValues('documentFile')}
           onFileView={openDocumentPreview}
           accept="image/jpeg, image/png, application/pdf"
           disabled={disabled}
-          invalid={errors.documentFile ? true : false}
           {...register(formFields.documentFile.name)}
           data-testid={`input.${formFields.documentFile.name}`}
         />
@@ -157,24 +152,6 @@ export const IdForm: FC<IdFormProps> = ({
       <FormFooter idUser={rpsRef || ''} isFieldError={!!Object.keys(errors).length} isFormSubmitting={!!loading} />
     </form>
   )
-}
-
-function toValidatableValues(values: ValuesType) {
-  return {
-    ...values,
-    documentFile: toValidatableFileValue(values.documentFile),
-  }
-}
-
-type ValidatableValues = ReturnType<typeof toValidatableValues>
-
-function toValidatableFileValue(fileValue: string) {
-  const validatableFileValue = {
-    url: fileValue,
-    size: undefined as number | undefined,
-  }
-
-  return validatableFileValue as NestedValue<typeof validatableFileValue>
 }
 
 export default IdForm
