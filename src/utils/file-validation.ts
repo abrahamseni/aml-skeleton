@@ -1,4 +1,5 @@
 import * as Yup from 'yup'
+import { isDataUrl } from './url'
 
 export class FileValidation extends Yup.BaseSchema {
   static create() {
@@ -54,9 +55,18 @@ export class FileValidation extends Yup.BaseSchema {
           return true
         }
 
+        if (!isDataUrl(value)) {
+          return true
+        }
+
         const base64 = value as string
         const base64Token = 'base64,'
-        const onlyBase64 = base64.substring(base64.indexOf(base64Token) + base64Token.length)
+        const base64TokenIndex = base64.indexOf(base64Token)
+        if (base64TokenIndex === -1) {
+          return true
+        }
+
+        const onlyBase64 = base64.substring(base64TokenIndex + base64Token.length)
         const decoded = window.atob(onlyBase64)
 
         const fileSize = decoded.length
