@@ -8,7 +8,6 @@ import { useAtom } from 'jotai'
 import { identityTypeAtom } from 'atoms/atoms'
 import * as React from 'react'
 
-
 export const getIdentityDocumentTypes = async (): Promise<Required<ListItemModel>[] | undefined> => {
   const response = await axios.get(`${URLS.CONFIGURATION_DOCUMENT_TYPES}`)
   const idDocTypes: Required<ListItemModel>[] = response.data
@@ -19,8 +18,7 @@ export const useGetIdentityDocumentTypes = (): UseQueryResult<Required<ListItemM
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
   const [, setIdentityTypes] = useAtom(identityTypeAtom)
 
-  const idTypes = useQuery(['getIdentityDocumentTypes'], () => getIdentityDocumentTypes(connectSession!), {
-
+  const idTypes = useQuery(['getIdentityDocumentTypes'], () => getIdentityDocumentTypes(), {
     enabled: !!connectSession,
   })
 

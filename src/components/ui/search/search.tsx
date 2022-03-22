@@ -36,7 +36,7 @@ export type SearchFieldValue = {
 }
 
 export const SearchPage: FC = () => {
-  const [searchParams, setSearchParams] = React.useState<SearchContactParam>({ pageNumber: 1, pageSize: 10 })
+  const [searchParams, setSearchParams] = React.useState<SearchContactParam>({})
   const { register, handleSubmit, reset } = useForm<SearchFieldValue>()
 
   const onSubmit = (e: SearchFieldValue) =>

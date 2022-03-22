@@ -11,7 +11,6 @@ import {
   BodyText,
   FlexContainer,
   Button,
-  Modal,
   useModal,
 } from '@reapit/elements'
 import { useParams } from 'react-router'
@@ -97,7 +96,6 @@ export const ChecklistDetailPage: FC = () => {
   const queryIdentityCheck = useFetchSingleIdentityCheckByContactId(id)
   const { data: identityCheck, isFetching: identityCheckIsFetching, isError: identityCheckIsError } = queryIdentityCheck
 
-
   const queryIdentityDocumentTypes = useGetIdentityDocumentTypes()
   const {
     data: identityDocumentTypes,
@@ -124,8 +122,10 @@ export const ChecklistDetailPage: FC = () => {
 
   if (
     (userDataIsFetching && !userData) ||
-    (identityCheckIsFetching || !identityCheck) ||
-    (identityDocumentTypesIsFetching || !identityDocumentTypes)
+    identityCheckIsFetching ||
+    !identityCheck ||
+    identityDocumentTypesIsFetching ||
+    !identityDocumentTypes
   ) {
     return <Loader fullPage label="Please wait..." />
   }
