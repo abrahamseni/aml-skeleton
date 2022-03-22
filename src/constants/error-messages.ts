@@ -8,4 +8,5 @@ export const errorMessages = {
   MINIMUM_CHARACTER_LENGTH: (min: number) => `The minimum length is ${min} characters`,
   MAXIMUM_CHARACTER_LENGTH: (max: number) => `The maximum length is ${max} characters`,
   WRONG_FILE_TYPE: 'Invalid image file (must be png, jpg, jpeg or svg), max size 3mb',
+  EXCEEDED_MAX_FILE_SIZE: 'Image or document file cannot be larger than ${max}MB',
 }

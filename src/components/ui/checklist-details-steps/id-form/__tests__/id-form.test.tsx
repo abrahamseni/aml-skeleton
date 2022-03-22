@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import IdForm, { IdFormProps } from '../id-form'
 import userEvent from '@testing-library/user-event'
 import { formFields } from '../form-schema/form-field'
@@ -11,11 +11,13 @@ import { URLS } from 'constants/api'
 import { wait } from 'utils/test'
 import DocumentPreviewModal, { DocumentPreviewModalProps } from 'components/ui/ui/document-preview-modal'
 import { downloadDocument as downloadDocumentMock } from 'platform-api/document-api'
+import propsRepo from 'utils/mocks/props-repo'
 
 const axiosMock = new AxiosMockAdapter(axios)
 
 jest.unmock('@reapit/connect-session')
 jest.mock('core/connect-session')
+jest.mock('components/ui/ui/file-input')
 jest.mock('react-pdf/dist/esm/entry.webpack', () => {
   return {
     __esModule: true,
@@ -23,8 +25,8 @@ jest.mock('react-pdf/dist/esm/entry.webpack', () => {
     Page: () => null,
   }
 })
-jest.mock('../document-preview-modal', () => {
-  const DocumentPreviewModal = jest.requireActual('../document-preview-modal')
+jest.mock('components/ui/ui/document-preview-modal', () => {
+  const DocumentPreviewModal = jest.requireActual('components/ui/ui/document-preview-modal')
   const DocumentPreviewModalMock = jest.fn(() => <></>)
   return {
     __esModule: true,
@@ -41,6 +43,7 @@ describe('id form', () => {
   beforeEach(() => {
     axiosMock.reset()
     jest.clearAllMocks()
+    propsRepo.clear()
   })
 
   test('can set default values', async () => {
@@ -56,7 +59,13 @@ describe('id form', () => {
 
     await wait(0)
 
-    await assertFormValues(defaultValues)
+    await assertFormValues({
+      ...defaultValues,
+      documentFile: customValue({
+        url: 'data:documentFile',
+        size: undefined,
+      }),
+    })
   })
 
   test('do not save if form is invalid', async () => {
@@ -108,7 +117,11 @@ describe('id form', () => {
 
     await wait(0)
 
-    const expectedValue = await fillFormWithValidValue()
+    const validValues = await fillFormWithValidValue()
+    const expectedValue = {
+      ...validValues,
+      documentFile: validValues.documentFile.url,
+    }
 
     const saveButton = await screen.findByTestId('save-form')
     userEvent.click(saveButton)
@@ -130,11 +143,11 @@ describe('id form', () => {
       defaultValues,
     })
 
-    const previewButton = await screen.findByTestId('input.documentFile.preview-button')
+    const props = propsRepo.props['input.documentFile']
 
-    userEvent.click(previewButton)
-
-    await wait(0)
+    await act(async () => {
+      await props.onFileView(defaultValues.documentFile)
+    })
 
     const { src, isOpen } = getDocumentPreviewModalProps()
 
@@ -158,11 +171,11 @@ describe('id form', () => {
       defaultValues,
     })
 
-    const previewButton = await screen.findByTestId('input.documentFile.preview-button')
+    const props = propsRepo.props['input.documentFile']
 
-    userEvent.click(previewButton)
-
-    await wait(0)
+    await act(async () => {
+      await props.onFileView(defaultValues.documentFile)
+    })
 
     const { src, isOpen } = getDocumentPreviewModalProps()
 
@@ -205,14 +218,17 @@ async function fillFormWithValidValue() {
     idType: 'DL',
     idReference: 'Hello Refa',
     expiryDate: '2021-10-24',
-    documentFile: documentDataUrl,
+    documentFile: {
+      url: documentDataUrl,
+      size: undefined,
+    },
   }
 
   await fillForm({
     [formFields.idType.name]: selectValue(validValues.idType),
     [formFields.idReference.name]: validValues.idReference,
     [formFields.expiryDate.name]: validValues.expiryDate,
-    [formFields.documentFile.name]: fileValue(validValues.documentFile),
+    [formFields.documentFile.name]: customValue(validValues.documentFile),
   })
 
   return validValues
@@ -267,13 +283,24 @@ function renderIdForm({ onSave, ...rest }: Props = {}) {
   )
 }
 
-async function assertFormValues(values: { [name: string]: string }, getName?: (name: string) => string) {
+async function assertFormValues(values: { [name: string]: any }, getName?: (name: string) => string) {
   const defaultGetName = (name: string) => `input.${name}`
   getName = getName || defaultGetName
 
   for (const [name, value] of Object.entries<any>(values)) {
-    const messageEl: HTMLInputElement = await screen.findByTestId(getName(name))
-    expect(messageEl.value, `incorrect value for input "${name}"`).toBe(value)
+    let val = value
+    let type = undefined
+    if (typeof value !== 'string') {
+      val = value.value
+      type = value.type
+    }
+
+    if (type !== 'custom') {
+      const messageEl: HTMLInputElement = await screen.findByTestId(getName(name))
+      expect(messageEl.value, `incorrect value for input "${name}"`).toBe(val)
+    } else {
+      expect(propsRepo.props[getName(name)].value, `incorrect value for input "${name}"`).toEqual(val)
+    }
   }
 }
 
@@ -299,13 +326,21 @@ async function fillForm(values: any, getName?: (name: string) => string) {
       type = value.type
     }
 
-    const inputEl = await screen.findByTestId(getName(name))
-    if (type === 'select') {
-      userEvent.selectOptions(inputEl, val)
-    } else if (type === 'file') {
-      fireEvent.change(inputEl, { target: { value: val } })
+    if (type !== 'custom') {
+      const inputEl = await screen.findByTestId(getName(name))
+
+      if (type === 'select') {
+        userEvent.selectOptions(inputEl, val)
+      } else {
+        userEvent.type(inputEl, val)
+      }
     } else {
-      userEvent.type(inputEl, val)
+      propsRepo.props[getName(name)].onChange({
+        target: {
+          name: name,
+          value: val,
+        },
+      })
     }
   }
 }
@@ -317,9 +352,9 @@ function selectValue(value: string) {
   }
 }
 
-function fileValue(value: string) {
+function customValue(value: any) {
   return {
-    type: 'file',
+    type: 'custom',
     value: value,
   }
 }
