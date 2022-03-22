@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Subtitle, useSnack } from '@reapit/elements'
 import IdForm, { ValuesType } from './id-form'
-import { ContactModel, IdentityCheckModel } from '@reapit/foundations-ts-definitions'
+import { ContactModel, IdentityCheckModel, ListItemModel } from '@reapit/foundations-ts-definitions'
 import { useSaveIdentityDocument } from './id-form/identity-check-action'
 import { notificationMessage } from 'constants/notification-message'
 
@@ -12,13 +12,14 @@ const defaultValues = {
   documentFile: '',
 }
 
-type Props = {
+export type SecondaryIdProps = {
   contact: ContactModel
   idCheck?: IdentityCheckModel
+  idDocTypes?: Required<ListItemModel>[]
   onSaved?: () => void
 }
 
-const SecondaryId = ({ contact, idCheck, onSaved }: Props) => {
+const SecondaryId = ({ contact, idCheck, idDocTypes, onSaved }: SecondaryIdProps) => {
   const saveIdentityDocument = useSaveIdentityDocument(2)
   const [loading, setLoading] = useState(false)
   const { success, error } = useSnack()
@@ -32,11 +33,21 @@ const SecondaryId = ({ contact, idCheck, onSaved }: Props) => {
     }
     const idDoc = idCheck.identityDocument2
     return {
-      idType: idDoc.typeId!,
-      idReference: idDoc.details!,
-      expiryDate: idDoc.expiry!,
-      documentFile: idDoc.documentId!,
+      idType: idDoc.typeId || '',
+      idReference: idDoc.details || '',
+      expiryDate: idDoc.expiry || '',
+      documentFile: idDoc.documentId || '',
     }
+  }
+
+  function getIdDocTypes() {
+    if (!idCheck) {
+      return idDocTypes
+    }
+    if (!idCheck.identityDocument1) {
+      return idDocTypes
+    }
+    return idDocTypes?.filter((type) => type.id !== idCheck.identityDocument1?.typeId)
   }
 
   function getNoticeText() {
@@ -47,33 +58,20 @@ const SecondaryId = ({ contact, idCheck, onSaved }: Props) => {
   }
 
   async function save(values: ValuesType) {
-    console.log('save')
-
-    await doSave(values)
-  }
-
-  function goToPrevious() {
-    console.log('previous')
-  }
-
-  async function goToNext(values: ValuesType) {
-    console.log('next')
-
-    await doSave(values)
-  }
-
-  async function doSave(values: ValuesType) {
     setLoading(true)
 
-    try {
-      await saveIdentityDocument(contact, idCheck, values)
-      success(notificationMessage.PI2_SUCCESS)
-    } catch (ignored) {
-      error(notificationMessage.PI2_ERROR)
-    }
-
-    setLoading(false)
-    onSaved && onSaved()
+    saveIdentityDocument(contact, idCheck, values, {
+      onSuccess() {
+        success(notificationMessage.PI2_SUCCESS)
+        onSaved && onSaved()
+      },
+      onError() {
+        error(notificationMessage.PI2_ERROR)
+      },
+      onSettled() {
+        setLoading(false)
+      },
+    })
   }
 
   return (
@@ -81,13 +79,12 @@ const SecondaryId = ({ contact, idCheck, onSaved }: Props) => {
       <Subtitle>Secondary ID</Subtitle>
       <IdForm
         defaultValues={getDefaultValues()}
+        idDocTypes={getIdDocTypes()}
         rpsRef={contact.id}
         noticeText={getNoticeText()}
         loading={loading}
         disabled={idCheck ? false : true}
         onSave={save}
-        onPrevious={goToPrevious}
-        onNext={goToNext}
       />
     </>
   )

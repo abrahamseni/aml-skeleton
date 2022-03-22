@@ -1,4 +1,3 @@
-import React from 'react'
 import { TabsSectionProps } from '../components/ui/tab-section/tab-section'
 import { DOCUMENT_TYPE, RISK_ASSESSMENT_TYPE } from '../constants/appointment-details'
 
@@ -8,7 +7,7 @@ interface GenerateOptionsType {
 }
 
 // generate years value
-export const generateOptionsYearsOrMonths = (type: 'months' | 'years'): React.ReactNode => {
+export const generateOptionsYearsOrMonths = (type: 'months' | 'years'): GenerateOptionsType[] => {
   const MAX_NUMBER_OF_YEARS = 101
   const MAX_NUMBER_OF_MONTHS = 12
 
@@ -23,20 +22,12 @@ export const generateOptionsYearsOrMonths = (type: 'months' | 'years'): React.Re
       break
   }
 
-  const optionArr: GenerateOptionsType[] = Array.from<unknown, GenerateOptionsType>({ length: max }, (_, i) => {
+  return Array.from<unknown, GenerateOptionsType>({ length: max }, (_, i) => {
     if (type === 'months') i++
     return {
       value: i.toString(),
       label: i.toString(),
     } as GenerateOptionsType
-  })
-
-  return optionArr.map((v) => {
-    return (
-      <option key={v.value} value={v.value}>
-        {v.label}
-      </option>
-    )
   })
 }
 
@@ -68,7 +59,7 @@ const optionsRiskAssessmentType: GenerateOptionsType[] = [
   { label: RISK_ASSESSMENT_TYPE.ENHANCED, value: RISK_ASSESSMENT_TYPE.ENHANCED },
 ]
 
-export const generateOptionsType = (type: 'documentType' | 'riskAssessmentType'): React.ReactNode => {
+export const generateOptionsType = (type: 'documentType' | 'riskAssessmentType'): GenerateOptionsType[] => {
   let currentTypeArray: GenerateOptionsType[] = []
   switch (type) {
     case 'documentType':
@@ -79,13 +70,7 @@ export const generateOptionsType = (type: 'documentType' | 'riskAssessmentType')
       break
   }
 
-  return currentTypeArray.map((v) => {
-    return (
-      <option key={v.value} value={v.value}>
-        {v.label}
-      </option>
-    )
-  })
+  return currentTypeArray
 }
 
 export const generateLabelField = (text: string, isRequired: boolean = false): string => {
@@ -99,7 +84,8 @@ export const generateTestId = (test: string): string => {
 interface GenerateProgressBarProps {
   tabContents: TabsSectionProps['contents']
 }
-interface GenerateProgressBarResult {
+
+export interface GenerateProgressBarResult {
   notComplete: number
   complete: number
   total: number

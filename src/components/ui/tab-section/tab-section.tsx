@@ -9,7 +9,7 @@ export interface TabsSectionProps {
     status?: boolean
   }[]
   activeTabs: number
-  setActiveTabs: React.Dispatch<React.SetStateAction<number>>
+  setActiveTabs: (index: number) => void
 }
 
 const TabsSection: React.FC<TabsSectionProps> = ({
@@ -22,7 +22,10 @@ const TabsSection: React.FC<TabsSectionProps> = ({
     <>
       <div className="el-tabs-full-width el-tabs-wrap">
         <div className="el-tabs-options-wrap">
-          {generateTableContent({ activeTabs, setActiveTabs, contents, tabName })}
+          {React.useMemo(
+            () => generateTableContent({ activeTabs, setActiveTabs, contents, tabName }),
+            [activeTabs, contents],
+          )}
         </div>
         <div className="el-tabs-footer"></div>
       </div>
@@ -31,11 +34,8 @@ const TabsSection: React.FC<TabsSectionProps> = ({
   )
 }
 
-export default TabsSection
+export default React.memo(TabsSection)
 
-/**
- * Will be better if we use Callback
- */
 interface GenerateTableContents extends TabsSectionProps {}
 
 const generateTableContent = (props: GenerateTableContents): React.ReactNode => {
@@ -52,10 +52,13 @@ const generateTableContent = (props: GenerateTableContents): React.ReactNode => 
           className="el-tabs"
           value={`tab-${index}-fw`}
           checked={activeTabs === index ? true : false}
-          onClick={() => setActiveTabs(index)}
-          data-testid="test.tab.header"
         />
-        <label htmlFor={`tab-${index}-fw`} className="el-tabs-label">
+        <label
+          htmlFor={`tab-${index}-fw`}
+          className="el-tabs-label"
+          data-testid="test.tab.header"
+          onClick={() => setActiveTabs(index)}
+        >
           <span className="el-tabs-item">
             <FlexContainer isFlexAlignCenter isFlexJustifyEnd>
               <div data-testid="test.tab.name">

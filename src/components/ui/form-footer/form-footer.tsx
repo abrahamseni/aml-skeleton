@@ -1,81 +1,31 @@
 import React from 'react'
-import { BodyText, Button, ButtonGroup, elMt6, elMt8, elMr6, elWFull, FlexContainer } from '@reapit/elements'
+import { BodyText, Button, elMt6, elMt8, elMr6, elWFull, FlexContainer } from '@reapit/elements'
 
 type FormFooterProps = {
-  switchTabContent: (type: 'forward' | 'backward') => void | undefined
-  isPrevHide?: boolean
-  isNextHide?: boolean
   isIdInfoHide?: boolean
-  isFormSubmitting?: boolean
+  isFormSubmitting: boolean
   idUser?: string
-  isFieldError?: boolean
-  submitHandler?: () => Promise<void>
+  isFieldError: boolean
 }
 
-const FormFooter = ({
-  switchTabContent,
-  isPrevHide = false,
-  isNextHide = false,
-  isIdInfoHide = false,
-  idUser,
-  isFieldError,
-  isFormSubmitting,
-  submitHandler,
-}: FormFooterProps) => {
-  const onNextHandler = async () => {
-    await submitHandler!()
-    switchTabContent('forward')
-  }
-
-  const onPreviousHandler = (): void => {
-    switchTabContent('backward')
-  }
-
+const FormFooter = ({ isIdInfoHide = false, idUser, isFieldError, isFormSubmitting }: FormFooterProps) => {
   return (
     <footer className={elMt8}>
-      <FlexContainer isFlexJustifyBetween className={elWFull}>
-        {!isPrevHide && (
-          <Button
-            onClick={onPreviousHandler}
-            chevronLeft
-            intent="secondary"
-            type="button"
-            disabled={isFormSubmitting || isFieldError}
-            data-testid="previous-form"
-          >
-            Previous
-          </Button>
+      <FlexContainer isFlexAlignCenter isFlexJustifyEnd className={elWFull}>
+        {!isIdInfoHide && (
+          <BodyText hasNoMargin className={elMr6}>
+            RPS Ref: {idUser}
+          </BodyText>
         )}
-        <FlexContainer isFlexAlignCenter isFlexJustifyEnd={isPrevHide} className={isPrevHide ? elWFull : undefined}>
-          {!isIdInfoHide && (
-            <BodyText hasNoMargin className={elMr6}>
-              RPS Ref: {idUser}
-            </BodyText>
-          )}
-          <ButtonGroup>
-            <Button
-              intent="success"
-              type="submit"
-              disabled={isFormSubmitting || isFieldError}
-              loading={isFormSubmitting}
-              data-testid="save-form"
-            >
-              Save
-            </Button>
-            {!isNextHide && (
-              <Button
-                onClick={onNextHandler}
-                chevronRight
-                intent="primary"
-                type="button"
-                disabled={isFormSubmitting || isFieldError}
-                data-testid="next-form"
-              >
-                Next
-              </Button>
-            )}
-          </ButtonGroup>
-        </FlexContainer>
+        <Button
+          intent="success"
+          type="submit"
+          disabled={isFormSubmitting || isFieldError}
+          loading={isFormSubmitting}
+          data-testid="save-form"
+        >
+          Save
+        </Button>
       </FlexContainer>
       <div className={elMt6}>
         <BodyText hasNoMargin>

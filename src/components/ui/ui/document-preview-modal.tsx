@@ -6,14 +6,14 @@ import Modal from './modal'
 import { modalMaxHeight, modalHeaderHeight, modalBodyPadding } from './__styles__/modal.style'
 import { styled } from '@linaria/react'
 import { css } from '@linaria/core'
-import { isObjectUrl } from '../../../../utils/url'
+import { isObjectUrl } from '../../../utils/url'
 
-interface Props extends ModalProps {
+export interface DocumentPreviewModalProps extends ModalProps {
   src?: string
   loading?: boolean
 }
 
-export const DocumentPreviewModal: FC<Props> = ({ src, isOpen, onModalClose, loading }) => {
+export const DocumentPreviewModal: FC<DocumentPreviewModalProps> = ({ src, isOpen, onModalClose, loading }) => {
   const [pdfPreviewIsVisible, setPdfPreviewIsVisible] = useState(false)
   const [pdfNumPages, setPdfNumPages] = useState(0)
 
@@ -62,7 +62,7 @@ export const DocumentPreviewModal: FC<Props> = ({ src, isOpen, onModalClose, loa
             <PdfContainer>
               <SizeMe>
                 {({ size }) => (
-                  <Document file={src} onLoadSuccess={onPdfPreviewLoadSuccess}>
+                  <Document file={src} onLoadSuccess={onPdfPreviewLoadSuccess} renderMode="svg">
                     {getPdfPages(size.width)}
                   </Document>
                 )}
@@ -89,7 +89,7 @@ export const DocumentPreviewModal: FC<Props> = ({ src, isOpen, onModalClose, loa
   )
 }
 
-export const footerHeight = '141.233px'
+export const footerHeight = '8.827rem'
 
 const Body = styled.div`
   max-height: calc(${modalMaxHeight} - ${modalHeaderHeight} - ${footerHeight} - (2 * ${modalBodyPadding}));
