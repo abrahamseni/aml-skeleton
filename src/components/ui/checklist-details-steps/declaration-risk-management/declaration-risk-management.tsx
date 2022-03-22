@@ -155,7 +155,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({
           idUser={userData?.id}
           isFieldError={!!Object.keys(formState.errors).length}
           isFormSubmitting={updateContactData?.isLoading}
-          currentForm={currentForm}
+          // currentForm={currentForm}
           switchTabContent={switchTabContent}
           submitHandler={handleSubmit(onSubmitHandler)}
         />

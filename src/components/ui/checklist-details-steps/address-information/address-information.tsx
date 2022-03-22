@@ -109,7 +109,7 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData, switc
           idUser={userData?.id}
           isFieldError={!!Object.keys(currentForm.formState.errors).length}
           isFormSubmitting={updateContactData?.isLoading}
-          currentForm={currentForm}
+          // currentForm={currentForm}
           switchTabContent={switchTabContent}
           submitHandler={onSubmitHandler}
         />
