@@ -7,15 +7,22 @@ import { getFileExtensionsFromDataUrl } from '../../../../utils/file'
 import { isDataUrl } from '../../../../utils/url'
 import { ValuesType } from './form-schema/form-field'
 
+type ActionResponseListeners<TData = any, TError = any> = {
+  onSuccess?: (data: TData) => void
+  onError?: (error: TError) => void
+  onSettled?: () => void
+}
+
 export const useSaveIdentityDocument = (identityDocumentIndex: 1 | 2) => {
-  const updateIdentityCheck = useUpdateIdentityCheck()
-  const createIdentityCheck = useCreateIdentityCheck()
+  const { updateIdentityCheck } = useUpdateIdentityCheck()
+  const { createIdentityCheck } = useCreateIdentityCheck()
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
 
-  async function saveIdentityDocument(
+  function saveIdentityDocument(
     contact: ContactModel,
     idCheck: IdentityCheckModel | undefined,
     values: ValuesType,
+    options?: ActionResponseListeners,
   ) {
     const newIdentityDocument: any = {
       typeId: values.idType,
@@ -32,11 +39,14 @@ export const useSaveIdentityDocument = (identityDocumentIndex: 1 | 2) => {
     const identityDocumentPropName = 'identityDocument' + identityDocumentIndex
 
     if (idCheck) {
-      await updateIdentityCheck({
-        id: idCheck.id!,
-        _eTag: idCheck._eTag!,
-        [identityDocumentPropName]: newIdentityDocument,
-      })
+      updateIdentityCheck(
+        {
+          id: idCheck.id!,
+          _eTag: idCheck._eTag!,
+          [identityDocumentPropName]: newIdentityDocument,
+        },
+        options,
+      )
     } else {
       if (identityDocumentIndex === 2) {
         throw new Error(
@@ -45,17 +55,24 @@ export const useSaveIdentityDocument = (identityDocumentIndex: 1 | 2) => {
       }
       const userCode = connectSession?.loginIdentity.userCode
       if (!userCode) {
-        throw new Error(
-          'You are not currently logged in as negotiator. The Reapit Platform API only supports Identity Checks performed by negotiators. As such, you your data will not be saved and you will need to log in as another user to complete this action.',
-        )
+        options?.onError &&
+          options.onError(
+            new Error(
+              'You are not currently logged in as negotiator. The Reapit Platform API only supports Identity Checks performed by negotiators. As such, you your data will not be saved and you will need to log in as another user to complete this action.',
+            ),
+          )
+        return
       }
-      await createIdentityCheck({
-        contactId: contact.id!,
-        identityDocument1: newIdentityDocument,
-        status: 'pending',
-        checkDate: now().format('YYYY-MM-DD'),
-        negotiatorId: userCode,
-      } as any)
+      createIdentityCheck(
+        {
+          contactId: contact.id!,
+          identityDocument1: newIdentityDocument,
+          status: 'pending',
+          checkDate: now().format('YYYY-MM-DD'),
+          negotiatorId: userCode,
+        } as any,
+        options,
+      )
     }
   }
 

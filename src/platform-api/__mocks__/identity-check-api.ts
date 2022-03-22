@@ -15,11 +15,11 @@ export const useFetchSingleIdentityCheckByContactId = (id: string) => {
 export const createIdentityCheck = jest.fn()
 
 export const useCreateIdentityCheck = () => {
-  return (params: any) => createIdentityCheck(null, params)
+  return { createIdentityCheck }
 }
 
 export const updateIdentityCheck = jest.fn()
 
 export const useUpdateIdentityCheck = () => {
-  return (params: any) => updateIdentityCheck(null, params)
+  return { updateIdentityCheck }
 }

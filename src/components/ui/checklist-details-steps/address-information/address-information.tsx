@@ -2,20 +2,20 @@ import React from 'react'
 import { Button, elWFull, FormLayout, InputWrapFull, useSnack } from '@reapit/elements'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { FormField } from './form-field'
 import { validationSchema, ValuesType } from './form-schema'
 import { RightSideContainer } from './__styles__'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
-import { notificationMessage } from '../../../../constants/notification-message'
-import { useUpdateContact } from '../../../../platform-api/contact-api/update-contact'
+import { notificationMessage } from 'constants/notification-message'
+import { useUpdateContact } from 'platform-api/contact-api/update-contact'
+
+import FormField from './form-field'
 import FormFooter from 'components/ui/form-footer/form-footer'
 
 interface AddressInformationProps {
   userData: ContactModel | undefined
-  switchTabContent: (type: 'forward' | 'backward') => void | undefined
 }
 
-const AddressInformation: React.FC<AddressInformationProps> = ({ userData, switchTabContent }): React.ReactElement => {
+const AddressInformation: React.FC<AddressInformationProps> = ({ userData }): React.ReactElement => {
   // snack notification - snack provider
   const { success, error } = useSnack()
 
@@ -63,8 +63,8 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData, switc
   const updateContactData = useUpdateContact(userData!.id!, userData!._eTag!)
 
   // button handler - submit
-  const onSubmitHandler = async (): Promise<void> => {
-    await updateContactData.mutateAsync(
+  const onSubmitHandler = () => {
+    updateContactData.mutate(
       {
         primaryAddress: currentForm.getValues('primaryAddress'),
         secondaryAddress: currentForm.getValues('secondaryAddress'),
@@ -109,13 +109,10 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData, switc
           idUser={userData?.id}
           isFieldError={!!Object.keys(currentForm.formState.errors).length}
           isFormSubmitting={updateContactData?.isLoading}
-          // currentForm={currentForm}
-          switchTabContent={switchTabContent}
-          submitHandler={onSubmitHandler}
         />
       </form>
     </>
   )
 }
 
-export default AddressInformation
+export default React.memo(AddressInformation)

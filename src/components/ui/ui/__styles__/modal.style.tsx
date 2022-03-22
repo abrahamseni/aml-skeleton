@@ -3,7 +3,7 @@ import { ModalHeader } from '@reapit/elements'
 
 export const modalMaxHeight = '100vh - 40px'
 
-export const modalHeaderHeight = '44px'
+export const modalHeaderHeight = '2.75rem'
 
 export const modalBodyPadding = '1rem'
 
