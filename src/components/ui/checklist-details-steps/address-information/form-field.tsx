@@ -8,7 +8,6 @@ import {
   InputWrapFull,
   elMt4,
   FlexContainer,
-  FileInput,
   elPl3,
 } from '@reapit/elements'
 import { formFields, ValuesType } from './form-schema'
@@ -24,6 +23,7 @@ import { cx } from '@linaria/core'
 import { order0 } from './__styles__'
 
 import DocumentPreviewModal from 'components/ui/ui/document-preview-modal'
+import { FileInput } from 'components/ui/ui/file-input'
 
 interface FormFieldProps {
   /**
@@ -37,6 +37,7 @@ interface FormFieldProps {
 }
 
 const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.ReactElement => {
+  const isPrimaryAddress = !!(identity === 'primaryAddress')
   // local state - modal handler
   const [imagePrimaryAddress, setImagePrimaryAddress] = React.useState<boolean>(false)
   const [imageSecondaryAddress, setImageSecondaryAddress] = React.useState<boolean>(false)
@@ -107,7 +108,7 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
           <InputGroup
             type="text"
             autoComplete="off"
-            label={generateLabelField(postcodeField.label, true)}
+            label={generateLabelField(postcodeField.label, isPrimaryAddress)}
             data-testid={generateTestId(postcodeField.name)}
             {...register(postcodeField.name)}
           />
@@ -123,7 +124,7 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
           <InputGroup
             type="text"
             autoComplete="off"
-            label={generateLabelField(line1Field.label, true)}
+            label={generateLabelField(line1Field.label, isPrimaryAddress)}
             data-testid={generateTestId(line1Field.name)}
             {...register(line1Field.name)}
           />
@@ -151,7 +152,7 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
           <InputGroup
             type="text"
             autoComplete="off"
-            label={generateLabelField(line3Field.label, true)}
+            label={generateLabelField(line3Field.label, isPrimaryAddress)}
             data-testid={generateTestId(line3Field.name)}
             {...register(line3Field.name)}
           />
@@ -179,7 +180,7 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
       <InputWrapFull data-testid="option.field.wrapper">
         <InputWrap>
           <InputGroup>
-            <Label>{generateLabelField(yearField.label, true)}</Label>
+            <Label>{generateLabelField(yearField.label, isPrimaryAddress)}</Label>
             <Select {...register(yearField.name)} data-testid={generateTestId(yearField.name)}>
               {generateOptionsYearsOrMonths('years').map((v) => {
                 return (
@@ -198,7 +199,7 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
         </InputWrap>
         <InputWrap>
           <InputGroup>
-            <Label>{generateLabelField(monthField.label, true)}</Label>
+            <Label>{generateLabelField(monthField.label, isPrimaryAddress)}</Label>
             <Select {...register(monthField.name)} data-testid={generateTestId(monthField.name)}>
               {generateOptionsYearsOrMonths('months').map((v) => {
                 return (
@@ -217,7 +218,7 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
         </InputWrap>
         <InputWrap>
           <InputGroup>
-            <Label>{generateLabelField(documentTypeField.label, true)}</Label>
+            <Label>{generateLabelField(documentTypeField.label, isPrimaryAddress)}</Label>
             <Select {...register(documentTypeField.name)} data-testid={generateTestId(documentTypeField.name)}>
               {generateOptionsType('documentType').map((v) => {
                 return (
@@ -236,7 +237,9 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
         </InputWrap>
         <InputWrap className={elMt4}>
           <FlexContainer isFlexColumn className={elPl3}>
-            <Label className={cx(elMb2, order0)}>{generateLabelField(documentImageField.label, true)}</Label>
+            <Label className={cx(elMb2, order0)}>
+              {generateLabelField(documentImageField.label, isPrimaryAddress)}
+            </Label>
             <FileInput
               data-testid={generateTestId(documentImageField.name)}
               {...register(documentImageField.name)}

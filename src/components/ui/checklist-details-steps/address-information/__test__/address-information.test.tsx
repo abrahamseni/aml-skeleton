@@ -9,16 +9,14 @@ import Axios from '../../../../../axios/axios'
 import { URLS } from '../../../../../constants/api'
 import { wait } from 'utils/test'
 import { error, success } from 'utils/mocks/useSnack'
+import DocumentPreviewModal, { DocumentPreviewModalProps } from 'components/ui/ui/document-preview-modal'
 
 const axiosMock = new AxiosMockAdapter(Axios, {
   onNoMatch: 'throwException',
 })
 
-const {
-  buildingNameField: primaryBuildingNameField,
-  documentTypeField: primaryDocumentTypeField,
-  documentImageField: primaryDocumentImageField,
-} = formFields('primaryAddress')
+const { buildingNameField: primaryBuildingNameField, documentTypeField: primaryDocumentTypeField } =
+  formFields('primaryAddress')
 const { buildingNameField: secondaryBuildingNameField } = formFields('secondaryAddress')
 
 type AddressInformationProps = React.ComponentPropsWithRef<typeof AddressInformation>
@@ -35,6 +33,16 @@ jest.mock('@reapit/elements', () => jest.requireActual('utils/mocks/reapit-eleme
 
 jest.unmock('@reapit/connect-session')
 jest.mock('../../../../../core/connect-session')
+jest.mock('components/ui/ui/document-preview-modal', () => {
+  const DocumentPreviewModal = jest.requireActual('components/ui/ui/document-preview-modal')
+  const DocumentPreviewModalMock = jest.fn(() => <></>)
+  return {
+    __esModule: true,
+    ...DocumentPreviewModal,
+    DocumentPreviewModal: DocumentPreviewModalMock,
+    default: DocumentPreviewModalMock,
+  }
+})
 
 describe('Address Information Component', () => {
   beforeEach(() => {
@@ -42,153 +50,273 @@ describe('Address Information Component', () => {
     jest.clearAllMocks()
   })
 
-  it('should match a snapshot', () => {
-    expect(renderComponent(defaultAddressInformationProps)).toMatchSnapshot()
+  describe('Snapshot', () => {
+    it('should match a snapshot', () => {
+      expect(renderComponent(defaultAddressInformationProps)).toMatchSnapshot()
+    })
   })
 
-  it('field on the form should able to assert with initial value', () => {
-    const { getByTestId: getByTestIdAssertOne, unmount: unmountAssertOne } =
-      renderComponent(defaultAddressInformationProps)
-    const testBuildingNameField1 = getByTestIdAssertOne(`test.${primaryBuildingNameField.name}`) as HTMLInputElement
+  describe('DOM', () => {
+    it('field on the form should able to assert with initial value', () => {
+      const { getByTestId: getByTestIdAssertOne, unmount: unmountAssertOne } =
+        renderComponent(defaultAddressInformationProps)
+      const testBuildingNameField1 = getByTestIdAssertOne(`test.${primaryBuildingNameField.name}`) as HTMLInputElement
 
-    expect(testBuildingNameField1.value).not.toBeNull()
-    expect(testBuildingNameField1.value).toMatch(/qwqd/i)
+      expect(testBuildingNameField1.value).not.toBeNull()
+      expect(testBuildingNameField1.value).toMatch(/qwqd/i)
 
-    unmountAssertOne()
+      unmountAssertOne()
 
-    const { getByTestId: getByTestIdAssertTwo, unmount: unmountAssertTwo } = renderComponent(
-      defaultAddressInformationProps,
-      'v2',
-    )
+      const { getByTestId: getByTestIdAssertTwo, unmount: unmountAssertTwo } = renderComponent(
+        defaultAddressInformationProps,
+        'v2',
+      )
 
-    const testBuildingNameField2 = getByTestIdAssertTwo(`test.${primaryBuildingNameField.name}`) as HTMLInputElement
+      const testBuildingNameField2 = getByTestIdAssertTwo(`test.${primaryBuildingNameField.name}`) as HTMLInputElement
 
-    expect(testBuildingNameField2.value).not.toMatch(/qwqd/i)
-    expect(testBuildingNameField2.value).not.toBeNull()
-    expect(testBuildingNameField2.value).toMatch(/Primary Address Building Name Test 2/i)
+      expect(testBuildingNameField2.value).not.toMatch(/qwqd/i)
+      expect(testBuildingNameField2.value).not.toBeNull()
+      expect(testBuildingNameField2.value).toMatch(/Primary Address Building Name Test 2/i)
 
-    unmountAssertTwo()
+      unmountAssertTwo()
+    })
+
+    it('should render exactly 11 field (when secondary address is null)', () => {
+      const { container, getByTestId } = renderComponent(defaultAddressInformationProps)
+
+      const totalTextFields = container.querySelectorAll<HTMLInputElement>('[type="text"]')
+      const totalOptionFields = getByTestId('option.field.wrapper').childNodes.length
+
+      expect(totalTextFields.length).toEqual(7)
+      expect(totalOptionFields).toEqual(4)
+      expect(totalTextFields.length + totalOptionFields).toEqual(11)
+    })
+
+    it('should able to click "less than 3 years?" button, then the fields should extend the form', () => {
+      const { getByTestId, container, getAllByTestId } = renderComponent(defaultAddressInformationProps)
+
+      const togglerButton = getByTestId('toggler.extend.form')
+
+      expect(togglerButton.textContent).toMatch(/Less than 3 Years ?/)
+
+      const beforeTotalTextFields = container.querySelectorAll<HTMLInputElement>('[type="text"]').length // true
+      const beforeTotalOptionFields = getAllByTestId('option.field.wrapper').reduce(
+        (c, v) => c + v.childNodes.length,
+        0,
+      ) as number
+
+      expect(beforeTotalTextFields + beforeTotalOptionFields).toEqual(11)
+
+      // user click button for the first time
+      fireEvent.click(togglerButton)
+
+      const afterTotalTextFields = container.querySelectorAll('[type="text"]').length // true
+      const afterTotalOptionFields = getAllByTestId('option.field.wrapper').reduce(
+        (c, v) => c + v.childNodes.length,
+        0,
+      ) as number
+
+      expect(afterTotalTextFields + afterTotalOptionFields).toEqual(22)
+
+      // user click button again
+      fireEvent.click(togglerButton)
+
+      const afterTwiceTotalTextFields = container.querySelectorAll('[type="text"]').length // true
+      const afterTwiceTotalOptionFields = getAllByTestId('option.field.wrapper').reduce(
+        (c, v) => c + v.childNodes.length,
+        0,
+      ) as number
+
+      expect(afterTwiceTotalTextFields + afterTwiceTotalOptionFields).toEqual(11)
+    })
+
+    it('the form should automatically extend "the secondary address section", if the secondaryAddress data is not null', () => {
+      const { container, getAllByTestId, getByTestId } = renderComponent(defaultAddressInformationProps, 'v2')
+
+      const totalTextFields = container.querySelectorAll('[type="text"]').length // true
+      const totalOptionFields = getAllByTestId('option.field.wrapper').reduce(
+        (c, v) => c + v.childNodes.length,
+        0,
+      ) as number
+
+      expect(totalTextFields + totalOptionFields).toEqual(22)
+
+      const primaryBuildingNameFields = getByTestId(`test.${primaryBuildingNameField.name}`) as HTMLInputElement
+      const secondaryBuildingNameFields = getByTestId(`test.${secondaryBuildingNameField.name}`) as HTMLInputElement
+
+      expect(primaryBuildingNameFields.value).toMatch(/Primary Address Building Name Test 2/i)
+      expect(secondaryBuildingNameFields.value).toMatch(/Secondary Address Building Name Test 2/i)
+    })
+
+    it('should able to change the field value', () => {
+      const { getByTestId } = renderComponent(defaultAddressInformationProps, 'v2')
+
+      // text input
+      const buildingNameField = getByTestId(`test.${primaryBuildingNameField.name}`) as HTMLInputElement
+      expect(buildingNameField.value).toMatch(/Primary Address Building Name Test 2/i)
+
+      fireEvent.change(buildingNameField, { target: { value: 'Primary Address Building Name Test 3' } })
+
+      expect(buildingNameField.value).toMatch(/Primary Address Building Name Test 3/i)
+
+      // select input
+      const documentTypeField = getByTestId(`test.${primaryDocumentTypeField.name}`) as HTMLSelectElement
+      expect(documentTypeField.value).toMatch(/Mortgage Statement or Mortgage Redemption Statement/i)
+
+      fireEvent.change(documentTypeField, { target: { value: 'Current Council Tax Bill' } })
+
+      expect(documentTypeField.value).toMatch(/Current Council Tax Bill/i)
+    })
+
+    it('show "error message" when required field is empty', async () => {
+      const { getByTestId } = renderComponent(defaultAddressInformationProps)
+
+      // post code
+      const postCodePrimaryField = getByTestId('test.primaryAddress.postcode') as HTMLInputElement
+      expect(postCodePrimaryField.value).toMatch(/WD25 9TY/i)
+
+      fireEvent.change(postCodePrimaryField, { target: { value: '' } })
+      await wait(0)
+      fireEvent.blur(postCodePrimaryField)
+      await wait(0)
+
+      const postCodePrimaryFieldErrorMessage = getByTestId('test.error.primaryAddress.postcode') as HTMLParagraphElement
+      expect(postCodePrimaryFieldErrorMessage).not.toBeUndefined()
+      expect(postCodePrimaryFieldErrorMessage.textContent).toMatch(/required/i)
+
+      // line 1
+      const line1PrimaryField = getByTestId('test.primaryAddress.line1') as HTMLInputElement
+      expect(line1PrimaryField.value).toMatch(/Chichester Way/i)
+
+      fireEvent.change(line1PrimaryField, { target: { value: '' } })
+      await wait(0)
+      fireEvent.blur(line1PrimaryField)
+      await wait(0)
+
+      const line1PrimaryFieldErrorMessage = getByTestId('test.error.primaryAddress.line1') as HTMLParagraphElement
+      expect(line1PrimaryFieldErrorMessage).not.toBeUndefined()
+      expect(line1PrimaryFieldErrorMessage.textContent).toMatch(/required/i)
+
+      // line 3
+      const line3PrimaryField = getByTestId('test.primaryAddress.line3') as HTMLInputElement
+      expect(line3PrimaryField.value).toMatch(/Hertfordshire/i)
+
+      fireEvent.change(line3PrimaryField, { target: { value: '' } })
+      await wait(0)
+      fireEvent.blur(line3PrimaryField)
+      await wait(0)
+
+      const line3PrimaryFieldErrorMessage = getByTestId('test.error.primaryAddress.line3') as HTMLParagraphElement
+      expect(line3PrimaryFieldErrorMessage).not.toBeUndefined()
+      expect(line3PrimaryFieldErrorMessage.textContent).toMatch(/required/i)
+
+      // document primary address
+      const documentFilePrimaryField = getByTestId('test.metadata.primaryAddress.documentType') as HTMLInputElement
+      expect(documentFilePrimaryField.value).toMatch(/Mortgage Statement or Mortgage Redemption Statement/i)
+
+      fireEvent.change(documentFilePrimaryField, { target: { value: '' } })
+      await wait(0)
+      fireEvent.blur(documentFilePrimaryField)
+      await wait(0)
+
+      const documentFilePrimaryFieldErrorMessage = getByTestId(
+        'test.error.metadata.primaryAddress.documentType',
+      ) as HTMLParagraphElement
+      expect(documentFilePrimaryFieldErrorMessage).not.toBeUndefined()
+      expect(documentFilePrimaryFieldErrorMessage.textContent).toMatch(/required/i)
+    })
+
+    it('should not able to tap "save" button, when required file is empty', async () => {
+      const { getByTestId } = renderComponent(defaultAddressInformationProps)
+
+      // post code
+      const postCodePrimaryField = getByTestId('test.primaryAddress.postcode') as HTMLInputElement
+      expect(postCodePrimaryField.value).toMatch(/WD25 9TY/i)
+
+      fireEvent.change(postCodePrimaryField, { target: { value: '' } })
+      await wait(0)
+      fireEvent.blur(postCodePrimaryField)
+      await wait(0)
+
+      const postCodePrimaryFieldErrorMessage = getByTestId('test.error.primaryAddress.postcode') as HTMLParagraphElement
+      expect(postCodePrimaryFieldErrorMessage).not.toBeUndefined()
+      expect(postCodePrimaryFieldErrorMessage.textContent).toMatch(/required/i)
+
+      const saveButton = getByTestId('save-form')
+      expect(saveButton.getAttribute('disabled')).not.toBeUndefined()
+    })
+
+    it('should show document model if user tap "eye" button', async () => {
+      const { getByTestId } = renderComponent(defaultAddressInformationProps, 'v2')
+
+      // primary address file input
+      const eyeDocumentFilePrimary = getByTestId(
+        'test.metadata.primaryAddress.documentImage.preview-button',
+      ) as HTMLSpanElement
+
+      fireEvent.click(eyeDocumentFilePrimary)
+      await wait(0)
+
+      const { isOpen: DocumentFilePrimaryIsOpen } = getDocumentPreviewModalProps('primaryAddress')
+      expect(DocumentFilePrimaryIsOpen).toBeTruthy()
+
+      // secondary address file input
+      const eyeDocumentFileSecondary = getByTestId(
+        'test.metadata.secondaryAddress.documentImage.preview-button',
+      ) as HTMLSpanElement
+
+      fireEvent.click(eyeDocumentFileSecondary)
+      await wait(0)
+
+      const { isOpen: DocumentFileSecondaryIsOpen } = getDocumentPreviewModalProps('secondaryAddress')
+      expect(DocumentFileSecondaryIsOpen).toBeTruthy()
+    })
   })
 
-  it('should render exactly 11 field (when secondary address is null)', () => {
-    const { container, getByTestId } = renderComponent(defaultAddressInformationProps)
+  describe('Integration', () => {
+    it('at first, submit button should not able to tap', async () => {
+      const { getByTestId } = renderComponent(defaultAddressInformationProps)
 
-    const totalTextFields = container.querySelectorAll<HTMLInputElement>('[type="text"]')
-    const totalOptionFields = getByTestId('option.field.wrapper').childNodes.length
+      const submitButton = getByTestId('save-form')
 
-    expect(totalTextFields.length).toEqual(7)
-    expect(totalOptionFields).toEqual(4)
-    expect(totalTextFields.length + totalOptionFields).toEqual(11)
-  })
+      axiosMock.onPatch(`${URLS.CONTACTS}/${CONTACT_MOCK_DATA_1.id}`).reply(204)
+      fireEvent.click(submitButton)
 
-  it('should able to click "less than 3 years?" button, then the fields should extend the form', () => {
-    const { getByTestId, container, getAllByTestId } = renderComponent(defaultAddressInformationProps)
+      await wait(0)
 
-    const togglerButton = getByTestId('toggler.extend.form')
+      expect(axiosMock.history.patch[0].url).toEqual('/contacts/MLK16000071')
+      expect(success).toBeCalledTimes(1)
+      expect(success.mock.calls[0][0]).toMatch(/Successfully update address data/i)
+    })
 
-    expect(togglerButton.textContent).toMatch(/Less than 3 Years ?/)
+    it('show error notification if request is cancelled or error', async () => {
+      const { getByTestId } = renderComponent(defaultAddressInformationProps)
 
-    const beforeTotalTextFields = container.querySelectorAll('[type="text"]').length // true
-    let beforeTotalOptionFields = 0 // total option field
+      const submitButton = getByTestId('save-form')
 
-    getAllByTestId('option.field.wrapper').forEach((v) => (beforeTotalOptionFields += v.childNodes.length))
+      axiosMock.onPatch(`${URLS.CONTACTS}/${CONTACT_MOCK_DATA_1.id}`).reply(500)
 
-    expect(beforeTotalTextFields + beforeTotalOptionFields).toEqual(11)
+      fireEvent.click(submitButton)
 
-    // user click button for the first time
-    fireEvent.click(togglerButton)
+      await wait(0)
 
-    const afterTotalTextFields = container.querySelectorAll('[type="text"]').length // true
-    let afterTotalOptionFields = 0 // total option field
-
-    getAllByTestId('option.field.wrapper').forEach((v) => (afterTotalOptionFields += v.childNodes.length))
-
-    expect(afterTotalTextFields + afterTotalOptionFields).toEqual(22)
-
-    // user click button again
-    fireEvent.click(togglerButton)
-
-    const afterTwiceTotalTextFields = container.querySelectorAll('[type="text"]').length // true
-    let afterTwiceTotalOptionFields = 0 // total option field
-    getAllByTestId('option.field.wrapper').forEach((v) => (afterTwiceTotalOptionFields += v.childNodes.length))
-
-    expect(afterTwiceTotalTextFields + afterTwiceTotalOptionFields).toEqual(11)
-  })
-
-  it('the form should automatically extend "the secondary address section", if the secondaryAddress data is not null', () => {
-    const { container, getAllByTestId, getByTestId } = renderComponent(defaultAddressInformationProps, 'v2')
-
-    const totalTextFields = container.querySelectorAll('[type="text"]').length // true
-    let totalOptionFields = 0 // total option field
-
-    getAllByTestId('option.field.wrapper').forEach((v) => (totalOptionFields += v.childNodes.length))
-
-    expect(totalTextFields + totalOptionFields).toEqual(22)
-
-    const primaryBuildingNameFields = getByTestId(`test.${primaryBuildingNameField.name}`) as HTMLInputElement
-    const secondaryBuildingNameFields = getByTestId(`test.${secondaryBuildingNameField.name}`) as HTMLInputElement
-
-    expect(primaryBuildingNameFields.value).toMatch(/Primary Address Building Name Test 2/i)
-    expect(secondaryBuildingNameFields.value).toMatch(/Secondary Address Building Name Test 2/i)
-  })
-
-  it('at first, submit button should not able to tap', async () => {
-    const { getByTestId } = renderComponent(defaultAddressInformationProps)
-
-    const submitButton = getByTestId('save-form')
-
-    axiosMock.onPatch(`${URLS.CONTACTS}/${CONTACT_MOCK_DATA_1.id}`).reply(204)
-    fireEvent.click(submitButton)
-
-    await wait(0)
-
-    expect(axiosMock.history.patch[0].url).toEqual('/contacts/MLK16000071')
-    expect(success).toBeCalledTimes(1)
-    expect(success.mock.calls[0][0]).toMatch(/Successfully update address data/i)
-  })
-
-  it('show error notification if request is cancelled or error', async () => {
-    const { getByTestId } = renderComponent(defaultAddressInformationProps)
-
-    const submitButton = getByTestId('save-form')
-
-    axiosMock.onPatch(`${URLS.CONTACTS}/${CONTACT_MOCK_DATA_1.id}`).reply(500)
-
-    fireEvent.click(submitButton)
-
-    await wait(0)
-
-    expect(axiosMock.history.patch[0].url).toEqual('/contacts/MLK16000071')
-    expect(error).toBeCalledTimes(1)
-    expect(error.mock.calls[0][0]).toMatch(/Something is not working, try to reload your browser/i)
-  })
-
-  it('should able to change the field value', () => {
-    const { getByTestId } = renderComponent(defaultAddressInformationProps, 'v2')
-
-    // text input
-    const buildingNameField = getByTestId(`test.${primaryBuildingNameField.name}`) as HTMLInputElement
-    expect(buildingNameField.value).toMatch(/Primary Address Building Name Test 2/i)
-
-    fireEvent.change(buildingNameField, { target: { value: 'Primary Address Building Name Test 3' } })
-
-    expect(buildingNameField.value).toMatch(/Primary Address Building Name Test 3/i)
-
-    // select input
-    const documentTypeField = getByTestId(`test.${primaryDocumentTypeField.name}`) as HTMLSelectElement
-    expect(documentTypeField.value).toMatch(/Mortgage Statement or Mortgage Redemption Statement/i)
-
-    fireEvent.change(documentTypeField, { target: { value: 'Current Council Tax Bill' } })
-
-    expect(documentTypeField.value).toMatch(/Current Council Tax Bill/i)
-  })
-
-  it('should show document model if user tap "eye" button', () => {
-    const { getByTestId } = renderComponent(defaultAddressInformationProps)
-    const fileInput = getByTestId(`test.${primaryDocumentImageField.name}`) as HTMLInputElement
-    expect(fileInput.value).not.toBeUndefined()
+      expect(axiosMock.history.patch[0].url).toEqual('/contacts/MLK16000071')
+      expect(error).toBeCalledTimes(1)
+      expect(error.mock.calls[0][0]).toMatch(/Something is not working, try to reload your browser/i)
+    })
   })
 })
+
+const getDocumentPreviewModalProps = (type: 'primaryAddress' | 'secondaryAddress'): DocumentPreviewModalProps => {
+  const DocumentPreviewModalMock: jest.Mock = DocumentPreviewModal as any
+
+  switch (type) {
+    case 'primaryAddress':
+      return DocumentPreviewModalMock.mock.calls[2][0]
+    case 'secondaryAddress':
+      return DocumentPreviewModalMock.mock.calls[3][0]
+  }
+}
 
 const defaultAddressInformationProps: AddressInformationProps = {
   userData: CONTACT_MOCK_DATA_1,

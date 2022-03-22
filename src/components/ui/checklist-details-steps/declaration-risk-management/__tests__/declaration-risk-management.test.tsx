@@ -1,16 +1,20 @@
-import { render, fireEvent } from '@testing-library/react'
 import React from 'react'
-import Axios from '../../../../../axios/axios'
-import { CONTACT_MOCK_DATA_1, CONTACT_MOCK_DATA_2 } from '../../../../../platform-api/__mocks__/contact-api.mock'
-import DeclarationRiskManagement from '../declaration-risk-management'
+import { render, fireEvent } from '@testing-library/react'
+
+import Axios from 'axios/axios'
 import AxiosMockAdapter from 'axios-mock-adapter'
-import { URLS } from '../../../../../constants/api'
+import { URLS } from 'constants/api'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { formField } from '../form-schema'
+import DeclarationRiskManagement from '../declaration-risk-management'
 import { wait } from 'utils/test'
 import { error, success } from 'utils/mocks/useSnack'
+import { CONTACT_MOCK_DATA_1, CONTACT_MOCK_DATA_2 } from 'platform-api/__mocks__/contact-api.mock'
+import DocumentPreviewModal, { DocumentPreviewModalProps } from 'components/ui/ui/document-preview-modal'
 
-const axiosMock = new AxiosMockAdapter(Axios)
+const axiosMock = new AxiosMockAdapter(Axios, {
+  onNoMatch: 'throwException',
+})
 
 jest.mock('react-pdf/dist/esm/entry.webpack', () => {
   return {
@@ -21,9 +25,18 @@ jest.mock('react-pdf/dist/esm/entry.webpack', () => {
 })
 
 jest.mock('@reapit/elements', () => jest.requireActual('utils/mocks/reapit-element-mocks'))
-
 jest.unmock('@reapit/connect-session')
 jest.mock('../../../../../core/connect-session')
+jest.mock('components/ui/ui/document-preview-modal', () => {
+  const DocumentPreviewModal = jest.requireActual('components/ui/ui/document-preview-modal')
+  const DocumentPreviewModalMock = jest.fn(() => <></>)
+  return {
+    __esModule: true,
+    ...DocumentPreviewModal,
+    DocumentPreviewModal: DocumentPreviewModalMock,
+    default: DocumentPreviewModalMock,
+  }
+})
 
 const { declarationFormField, riskAssessmentFormField, typeField, reasonField } = formField()
 
@@ -33,7 +46,7 @@ describe('Declaration Risk Management Form', () => {
     axiosMock.reset()
   })
 
-  describe('snapshot', () => {
+  describe('Snapshot', () => {
     it('should match a snapshot', () => {
       expect(renderComponent(defaultDRMProps)).toMatchSnapshot()
     })
@@ -43,9 +56,9 @@ describe('Declaration Risk Management Form', () => {
     it('should render 4 fields', () => {
       const { getByTestId } = renderComponent(defaultDRMProps)
 
-      const formChildElement = getByTestId('declaration.risk.management.form').childNodes[0].childNodes.length
+      const formChildElement = getByTestId('declaration.risk.management.form').childNodes[0].childNodes
 
-      expect(formChildElement).toEqual(4)
+      expect(formChildElement.length).toEqual(4)
     })
 
     it('the fields should able to automatically fill with default value and able to change', () => {
@@ -58,9 +71,11 @@ describe('Declaration Risk Management Form', () => {
       // risk assessment type
       const testTypeField = getByTestId(`test.${typeField.name}`) as HTMLSelectElement
       expect(testTypeField.value).toMatch(/Simplified/i)
+
       // risk assessment file
       const testAssessmentFormField = getByTestId(`test.${riskAssessmentFormField.name}`) as HTMLInputElement
       expect(testAssessmentFormField.value).toMatch(/urlRiskAssessmentForm.png/i)
+
       // for reason
       const testReasonField = getByTestId(`test.${reasonField.name}`) as HTMLTextAreaElement
       expect(testReasonField.value).toMatch(/erw23r/i)
@@ -73,22 +88,96 @@ describe('Declaration Risk Management Form', () => {
     })
 
     it('should display error message if required field is empty', async () => {
-      const { getByTestId, findByTestId } = renderComponent(defaultDRMProps)
+      const { getByTestId } = renderComponent(defaultDRMProps)
+
+      // upload declaration file
+      const testDeclarationFile = getByTestId('test.declarationForm') as HTMLInputElement
+      expect(testDeclarationFile.value).not.toEqual('')
+
+      const testDeclarationFileRemoveButton = getByTestId('test.declarationForm.clear-button') as HTMLSpanElement
+      fireEvent.click(testDeclarationFileRemoveButton)
+      await wait(0)
+
+      expect(testDeclarationFile.value).toEqual('')
+
+      const declarationFileErrorMessage = getByTestId('test.error.declarationForm') as HTMLParagraphElement
+      expect(declarationFileErrorMessage).not.toBeUndefined()
+      expect(declarationFileErrorMessage.textContent).toMatch(/required/i)
 
       // risk assessment type
       const testTypeField = getByTestId(`test.${typeField.name}`) as HTMLSelectElement
       expect(testTypeField.value).toMatch(/Simplified/i)
 
       fireEvent.change(testTypeField, { target: { value: '' } })
+      await wait(0)
       fireEvent.blur(testTypeField)
+      await wait(0)
 
-      const errorMessage = await findByTestId(`test.error.${typeField.name}`)
-      expect(errorMessage).not.toBeUndefined
-      expect(errorMessage.textContent).toMatch(/Required/i)
+      const typeFieldErrorMessage = getByTestId(`test.error.${typeField.name}`)
+      expect(typeFieldErrorMessage).not.toBeUndefined
+      expect(typeFieldErrorMessage.textContent).toMatch(/Required/i)
+
+      // reason for type
+      const testReasonTypeField = getByTestId('test.reason') as HTMLTextAreaElement
+      expect(testReasonTypeField.value).toMatch(/erw23r/i)
+
+      fireEvent.change(testReasonTypeField, { target: { value: '' } })
+      await wait(0)
+      fireEvent.blur(testReasonTypeField)
+      await wait(0)
+
+      const testReasonTypeFieldErrorMessage = getByTestId('test.error.reason')
+      expect(testReasonTypeFieldErrorMessage).not.toBeUndefined
+      expect(testReasonTypeFieldErrorMessage.textContent).toMatch(/Required/i)
+    })
+
+    it('should not able to tap "save" button, when required file is empty', async () => {
+      const { getByTestId } = renderComponent(defaultDRMProps)
+
+      // save button
+      const saveButton = getByTestId('save-form') as HTMLButtonElement
+      expect(saveButton.getAttribute('disabled')).not.toBeTruthy()
+
+      // reason for type
+      const testReasonTypeField = getByTestId('test.reason') as HTMLTextAreaElement
+      expect(testReasonTypeField.value).toMatch(/erw23r/i)
+
+      fireEvent.change(testReasonTypeField, { target: { value: '' } })
+      await wait(0)
+      fireEvent.blur(testReasonTypeField)
+      await wait(0)
+
+      const testReasonTypeFieldErrorMessage = getByTestId('test.error.reason')
+      expect(testReasonTypeFieldErrorMessage).not.toBeUndefined
+      expect(testReasonTypeFieldErrorMessage.textContent).toMatch(/Required/i)
+
+      expect(saveButton.getAttribute('disabled')).not.toBeUndefined()
+    })
+
+    it('should open modal, when user tap "eye" button', async () => {
+      const { getByTestId } = renderComponent(defaultDRMProps)
+
+      // declaration file
+      const eyeDeclarationFile = getByTestId('test.declarationForm.preview-button') as HTMLSpanElement
+
+      fireEvent.click(eyeDeclarationFile)
+      await wait(0)
+
+      const { isOpen: DeclarationModalIsOpen } = getDocumentPreviewModalProps('declaration')
+      expect(DeclarationModalIsOpen).toBeTruthy()
+
+      // risk assessment file
+      const eyeRiskAssessmentFile = getByTestId('test.riskAssessmentForm.preview-button') as HTMLSpanElement
+
+      fireEvent.click(eyeRiskAssessmentFile)
+      await wait(0)
+
+      const { isOpen: RiskAssessmentModalIsOpen } = getDocumentPreviewModalProps('riskAssessment')
+      expect(RiskAssessmentModalIsOpen).toBeTruthy()
     })
   })
 
-  describe('integration', () => {
+  describe('Integration', () => {
     it('should able to click "save button", and return notification if success', async () => {
       const { getByTestId } = renderComponent(defaultDRMProps)
 
@@ -118,6 +207,16 @@ describe('Declaration Risk Management Form', () => {
     })
   })
 })
+
+const getDocumentPreviewModalProps = (type: 'declaration' | 'riskAssessment'): DocumentPreviewModalProps => {
+  const DocumentPreviewModalMock: jest.Mock = DocumentPreviewModal as any
+  switch (type) {
+    case 'declaration':
+      return DocumentPreviewModalMock.mock.calls[2][0]
+    case 'riskAssessment':
+      return DocumentPreviewModalMock.mock.calls[4][0]
+  }
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {

@@ -1,6 +1,3 @@
-/* eslint-disable no-confusing-arrow */
-/* eslint-disable no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react'
 import {
   elMb2,
@@ -17,21 +14,21 @@ import {
   elMb6,
   useSnack,
   elWFull,
-  FileInput,
   elPl3,
 } from '@reapit/elements'
 import { cx } from '@linaria/core'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { generateLabelField, generateOptionsType, generateTestId } from '../../../../utils/generator'
+import { generateLabelField, generateOptionsType, generateTestId } from 'utils/generator'
 import { formField, ValuesType, validationSchema } from './form-schema'
 import { order0 } from './__styles__'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
-import { notificationMessage } from '../../../../constants/notification-message'
-import { useUpdateContact } from '../../../../platform-api/contact-api/update-contact'
+import { notificationMessage } from 'constants/notification-message'
+import { useUpdateContact } from 'platform-api/contact-api/update-contact'
 import DocumentPreviewModal from 'components/ui/ui/document-preview-modal'
 import FormFooter from 'components/ui/form-footer/form-footer'
 import { displayErrorMessage } from 'utils/error-message'
+import { FileInput } from 'components/ui/ui/file-input'
 
 interface DeclarationRiskManagementProps {
   userData: ContactModel | undefined
@@ -49,10 +46,10 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({ u
   const handleModal = (type: 'declaration' | 'riskAssessment', option: 'open' | 'close'): void => {
     switch (type) {
       case 'riskAssessment':
-        setRiskAssessmentFormModalOpen(option === 'open' ? true : false)
+        setRiskAssessmentFormModalOpen(!!(option === 'open'))
         break
       case 'declaration':
-        setDeclarationFormModalOpen(option === 'open' ? true : false)
+        setDeclarationFormModalOpen(!!(option === 'open'))
         break
     }
   }
