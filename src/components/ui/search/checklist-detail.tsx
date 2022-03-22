@@ -109,8 +109,8 @@ export const ChecklistDetailPage: FC = () => {
 
   if (
     (userDataIsFetching && !userData) ||
-    (identityCheckIsFetching && !userData) ||
-    (identityDocumentTypesIsFetching && !userData)
+    (identityCheckIsFetching || !identityCheck) ||
+    (identityDocumentTypesIsFetching || !identityDocumentTypes)
   ) {
     return <Loader fullPage label="Please wait..." />
   }
