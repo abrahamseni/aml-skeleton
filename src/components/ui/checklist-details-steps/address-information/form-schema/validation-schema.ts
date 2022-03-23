@@ -1,3 +1,4 @@
+import FileValidation from 'utils/file-validation'
 import * as Yup from 'yup'
 import { errorMessages } from '../../../../../constants/error-messages'
 import { ValuesType } from './form-field'
@@ -25,20 +26,16 @@ export const validationSchema: Yup.SchemaOf<ValuesType> = Yup.object().shape({
     .nullable(),
   metadata: Yup.object().shape({
     primaryAddress: Yup.object().shape({
-      documentImage: Yup.string()
-        .trim()
+      documentImage: FileValidation.create()
         .required(errorMessages.FIELD_REQUIRED)
-        .matches(/(png|jpg|jpeg|pdf)/, errorMessages.WRONG_FILE_TYPE),
+        .maxSize(3, errorMessages.EXCEEDED_MAX_FILE_SIZE),
       documentType: Yup.string().trim().required(errorMessages.FIELD_REQUIRED),
       month: Yup.string().trim().required(errorMessages.FIELD_REQUIRED),
       year: Yup.string().trim().required(errorMessages.FIELD_REQUIRED),
     }),
-    /**
-     *  Will do more later
-     */
     secondaryAddress: Yup.object()
       .shape({
-        documentImage: Yup.string().notRequired().nullable(),
+        documentImage: FileValidation.create().maxSize(3, errorMessages.EXCEEDED_MAX_FILE_SIZE),
         documentType: Yup.string().notRequired().nullable(),
         month: Yup.string().notRequired().nullable(),
         year: Yup.string().notRequired().nullable(),
