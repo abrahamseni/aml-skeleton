@@ -167,12 +167,14 @@ export const ChecklistDetailPage: FC = () => {
               <Subtitle hasGreyText hasBoldText>
                 Status: {userData?.identityCheck?.toUpperCase()}
               </Subtitle>
-              <Icon
-                icon="editSolidSystem"
-                iconSize="smallest"
-                className="el-ml2"
-                onClick={() => setModalStatusOpen(true)}
-              />
+              {identityCheck && (
+                <Icon
+                  icon="editSolidSystem"
+                  iconSize="smallest"
+                  className="el-ml2"
+                  onClick={() => setModalStatusOpen(true)}
+                />
+              )}
             </div>
           </FlexContainer>
           <FlexContainer>
