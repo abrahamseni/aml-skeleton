@@ -49,7 +49,7 @@ describe('Personal Details Form', () => {
       expect(totalTextFields.length + totalDateFields.length + totalEmailields.length).toEqual(8)
     })
 
-    it('the fields should able to automatically fill with default value and able to change', () => {
+    it('the fields should able to automatically fill with default value and be able to change', () => {
       const { getByTestId } = renderComponent(defaultPersonalDetailsProps)
 
       // title
@@ -106,18 +106,66 @@ describe('Personal Details Form', () => {
     it('should display error message if required field is empty', async () => {
       const { getByTestId } = renderComponent(defaultPersonalDetailsProps)
 
-      // reason for type
-      const testReasonTypeField = getByTestId(`test.${title.name}`) as HTMLTextAreaElement
-      expect(testReasonTypeField.value).toMatch(/Mr/i)
+      // title
+      const testTitleField = getByTestId(`test.${title.name}`) as HTMLTextAreaElement
+      expect(testTitleField.value).toMatch(/Mr/i)
 
-      fireEvent.change(testReasonTypeField, { target: { value: '' } })
+      fireEvent.change(testTitleField, { target: { value: '' } })
       await wait(0)
-      fireEvent.blur(testReasonTypeField)
+      fireEvent.blur(testTitleField)
       await wait(0)
 
-      const testReasonTypeFieldErrorMessage = getByTestId('test.error.reason')
-      expect(testReasonTypeFieldErrorMessage).not.toBeUndefined
-      expect(testReasonTypeFieldErrorMessage.textContent).toMatch(/Required/i)
+      const testTitleFieldErrorMessage = getByTestId(`test.error.${title.name}`)
+      expect(testTitleFieldErrorMessage).not.toBeUndefined
+      expect(testTitleFieldErrorMessage.textContent).toMatch(/Required/i)
+      // forename
+      const testForenameField = getByTestId(`test.${forename.name}`) as HTMLTextAreaElement
+      expect(testForenameField.value).toMatch(/Christopher/i)
+
+      fireEvent.change(testForenameField, { target: { value: '' } })
+      await wait(0)
+      fireEvent.blur(testForenameField)
+      await wait(0)
+
+      const testForenameFieldErrorMessage = getByTestId(`test.error.${forename.name}`)
+      expect(testForenameFieldErrorMessage).not.toBeUndefined
+      expect(testForenameFieldErrorMessage.textContent).toMatch(/Required/i)
+      // surname
+      const testSurnameField = getByTestId(`test.${surname.name}`) as HTMLTextAreaElement
+      expect(testSurnameField.value).toMatch(/Williamson/i)
+
+      fireEvent.change(testSurnameField, { target: { value: '' } })
+      await wait(0)
+      fireEvent.blur(testSurnameField)
+      await wait(0)
+
+      const testSurnameFieldErrorMessage = getByTestId(`test.error.${surname.name}`)
+      expect(testSurnameFieldErrorMessage).not.toBeUndefined
+      expect(testSurnameFieldErrorMessage.textContent).toMatch(/Required/i)
+      // date of birth
+      const testDateOfBirth = getByTestId(`test.${dateOfBirth.name}`) as HTMLTextAreaElement
+      expect(testDateOfBirth.value).toMatch(/1988-05-19/i)
+
+      fireEvent.change(testDateOfBirth, { target: { value: '' } })
+      await wait(0)
+      fireEvent.blur(testDateOfBirth)
+      await wait(0)
+
+      const testDateOfBirthErrorMessage = getByTestId(`test.error.${dateOfBirth.name}`)
+      expect(testDateOfBirthErrorMessage).not.toBeUndefined
+      expect(testDateOfBirthErrorMessage.textContent).toMatch(/Required/i)
+      // email
+      const testEmailField = getByTestId(`test.${email.name}`) as HTMLTextAreaElement
+      expect(testEmailField.value).toMatch(/cwilliamson47@rpsfiction.net/i)
+
+      fireEvent.change(testEmailField, { target: { value: '' } })
+      await wait(0)
+      fireEvent.blur(testEmailField)
+      await wait(0)
+
+      const testEmailFieldErrorMessage = getByTestId(`test.error.${email.name}`)
+      expect(testEmailFieldErrorMessage).not.toBeUndefined
+      expect(testEmailFieldErrorMessage.textContent).toMatch(/Required/i)
     })
   })
 })
