@@ -94,12 +94,18 @@ export const ChecklistDetailPage: FC = () => {
   const { data: userData, isFetching: userDataIsFetching, isError: userDataIsError } = querySingleContact
 
   const queryIdentityCheck = useFetchSingleIdentityCheckByContactId(id)
-  const { data: identityCheck, isFetching: identityCheckIsFetching, isError: identityCheckIsError } = queryIdentityCheck
+  const {
+    data: identityCheck,
+    isFetching: identityCheckIsFetching,
+    isRefetching: identityCheckIsRefetching,
+    isError: identityCheckIsError,
+  } = queryIdentityCheck
 
   const queryIdentityDocumentTypes = useGetIdentityDocumentTypes()
   const {
     data: identityDocumentTypes,
     isFetching: identityDocumentTypesIsFetching,
+    isRefetching: identityDocumentTypesIsRefetching,
     isError: identityDocumentTypesIsError,
   } = queryIdentityDocumentTypes
 
@@ -121,8 +127,8 @@ export const ChecklistDetailPage: FC = () => {
 
   if (
     (userDataIsFetching && !userData) ||
-    identityCheckIsFetching ||
-    (identityDocumentTypesIsFetching && !identityDocumentTypes)
+    (identityCheckIsFetching && !identityCheckIsRefetching) ||
+    (identityDocumentTypesIsFetching && !identityDocumentTypesIsRefetching)
   ) {
     return <Loader fullPage label="Please wait..." />
   }
