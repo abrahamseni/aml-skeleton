@@ -16,6 +16,7 @@ const axiosMock = new AxiosMockAdapter(Axios, {
   onNoMatch: 'throwException',
 })
 
+jest.unmock('@reapit/connect-session')
 jest.mock('react-pdf/dist/esm/entry.webpack', () => {
   return {
     __esModule: true,
@@ -23,10 +24,8 @@ jest.mock('react-pdf/dist/esm/entry.webpack', () => {
     Page: () => null,
   }
 })
-
 jest.mock('@reapit/elements', () => jest.requireActual('utils/mocks/reapit-element-mocks'))
-jest.unmock('@reapit/connect-session')
-jest.mock('../../../../../core/connect-session')
+jest.mock('core/connect-session')
 jest.mock('components/ui/ui/document-preview-modal', () => {
   const DocumentPreviewModal = jest.requireActual('components/ui/ui/document-preview-modal')
   const DocumentPreviewModalMock = jest.fn(() => <></>)
@@ -94,7 +93,8 @@ describe('Declaration Risk Management Form', () => {
       const testDeclarationFile = getByTestId('test.declarationForm') as HTMLInputElement
       expect(testDeclarationFile.value).not.toEqual('')
 
-      const testDeclarationFileRemoveButton = getByTestId('test.declarationForm.clear-button') as HTMLSpanElement
+      const testDeclarationFileRemoveButton = testDeclarationFile.nextElementSibling?.childNodes[1] as HTMLSpanElement
+
       fireEvent.click(testDeclarationFileRemoveButton)
       await wait(0)
 
@@ -105,7 +105,7 @@ describe('Declaration Risk Management Form', () => {
       expect(declarationFileErrorMessage.textContent).toMatch(/required/i)
 
       // risk assessment type
-      const testTypeField = getByTestId(`test.${typeField.name}`) as HTMLSelectElement
+      const testTypeField = getByTestId('test.type') as HTMLSelectElement
       expect(testTypeField.value).toMatch(/Simplified/i)
 
       fireEvent.change(testTypeField, { target: { value: '' } })
@@ -113,7 +113,7 @@ describe('Declaration Risk Management Form', () => {
       fireEvent.blur(testTypeField)
       await wait(0)
 
-      const typeFieldErrorMessage = getByTestId(`test.error.${typeField.name}`)
+      const typeFieldErrorMessage = getByTestId('test.error.type')
       expect(typeFieldErrorMessage).not.toBeUndefined
       expect(typeFieldErrorMessage.textContent).toMatch(/Required/i)
 
@@ -158,7 +158,8 @@ describe('Declaration Risk Management Form', () => {
       const { getByTestId } = renderComponent(defaultDRMProps)
 
       // declaration file
-      const eyeDeclarationFile = getByTestId('test.declarationForm.preview-button') as HTMLSpanElement
+      const eyeDeclarationFile = getByTestId('test.declarationForm').nextElementSibling
+        ?.childNodes[0] as HTMLSpanElement
 
       fireEvent.click(eyeDeclarationFile)
       await wait(0)
@@ -167,7 +168,8 @@ describe('Declaration Risk Management Form', () => {
       expect(DeclarationModalIsOpen).toBeTruthy()
 
       // risk assessment file
-      const eyeRiskAssessmentFile = getByTestId('test.riskAssessmentForm.preview-button') as HTMLSpanElement
+      const eyeRiskAssessmentFile = getByTestId('test.riskAssessmentForm').nextElementSibling
+        ?.childNodes[0] as HTMLSpanElement
 
       fireEvent.click(eyeRiskAssessmentFile)
       await wait(0)
