@@ -24,8 +24,7 @@ export const CONTACT_MOCK_DATA_1 = {
       type: 'Simplified',
     },
     primaryAddress: {
-      documentImage:
-        'https://reapit-marketplace-app-media-dev.s3.eu-west-2.amazonaws.com/MLK16000071-primary-address-id(2).png',
+      documentImage: 'urlDocumentPrimaryAddress.png',
       documentType: 'Mortgage Statement or Mortgage Redemption Statement',
       month: '8',
       year: '1',

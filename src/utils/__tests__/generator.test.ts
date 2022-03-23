@@ -1,4 +1,3 @@
-import { TAB_SECTION_MOCK_CONTENT } from 'components/ui/tab-section/__mocks__'
 import {
   generateLabelField,
   generateOptionsType,
@@ -6,6 +5,7 @@ import {
   generateProgressBarResult,
   generateTestId,
 } from 'utils/generator'
+import { TAB_SECTION_MOCK_CONTENT } from 'utils/__mocks__/tab-mocks'
 
 describe('generateOptionsYearsOrMonths', () => {
   describe('generate months option', () => {

@@ -1,4 +1,4 @@
-import { TabsSectionProps } from '../components/ui/tab-section/tab-section'
+import { GenerateTabsContentResult } from 'components/ui/search/checklist-detail'
 import { DOCUMENT_TYPE, RISK_ASSESSMENT_TYPE } from '../constants/appointment-details'
 
 interface GenerateOptionsType {
@@ -82,7 +82,7 @@ export const generateTestId = (test: string): string => {
   return `test.${test}`
 }
 interface GenerateProgressBarProps {
-  tabContents: TabsSectionProps['contents']
+  tabContents: GenerateTabsContentResult[]
 }
 
 export interface GenerateProgressBarResult {
