@@ -15,12 +15,9 @@ const axiosMock = new AxiosMockAdapter(Axios, {
   onNoMatch: 'throwException',
 })
 
-const { buildingNameField: primaryBuildingNameField, documentTypeField: primaryDocumentTypeField } =
-  formFields('primaryAddress')
-const { buildingNameField: secondaryBuildingNameField } = formFields('secondaryAddress')
-
 type AddressInformationProps = React.ComponentPropsWithRef<typeof AddressInformation>
 
+jest.unmock('@reapit/connect-session')
 jest.mock('react-pdf/dist/esm/entry.webpack', () => {
   return {
     __esModule: true,
@@ -28,11 +25,8 @@ jest.mock('react-pdf/dist/esm/entry.webpack', () => {
     Page: () => null,
   }
 })
-
 jest.mock('@reapit/elements', () => jest.requireActual('utils/mocks/reapit-element-mocks'))
-
-jest.unmock('@reapit/connect-session')
-jest.mock('../../../../../core/connect-session')
+jest.mock('core/connect-session')
 jest.mock('components/ui/ui/document-preview-modal', () => {
   const DocumentPreviewModal = jest.requireActual('components/ui/ui/document-preview-modal')
   const DocumentPreviewModalMock = jest.fn(() => <></>)
@@ -43,6 +37,10 @@ jest.mock('components/ui/ui/document-preview-modal', () => {
     default: DocumentPreviewModalMock,
   }
 })
+
+const { buildingNameField: primaryBuildingNameField, documentTypeField: primaryDocumentTypeField } =
+  formFields('primaryAddress')
+const { buildingNameField: secondaryBuildingNameField } = formFields('secondaryAddress')
 
 describe('Address Information Component', () => {
   beforeEach(() => {
@@ -173,14 +171,14 @@ describe('Address Information Component', () => {
 
       // post code
       const postCodePrimaryField = getByTestId('test.primaryAddress.postcode') as HTMLInputElement
-      expect(postCodePrimaryField.value).toMatch(/WD25 9TY/i)
+      expect(postCodePrimaryField.value).not.toEqual('')
 
       fireEvent.change(postCodePrimaryField, { target: { value: '' } })
       await wait(0)
       fireEvent.blur(postCodePrimaryField)
       await wait(0)
 
-      const postCodePrimaryFieldErrorMessage = getByTestId('test.error.primaryAddress.postcode') as HTMLParagraphElement
+      const postCodePrimaryFieldErrorMessage = getByTestId('test.error.primaryAddress.postcode')
       expect(postCodePrimaryFieldErrorMessage).not.toBeUndefined()
       expect(postCodePrimaryFieldErrorMessage.textContent).toMatch(/required/i)
 
@@ -250,9 +248,8 @@ describe('Address Information Component', () => {
       const { getByTestId } = renderComponent(defaultAddressInformationProps, 'v2')
 
       // primary address file input
-      const eyeDocumentFilePrimary = getByTestId(
-        'test.metadata.primaryAddress.documentImage.preview-button',
-      ) as HTMLSpanElement
+      const eyeDocumentFilePrimary = getByTestId('test.metadata.primaryAddress.documentImage').nextElementSibling
+        ?.childNodes[0] as HTMLSpanElement
 
       fireEvent.click(eyeDocumentFilePrimary)
       await wait(0)
@@ -261,9 +258,8 @@ describe('Address Information Component', () => {
       expect(DocumentFilePrimaryIsOpen).toBeTruthy()
 
       // secondary address file input
-      const eyeDocumentFileSecondary = getByTestId(
-        'test.metadata.secondaryAddress.documentImage.preview-button',
-      ) as HTMLSpanElement
+      const eyeDocumentFileSecondary = getByTestId('test.metadata.secondaryAddress.documentImage').nextElementSibling
+        ?.childNodes[0] as HTMLSpanElement as HTMLSpanElement
 
       fireEvent.click(eyeDocumentFileSecondary)
       await wait(0)
@@ -295,7 +291,6 @@ describe('Address Information Component', () => {
       const submitButton = getByTestId('save-form')
 
       axiosMock.onPatch(`${URLS.CONTACTS}/${CONTACT_MOCK_DATA_1.id}`).reply(500)
-
       fireEvent.click(submitButton)
 
       await wait(0)
