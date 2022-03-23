@@ -4,6 +4,9 @@ import { URLS } from '../constants/api'
 import axios from '../axios/axios'
 import { reapitConnectBrowserSession } from '../core/connect-session'
 import { useQuery, UseQueryResult } from 'react-query'
+import { useAtom } from 'jotai'
+import { identityTypeAtom } from 'atoms/atoms'
+import * as React from 'react'
 
 export const getIdentityDocumentTypes = async (): Promise<Required<ListItemModel>[] | undefined> => {
   const response = await axios.get(`${URLS.CONFIGURATION_DOCUMENT_TYPES}`)
@@ -13,8 +16,21 @@ export const getIdentityDocumentTypes = async (): Promise<Required<ListItemModel
 
 export const useGetIdentityDocumentTypes = (): UseQueryResult<Required<ListItemModel>[] | undefined> => {
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
+  const [, setIdentityTypes] = useAtom(identityTypeAtom)
 
-  return useQuery(['getIdentityDocumentTypes'], () => getIdentityDocumentTypes(), {
+  const idTypes = useQuery(['getIdentityDocumentTypes'], () => getIdentityDocumentTypes(), {
     enabled: !!connectSession,
   })
+
+  React.useEffect(() => {
+    if (idTypes.data) {
+      const idTypesObj = idTypes.data.reduce((obj, types) => {
+        obj[types.id] = types.value
+        return obj
+      }, {})
+      setIdentityTypes(idTypesObj)
+    }
+  }, [idTypes.data])
+
+  return idTypes
 }

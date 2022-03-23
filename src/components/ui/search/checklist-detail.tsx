@@ -1,7 +1,18 @@
 import React, { FC, useState } from 'react'
 import { reapitConnectBrowserSession } from '../../../core/connect-session'
 import { useReapitConnect } from '@reapit/connect-session'
-import { Subtitle, Title, Icon, ProgressBarSteps, Loader, PersistantNotification, BodyText } from '@reapit/elements'
+import {
+  Subtitle,
+  Title,
+  Icon,
+  ProgressBarSteps,
+  Loader,
+  PersistantNotification,
+  BodyText,
+  FlexContainer,
+  Button,
+  useModal,
+} from '@reapit/elements'
 import { useParams } from 'react-router'
 import { UseQueryResult } from 'react-query'
 import { ContactModel, IdentityCheckModel, ListItemModel } from '@reapit/foundations-ts-definitions'
@@ -26,6 +37,7 @@ import {
 } from '../../../utils/completed-sections'
 import { TabsSectionProps } from '../tab-section/tab-section'
 import { generateProgressBarResult } from '../../../utils/generator'
+import Report from '../report/report'
 import { useGetIdentityDocumentTypes } from 'platform-api/configuration-api'
 
 interface GenerateTabsContentProps {
@@ -95,6 +107,7 @@ export const ChecklistDetailPage: FC = () => {
   // local state - tab pagination handler
   const [activeTabs, setActiveTabs] = React.useState<number>(0)
 
+  const { Modal: ReportModal, openModal, closeModal } = useModal('modal-root')
   const changeActiveTabs = React.useCallback((index: number) => setActiveTabs(index), [activeTabs])
 
   // render tab contents
@@ -109,8 +122,10 @@ export const ChecklistDetailPage: FC = () => {
 
   if (
     (userDataIsFetching && !userData) ||
-    (identityCheckIsFetching || !identityCheck) ||
-    (identityDocumentTypesIsFetching || !identityDocumentTypes)
+    identityCheckIsFetching ||
+    !identityCheck ||
+    identityDocumentTypesIsFetching ||
+    !identityDocumentTypes
   ) {
     return <Loader fullPage label="Please wait..." />
   }
@@ -142,22 +157,27 @@ export const ChecklistDetailPage: FC = () => {
   if (userData) {
     return (
       <main>
-        <Title hasNoMargin>{`${userData?.forename} ${userData?.surname}`}</Title>
-
-        <div className="el-flex el-flex-row">
-          <Subtitle hasGreyText hasBoldText>
-            Status: {userData?.identityCheck?.toUpperCase()}
-          </Subtitle>
-          {identityCheck && (
-            <Icon
-              icon="editSolidSystem"
-              iconSize="smallest"
-              className="el-ml2"
-              onClick={() => setModalStatusOpen(true)}
-            />
-          )}
-        </div>
-
+        <FlexContainer isFlexJustifyBetween>
+          <FlexContainer isFlexColumn>
+            <Title hasNoMargin>{`${userData?.forename} ${userData?.surname}`}</Title>
+            <div className="el-flex el-flex-row">
+              <Subtitle hasGreyText hasBoldText>
+                Status: {userData?.identityCheck?.toUpperCase()}
+              </Subtitle>
+              <Icon
+                icon="editSolidSystem"
+                iconSize="smallest"
+                className="el-ml2"
+                onClick={() => setModalStatusOpen(true)}
+              />
+            </div>
+          </FlexContainer>
+          <FlexContainer>
+            <Button intent="primary" onClick={openModal}>
+              Report
+            </Button>
+          </FlexContainer>
+        </FlexContainer>
         <div>
           <ProgressBarSteps
             currentStep={currentProgressBarStatus.complete}
@@ -180,6 +200,9 @@ export const ChecklistDetailPage: FC = () => {
           setModalStatusOpen={setModalStatusOpen}
           progressBarStatus={currentProgressBarStatus}
         />
+        <ReportModal title="Report" style={{ top: '50%' }}>
+          <Report closeModal={closeModal} />
+        </ReportModal>
       </main>
     )
   }

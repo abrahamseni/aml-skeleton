@@ -2,6 +2,7 @@ import React, { FC } from 'react'
 import { Table, Button, StatusIndicator } from '@reapit/elements'
 import { TableProps } from './table-type'
 import { useHistory } from 'react-router'
+import { AddressModel } from '@reapit/foundations-ts-definitions'
 
 const status = {
   pass: 'success',
@@ -12,17 +13,16 @@ const status = {
   unchecked: '',
 }
 
-const generateAddress = (address) => {
-
-  const primaryAddress = address || {}
+export const generateAddress = (address: AddressModel | undefined) => {
+  if (!address) return
+  const primaryAddress = address
   const addressKeys = ['buildingNumber', 'line1', 'line2', 'line3', 'line4']
   const filteredAddressEntries = Object.entries(primaryAddress)
     .filter(([key, value]) => addressKeys.includes(key) && value)
     .map(([, value]) => value)
     .join(', ')
 
-  return <span>{filteredAddressEntries}</span>
-
+  return filteredAddressEntries
 }
 
 export const TableResult: FC<TableProps> = (props) => {
@@ -44,7 +44,7 @@ export const TableResult: FC<TableProps> = (props) => {
           },
           {
             label: 'Address',
-            value: generateAddress(primaryAddress),
+            value: generateAddress(primaryAddress) ?? '',
             narrowTable: {
               showLabel: true,
             },
@@ -70,10 +70,13 @@ export const TableResult: FC<TableProps> = (props) => {
           },
         ],
         ctaContent: {
-          cellContent: (<Button intent="primary" onClick={() => history.push(`/checklist-detail/${id}`)}>Edit</Button>)
-        }
-      }),
-      )}
+          cellContent: (
+            <Button intent="primary" onClick={() => history.push(`/checklist-detail/${id}`)}>
+              Edit
+            </Button>
+          ),
+        },
+      }))}
     />
   )
 }
