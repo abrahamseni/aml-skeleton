@@ -34,7 +34,6 @@ interface DeclarationRiskManagementProps {
   userData: ContactModel | undefined
 }
 
-// render view
 const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({ userData }): React.ReactElement => {
   // snack notification - snack provider
   const { success, error } = useSnack()
