@@ -12,6 +12,7 @@ import {
   FlexContainer,
   Button,
   useModal,
+  Tabs,
 } from '@reapit/elements'
 import { useParams } from 'react-router'
 import { UseQueryResult } from 'react-query'
@@ -26,7 +27,6 @@ import { AddressInformation } from '../checklist-details-steps/address-informati
 import { Routes } from '../../../constants/routes'
 import { useSingleContact } from '../../../platform-api/contact-api/single-contact'
 import { useFetchSingleIdentityCheckByContactId } from '../../../platform-api/identity-check-api'
-import { TabsSection } from '../tab-section'
 import { ModalStatus } from '../modal-status'
 import {
   isCompletedAddress,
@@ -35,7 +35,7 @@ import {
   isCompletedProfile,
   isCompletedSecondaryID,
 } from '../../../utils/completed-sections'
-import { TabsSectionProps } from '../tab-section/tab-section'
+
 import { generateProgressBarResult } from '../../../utils/generator'
 import Report from '../report/report'
 import { useGetIdentityDocumentTypes } from 'platform-api/configuration-api'
@@ -46,7 +46,12 @@ interface GenerateTabsContentProps {
   queryIdentityDocumentTypes: UseQueryResult<Required<ListItemModel>[] | undefined>
 }
 
-export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectionProps['contents'] => {
+export interface GenerateTabsContentResult {
+  content: React.ReactElement
+  status: boolean
+}
+
+export const generateTabsContent = (props: GenerateTabsContentProps): GenerateTabsContentResult[] => {
   const { querySingleContact, queryIdentityCheck, queryIdentityDocumentTypes } = props
 
   // single contact
@@ -58,27 +63,22 @@ export const generateTabsContent = (props: GenerateTabsContentProps): TabsSectio
   const { data: idDocTypes } = queryIdentityDocumentTypes
   return [
     {
-      name: 'Personal',
       content: <PersonalDetails userData={userData!} />,
       status: isCompletedProfile(userData),
     },
     {
-      name: 'Primary ID',
       content: <PrimaryId contact={userData!} idCheck={idCheck} idDocTypes={idDocTypes} onSaved={refetchIdCheck} />,
       status: isCompletedPrimaryID(idCheck),
     },
     {
-      name: 'Secondary ID',
       content: <SecondaryId contact={userData!} idCheck={idCheck} idDocTypes={idDocTypes} onSaved={refetchIdCheck} />,
       status: isCompletedSecondaryID(idCheck),
     },
     {
-      name: 'Address Information',
       content: <AddressInformation userData={userData} />,
       status: isCompletedAddress(userData),
     },
     {
-      name: 'Declaration Risk Management',
       content: <DeclarationRiskManagement userData={userData} />,
       status: isCompletedDeclarationRisk(userData),
     },
@@ -105,10 +105,9 @@ export const ChecklistDetailPage: FC = () => {
 
   const [isModalStatusOpen, setModalStatusOpen] = useState<boolean>(false)
   // local state - tab pagination handler
-  const [activeTabs, setActiveTabs] = React.useState<number>(0)
+  const [activeTabs, setActiveTabs] = React.useState<string>('1')
 
   const { Modal: ReportModal, openModal, closeModal } = useModal('modal-root')
-  const changeActiveTabs = React.useCallback((index: number) => setActiveTabs(index), [activeTabs])
 
   // render tab contents
   const tabContents = generateTabsContent({
@@ -123,9 +122,7 @@ export const ChecklistDetailPage: FC = () => {
   if (
     (userDataIsFetching && !userData) ||
     identityCheckIsFetching ||
-    !identityCheck ||
-    identityDocumentTypesIsFetching ||
-    !identityDocumentTypes
+    (identityDocumentTypesIsFetching && !identityDocumentTypes)
   ) {
     return <Loader fullPage label="Please wait..." />
   }
@@ -186,12 +183,44 @@ export const ChecklistDetailPage: FC = () => {
           />
         </div>
         <div className="el-mt3">
-          <TabsSection
-            activeTabs={activeTabs}
-            setActiveTabs={changeActiveTabs}
-            tabName="tab-section"
-            contents={tabContents}
+          <Tabs
+            name="form-sections-tab"
+            isFullWidth
+            onChange={(e) => setActiveTabs(e.currentTarget.value)}
+            options={[
+              {
+                id: 'tab-0-react',
+                value: '0',
+                text: 'Personal Details',
+                isChecked: activeTabs === '0',
+              },
+              {
+                id: 'tab-1-react',
+                value: '1',
+                text: 'Primary ID',
+                isChecked: activeTabs === '1',
+              },
+              {
+                id: 'tab-2-react',
+                value: '2',
+                text: 'Secondary ID',
+                isChecked: activeTabs === '2',
+              },
+              {
+                id: 'tab-3-react',
+                value: '3',
+                text: 'Address Information',
+                isChecked: activeTabs === '3',
+              },
+              {
+                id: 'tab-4-react',
+                value: '4',
+                text: 'Declaration Risk Management',
+                isChecked: activeTabs === '4',
+              },
+            ]}
           />
+          {tabContents[Number(activeTabs)].content}
         </div>
         <ModalStatus
           userData={userData}
