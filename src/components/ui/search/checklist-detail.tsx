@@ -111,7 +111,7 @@ export const ChecklistDetailPage: FC = () => {
 
   const [isModalStatusOpen, setModalStatusOpen] = useState<boolean>(false)
   // local state - tab pagination handler
-  const [activeTabs, setActiveTabs] = React.useState<string>('1')
+  const [activeTabs, setActiveTabs] = React.useState<string>('0')
 
   const { Modal: ReportModal, openModal, closeModal } = useModal('modal-root')
 

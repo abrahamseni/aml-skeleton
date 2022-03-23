@@ -87,10 +87,10 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({ u
       },
       {
         onSuccess: () => {
-          success(notificationMessage.DRM_SUCCESS, 2000)
+          success(notificationMessage.SUCCESS('Declaration Risk Management'), 3500)
         },
-        onError: () => {
-          error(notificationMessage.DRM_ERROR, 2000)
+        onError: (err) => {
+          error(err.response?.data.description, 7500)
         },
       },
     )

@@ -75,10 +75,10 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData }): Re
       },
       {
         onSuccess: () => {
-          success(notificationMessage.AIF_SUCCESS, 2000)
+          success(notificationMessage.SUCCESS('Address Information'), 3500)
         },
-        onError: () => {
-          error(notificationMessage.AIF_ERROR, 2000)
+        onError: (err) => {
+          error(err.response?.data.description, 7500)
         },
       },
     )
