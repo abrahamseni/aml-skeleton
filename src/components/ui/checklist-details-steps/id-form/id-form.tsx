@@ -149,7 +149,11 @@ export const IdForm: FC<IdFormProps> = ({
           onModalClose={() => setDocumentPreviewState({ isOpen: false, loading: false, document: '' })}
         />
       </div>
-      <FormFooter idUser={rpsRef || ''} isFieldError={!!Object.keys(errors).length} isFormSubmitting={!!loading} />
+      <FormFooter
+        idUser={rpsRef || ''}
+        isFieldError={!!Object.keys(errors).length || !!disabled}
+        isFormSubmitting={!!loading}
+      />
     </form>
   )
 }
