@@ -166,7 +166,7 @@ describe('Address Information Component', () => {
       expect(documentTypeField.value).toMatch(/Current Council Tax Bill/i)
     })
 
-    it('show "error message" when required field is empty', async () => {
+    it('should show "error message" when required field is empty', async () => {
       const { getByTestId } = renderComponent(defaultAddressInformationProps)
 
       // post code
@@ -223,6 +223,10 @@ describe('Address Information Component', () => {
       expect(documentFilePrimaryFieldErrorMessage).not.toBeUndefined()
       expect(documentFilePrimaryFieldErrorMessage.textContent).toMatch(/required/i)
     })
+
+    it.todo('should not show "error message" when not required field is empty')
+
+    it.todo('should show "message" when some of field have more than set max value')
 
     it('should not able to tap "save" button, when required file is empty', async () => {
       const { getByTestId } = renderComponent(defaultAddressInformationProps)
@@ -282,23 +286,26 @@ describe('Address Information Component', () => {
 
       expect(axiosMock.history.patch[0].url).toEqual('/contacts/MLK16000071')
       expect(success).toBeCalledTimes(1)
-      expect(success.mock.calls[0][0]).toMatch(/Successfully update address data/i)
+      expect(success.mock.calls[0][0]).toMatch(/Successfully update Address Information data/i)
     })
 
-    it('show error notification if request is cancelled or error', async () => {
+    it('will show error notification, when user network is error', async () => {
       const { getByTestId } = renderComponent(defaultAddressInformationProps)
 
       const submitButton = getByTestId('save-form')
 
-      axiosMock.onPatch(`${URLS.CONTACTS}/${CONTACT_MOCK_DATA_1.id}`).reply(500)
+      axiosMock.onPatch(`${URLS.CONTACTS}/${CONTACT_MOCK_DATA_1.id}`).networkError()
       fireEvent.click(submitButton)
 
       await wait(0)
 
       expect(axiosMock.history.patch[0].url).toEqual('/contacts/MLK16000071')
       expect(error).toBeCalledTimes(1)
-      expect(error.mock.calls[0][0]).toMatch(/Something is not working, try to reload your browser/i)
+      expect(error.mock.calls[0][0]).toMatch(/Failed to submit Declaration Risk Management form/i)
     })
+
+    it.todo('will show error notification, when failed to upload file Image')
+    it.todo('will show error notification, when failed to update contact data')
   })
 })
 

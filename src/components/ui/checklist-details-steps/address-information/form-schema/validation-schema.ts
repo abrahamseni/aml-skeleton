@@ -37,14 +37,14 @@ export const validationSchema: Yup.SchemaOf<ValuesType> = Yup.object().shape({
     primaryAddress: Yup.object().shape({
       documentImage: FileValidation.create()
         .required(errorMessages.FIELD_REQUIRED)
-        .maxSize(0.2, errorMessages.EXCEEDED_MAX_FILE_SIZE),
+        .maxSize(6, errorMessages.EXCEEDED_MAX_FILE_SIZE),
       documentType: Yup.string().trim().required(errorMessages.FIELD_REQUIRED),
       month: Yup.string().trim().required(errorMessages.FIELD_REQUIRED),
       year: Yup.string().trim().required(errorMessages.FIELD_REQUIRED),
     }),
     secondaryAddress: Yup.object()
       .shape({
-        documentImage: FileValidation.create().maxSize(0.2, errorMessages.EXCEEDED_MAX_FILE_SIZE).nullable(),
+        documentImage: FileValidation.create().maxSize(6, errorMessages.EXCEEDED_MAX_FILE_SIZE).nullable(),
         documentType: Yup.string().notRequired().nullable(),
         month: Yup.string().notRequired().nullable(),
         year: Yup.string().notRequired().nullable(),
