@@ -115,7 +115,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({ u
               success(notificationMessage.SUCCESS('Declaration Risk Management'), 3500)
             },
             onError: (err) => {
-              error(err.response?.data.description, 7500)
+              error(err.response?.data.description ?? notificationMessage.DRM_ERROR, 7500)
             },
           },
         )
@@ -123,7 +123,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({ u
     } catch (e) {
       // when file upload error, throw here
       console.error(uploadFileData.error)
-      error('Failed to upload Document, try again later', 7500)
+      error(notificationMessage.UPLOAD_FILE_ERROR, 7500)
     }
   }
 

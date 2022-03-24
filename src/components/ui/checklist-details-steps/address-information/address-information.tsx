@@ -79,6 +79,7 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData }): Re
   // button handler - submit
   const onSubmitHandler = async () => {
     try {
+      // if primaryAddress Document Image value is base64 form, then will upload to uploadFile
       if (isDataUrl(currentForm.getValues('metadata.primaryAddress.documentImage')!)) {
         await updateDataHandler(
           `document-image-primary-address-${userData?.id!}`,
@@ -86,6 +87,7 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData }): Re
         )
       }
 
+      // if secondaryAddress Document Image value is base64 form, then will upload to uploadFile
       if (isDataUrl(currentForm.getValues('metadata.secondaryAddress.documentImage')!)) {
         await updateDataHandler(
           `document-image-secondary-address-${userData?.id!}`,
@@ -93,6 +95,7 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData }): Re
         )
       }
 
+      // isError state in react query always return false at first, while uploading document and error happen
       if (!uploadFileData.isError) {
         updateContactData.mutate(
           {
@@ -108,7 +111,7 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData }): Re
               success(notificationMessage.SUCCESS('Address Information'), 3500)
             },
             onError: (err) => {
-              error(err.response?.data.description, 7500)
+              error(err.response?.data.description ?? notificationMessage.DRM_ERROR, 7500)
             },
           },
         )
@@ -116,7 +119,7 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData }): Re
     } catch (e) {
       // when file upload error, throw here
       console.error(uploadFileData.error)
-      error('Failed to upload Document, try again later', 7500)
+      error(notificationMessage.UPLOAD_FILE_ERROR, 7500)
     }
   }
 

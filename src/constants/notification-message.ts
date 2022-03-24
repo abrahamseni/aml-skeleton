@@ -12,11 +12,13 @@ export const notificationMessage = {
    * DRM Form
    */
   DRM_SUCCESS: 'Successfully update declaration risk management',
-  DRM_ERROR: 'Something is not working, try to reload your browser',
+  DRM_ERROR: 'Failed to submit Declaration Risk Management form',
 
   PI1_SUCCESS: 'Successfully update primary id',
   PI1_ERROR: 'Cannot update primary id, try to reload your browser',
 
   PI2_SUCCESS: 'Successfully update secondary id',
   PI2_ERROR: 'Cannot update secondary id, try to reload your browser',
+
+  UPLOAD_FILE_ERROR: 'Failed to upload Document, try again later',
 }

@@ -6,11 +6,11 @@ import { ValuesType } from './form-field'
 export const validationSchema: Yup.SchemaOf<ValuesType> = Yup.object().shape({
   declarationForm: FileValidation.create()
     .required(errorMessages.FIELD_REQUIRED)
-    .maxSize(3, errorMessages.EXCEEDED_MAX_FILE_SIZE),
+    .maxSize(6, errorMessages.EXCEEDED_MAX_FILE_SIZE),
 
   riskAssessmentForm: FileValidation.create()
     .required(errorMessages.FIELD_REQUIRED)
-    .maxSize(3, errorMessages.EXCEEDED_MAX_FILE_SIZE),
+    .maxSize(6, errorMessages.EXCEEDED_MAX_FILE_SIZE),
 
   reason: Yup.string().trim().required(errorMessages.FIELD_REQUIRED),
 
