@@ -127,7 +127,7 @@ describe('id form', () => {
       idType: '',
       idReference: '',
       expiryDate: '',
-      documentFile: 'data:documentFile',
+      documentFile: 'data:application/pdf,documentFile',
     }
     setup({
       defaultValues,
@@ -141,15 +141,21 @@ describe('id form', () => {
 
     const { src, isOpen } = getDocumentPreviewModalProps()
 
-    expect(src).toBe('data:documentFile')
+    expect(src).toBe('data:application/pdf,documentFile')
     expect(isOpen).toBe(true)
   })
 
   test('can show document preview from document id', async () => {
     const documentId = 'RPT20000039'
 
+    const expectedFilename = 'documentFile.pdf'
     const blobUrl = 'blob:http://example.com/123'
-    downloadDocument.mockReturnValueOnce(Promise.resolve(blobUrl))
+    downloadDocument.mockReturnValueOnce(
+      Promise.resolve({
+        filename: expectedFilename,
+        url: blobUrl,
+      }),
+    )
 
     const defaultValues = {
       idType: '',
@@ -167,9 +173,10 @@ describe('id form', () => {
       await props.onFileView(defaultValues.documentFile)
     })
 
-    const { src, isOpen } = getDocumentPreviewModalProps()
+    const { src, filename, isOpen } = getDocumentPreviewModalProps()
 
     expect(src).toBe(blobUrl)
+    expect(filename).toBe(expectedFilename)
     expect(isOpen).toBe(true)
   })
 

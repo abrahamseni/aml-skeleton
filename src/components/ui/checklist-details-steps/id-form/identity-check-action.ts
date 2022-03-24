@@ -78,3 +78,31 @@ export const useSaveIdentityDocument = (identityDocumentIndex: 1 | 2) => {
 
   return saveIdentityDocument
 }
+
+export const generateDocumentFilename = (contactId: string, idType: string, idReference: string, extension: string) => {
+  let filename = ''
+  contactId = contactId.trim()
+  if (contactId !== '') {
+    filename += contactId + '-'
+  }
+  idType = idType.trim()
+  if (idType !== '') {
+    filename += idType + '-'
+  }
+  idReference = idReference.trim()
+  if (idReference !== '') {
+    filename += idReference + '-'
+  }
+  if (filename !== '') {
+    filename = filename.substring(0, filename.length - 1)
+  }
+  if (extension !== '') {
+    filename += '.' + extension
+  }
+
+  if (filename !== '') {
+    return filename
+  } else {
+    return 'document'
+  }
+}
