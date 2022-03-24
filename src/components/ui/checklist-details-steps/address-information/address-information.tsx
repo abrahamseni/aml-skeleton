@@ -10,6 +10,8 @@ import { useUpdateContact } from 'platform-api/contact-api/update-contact'
 
 import FormField from './form-field'
 import FormFooter from 'components/ui/form-footer/form-footer'
+import { useFileDocumentUpload } from 'platform-api/file-upload-api'
+import { isDataUrl } from 'utils/url'
 
 interface AddressInformationProps {
   userData: ContactModel | undefined
@@ -61,27 +63,61 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData }): Re
   })
 
   const updateContactData = useUpdateContact(userData!.id!, userData!._eTag!)
+  const uploadFileData = useFileDocumentUpload()
 
-  // button handler - submit
-  const onSubmitHandler = () => {
-    updateContactData.mutate(
+  const updateDataHandler = async (name: string, fileType: any): Promise<void> => {
+    await uploadFileData.fileUpload(
+      { name: name, imageData: currentForm.getValues(fileType)! },
       {
-        primaryAddress: currentForm.getValues('primaryAddress'),
-        secondaryAddress: currentForm.getValues('secondaryAddress'),
-        metadata: {
-          declarationRisk: userData?.metadata?.declarationRisk,
-          ...currentForm.getValues('metadata'),
-        },
-      },
-      {
-        onSuccess: () => {
-          success(notificationMessage.SUCCESS('Address Information'), 3500)
-        },
-        onError: (err) => {
-          error(err.response?.data.description, 7500)
+        onSuccess: (res) => {
+          currentForm.setValue(fileType, res.data.Url)
         },
       },
     )
+  }
+
+  // button handler - submit
+  const onSubmitHandler = async () => {
+    try {
+      if (isDataUrl(currentForm.getValues('metadata.primaryAddress.documentImage')!)) {
+        await updateDataHandler(
+          `document-image-primary-address-${userData?.id!}`,
+          'metadata.primaryAddress.documentImage',
+        )
+      }
+
+      if (isDataUrl(currentForm.getValues('metadata.secondaryAddress.documentImage')!)) {
+        await updateDataHandler(
+          `document-image-secondary-address-${userData?.id!}`,
+          'metadata.secondaryAddress.documentImage',
+        )
+      }
+
+      if (!uploadFileData.isError) {
+        updateContactData.mutate(
+          {
+            primaryAddress: currentForm.getValues('primaryAddress'),
+            secondaryAddress: currentForm.getValues('secondaryAddress'),
+            metadata: {
+              declarationRisk: userData?.metadata?.declarationRisk,
+              ...currentForm.getValues('metadata'),
+            },
+          },
+          {
+            onSuccess: () => {
+              success(notificationMessage.SUCCESS('Address Information'), 3500)
+            },
+            onError: (err) => {
+              error(err.response?.data.description, 7500)
+            },
+          },
+        )
+      }
+    } catch (e) {
+      // when file upload error, throw here
+      console.error(uploadFileData.error)
+      error('Failed to upload Document, try again later', 7500)
+    }
   }
 
   return (
@@ -108,7 +144,7 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData }): Re
         <FormFooter
           idUser={userData?.id}
           isFieldError={!!Object.keys(currentForm.formState.errors).length}
-          isFormSubmitting={updateContactData?.isLoading}
+          isFormSubmitting={updateContactData?.isLoading || uploadFileData.isLoading}
         />
       </form>
     </>
