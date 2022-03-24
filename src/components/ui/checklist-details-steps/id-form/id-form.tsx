@@ -11,6 +11,8 @@ import { generateLabelField } from 'utils/generator'
 import { ListItemModel } from '@reapit/foundations-ts-definitions'
 import FormFooter from 'components/ui/form-footer/form-footer'
 import FileInput from 'components/ui/ui/file-input'
+import { generateDocumentFilename } from './identity-check-action'
+import { getFileExtensionsFromDataUrl } from 'utils/file'
 
 const defaultValuesConst = {
   idType: '',
@@ -54,19 +56,34 @@ export const IdForm: FC<IdFormProps> = ({
     document: '',
   })
   const downloadDocument = useDownloadDocument()
+  const [filename, setFilename] = useState('')
 
   async function openDocumentPreview() {
     setDocumentPreviewState({ isOpen: true, loading: true, document: '' })
 
     const documentFile = getValues('documentFile')
+    let oldFilename = ''
     let document = ''
     if (!isDataUrl(documentFile)) {
       const data = await downloadDocument(documentFile)
-      document = data || ''
+      document = data.url || ''
+      oldFilename = data.filename
     } else {
       document = documentFile
     }
+
+    updateFilename(document, oldFilename)
     setDocumentPreviewState({ isOpen: true, loading: false, document: document })
+  }
+
+  function updateFilename(document: string, oldFilename: string) {
+    if (!isDataUrl(document)) {
+      return setFilename(oldFilename)
+    }
+
+    const extension = getFileExtensionsFromDataUrl(document)
+    const aFilename = generateDocumentFilename(rpsRef || '', getValues('idType'), getValues('idReference'), extension)
+    setFilename(aFilename)
   }
 
   function save(values: ValuesType) {
@@ -144,12 +161,17 @@ export const IdForm: FC<IdFormProps> = ({
         )}
         <DocumentPreviewModal
           src={documentPreviewState.document}
+          filename={filename}
           isOpen={documentPreviewState.isOpen}
           loading={documentPreviewState.loading}
           onModalClose={() => setDocumentPreviewState({ isOpen: false, loading: false, document: '' })}
         />
       </div>
-      <FormFooter idUser={rpsRef || ''} isFieldError={!!Object.keys(errors).length} isFormSubmitting={!!loading} />
+      <FormFooter
+        idUser={rpsRef || ''}
+        isFieldError={!!Object.keys(errors).length || !!disabled}
+        isFormSubmitting={!!loading}
+      />
     </form>
   )
 }

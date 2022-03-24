@@ -6,14 +6,21 @@ import Modal from './modal'
 import { modalMaxHeight, modalHeaderHeight, modalBodyPadding } from './__styles__/modal.style'
 import { styled } from '@linaria/react'
 import { css } from '@linaria/core'
-import { isObjectUrl } from '../../../utils/url'
+import { isObjectUrl, isSameOrigin } from '../../../utils/url'
 
 export interface DocumentPreviewModalProps extends ModalProps {
   src?: string
+  filename?: string
   loading?: boolean
 }
 
-export const DocumentPreviewModal: FC<DocumentPreviewModalProps> = ({ src, isOpen, onModalClose, loading }) => {
+export const DocumentPreviewModal: FC<DocumentPreviewModalProps> = ({
+  src,
+  filename,
+  isOpen,
+  onModalClose,
+  loading,
+}) => {
   const [pdfPreviewIsVisible, setPdfPreviewIsVisible] = useState(false)
   const [pdfNumPages, setPdfNumPages] = useState(0)
 
@@ -72,8 +79,14 @@ export const DocumentPreviewModal: FC<DocumentPreviewModalProps> = ({ src, isOpe
       </Body>
       <Footer className="el-pt6">
         <FlexContainer isFlexJustifyEnd>
-          <a className="el-button el-intent-primary el-mr4" href={src} download>
-            Download
+          <a
+            className="el-button el-intent-primary el-mr4"
+            href={src}
+            download={filename ? filename : true}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {!src || isSameOrigin(src) ? 'Download' : 'View in new tab'}
           </a>
           <Button intent="low" onClick={closeModal}>
             Close
