@@ -29,18 +29,21 @@ import DocumentPreviewModal from 'components/ui/ui/document-preview-modal'
 import FormFooter from 'components/ui/form-footer/form-footer'
 import { displayErrorMessage } from 'utils/error-message'
 import { FileInput } from 'components/ui/ui/file-input'
+import { useFileDocumentUpload } from 'platform-api/file-upload-api'
+import { isDataUrl } from 'utils/url'
 
 interface DeclarationRiskManagementProps {
   userData: ContactModel | undefined
 }
 
-// render view
 const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({ userData }): React.ReactElement => {
   // snack notification - snack provider
   const { success, error } = useSnack()
   // local state - modal handler
   const [declarationFormModalOpen, setDeclarationFormModalOpen] = React.useState<boolean>(false)
   const [riskAssessmentFormModalOpen, setRiskAssessmentFormModalOpen] = React.useState<boolean>(false)
+
+  // local state - identifier
 
   // local function - modal handler
   const handleModal = (type: 'declaration' | 'riskAssessment', option: 'open' | 'close'): void => {
@@ -65,7 +68,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({ u
   }
 
   // setup and integrate with initial value
-  const { register, handleSubmit, formState, getValues } = useForm<ValuesType>({
+  const { register, handleSubmit, formState, getValues, setValue } = useForm<ValuesType>({
     defaultValues: INITIAL_VALUES,
     resolver: yupResolver(validationSchema),
     mode: 'onBlur',
@@ -75,25 +78,53 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({ u
   const { declarationFormField, riskAssessmentFormField, typeField, reasonField } = formField()
 
   const updateContactData = useUpdateContact(userData!.id!, userData!._eTag!)
+  const uploadFileData = useFileDocumentUpload()
 
-  // button handler - submit
-  const onSubmitHandler = () => {
-    updateContactData.mutate(
+  const updateDataHandler = async (name: string, fileType: keyof ValuesType): Promise<void> => {
+    await uploadFileData.fileUpload(
+      { name: name, imageData: getValues(fileType)! },
       {
-        metadata: {
-          ...userData?.metadata,
-          declarationRisk: getValues(),
-        },
-      },
-      {
-        onSuccess: () => {
-          success(notificationMessage.DRM_SUCCESS, 2000)
-        },
-        onError: () => {
-          error(notificationMessage.DRM_ERROR, 2000)
+        onSuccess: (res) => {
+          setValue(fileType, res.data.Url)
         },
       },
     )
+  }
+
+  // button handler - submit
+  const onSubmitHandler = async () => {
+    try {
+      if (isDataUrl(getValues('declarationForm')!)) {
+        await updateDataHandler(`declaration-file-form-${userData?.id!}`, 'declarationForm')
+      }
+
+      if (isDataUrl(getValues('riskAssessmentForm')!)) {
+        await updateDataHandler(`risk-assessment-file-form-${userData?.id!}`, 'riskAssessmentForm')
+      }
+
+      if (!uploadFileData.isError) {
+        updateContactData.mutate(
+          {
+            metadata: {
+              ...userData?.metadata,
+              declarationRisk: getValues(),
+            },
+          },
+          {
+            onSuccess: () => {
+              success(notificationMessage.SUCCESS('Declaration Risk Management'), 3500)
+            },
+            onError: (err) => {
+              error(err.response?.data.description ?? notificationMessage.DRM_ERROR, 7500)
+            },
+          },
+        )
+      }
+    } catch (e) {
+      // when file upload error, throw here
+      console.error(uploadFileData.error)
+      error(notificationMessage.UPLOAD_FILE_ERROR, 7500)
+    }
   }
 
   return (
@@ -170,7 +201,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({ u
         <FormFooter
           idUser={userData?.id}
           isFieldError={!!Object.keys(formState.errors).length}
-          isFormSubmitting={updateContactData?.isLoading}
+          isFormSubmitting={updateContactData?.isLoading || uploadFileData.isLoading}
         />
       </form>
       {/* Modal Declaration Form */}

@@ -8,4 +8,5 @@ export const URLS = {
   DOCUMENTS: '/documents',
   ID_CHECKS: '/identityChecks',
   CONFIGURATION_DOCUMENT_TYPES: '/configuration/identityDocumentTypes',
+  FILE_UPLOAD: '/fileUpload',
 }

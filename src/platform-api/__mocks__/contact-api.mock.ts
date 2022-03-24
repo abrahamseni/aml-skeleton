@@ -18,9 +18,9 @@ export const CONTACT_MOCK_DATA_1 = {
   metadata: {
     secondaryAddress: {},
     declarationRisk: {
-      declarationForm: 'urlDeclarationForm.png',
+      declarationForm: 'https://urlDeclarationForm.png',
       reason: 'erw23r',
-      riskAssessmentForm: 'urlRiskAssessmentForm.png',
+      riskAssessmentForm: 'https://urlRiskAssessmentForm.png',
       type: 'Simplified',
     },
     primaryAddress: {
