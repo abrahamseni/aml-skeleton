@@ -36,7 +36,6 @@ import {
   isCompletedSecondaryID,
 } from '../../../utils/completed-sections'
 
-import { generateProgressBarResult } from '../../../utils/generator'
 import Report from '../report/report'
 import { useGetIdentityDocumentTypes } from 'platform-api/configuration-api'
 
@@ -111,7 +110,7 @@ export const ChecklistDetailPage: FC = () => {
 
   const [isModalStatusOpen, setModalStatusOpen] = useState<boolean>(false)
   // local state - tab pagination handler
-  const [activeTabs, setActiveTabs] = React.useState<string>('1')
+  const [activeTabs, setActiveTabs] = React.useState<string>('0')
 
   const { Modal: ReportModal, openModal, closeModal } = useModal('modal-root')
 
@@ -121,9 +120,6 @@ export const ChecklistDetailPage: FC = () => {
     queryIdentityCheck,
     queryIdentityDocumentTypes,
   })
-
-  // progress bar indicator
-  const currentProgressBarStatus = generateProgressBarResult({ tabContents })
 
   if (
     (userDataIsFetching && !userData) ||
@@ -185,8 +181,8 @@ export const ChecklistDetailPage: FC = () => {
         </FlexContainer>
         <div>
           <ProgressBarSteps
-            currentStep={currentProgressBarStatus.complete}
-            numberSteps={currentProgressBarStatus.total}
+            currentStep={tabContents.filter((t) => t.status).length}
+            numberSteps={tabContents.length}
             className="el-mt6"
           />
         </div>
@@ -234,8 +230,9 @@ export const ChecklistDetailPage: FC = () => {
           userData={userData}
           idCheck={identityCheck!}
           isModalStatusOpen={isModalStatusOpen}
+          closeModal={() => setModalStatusOpen(false)}
           setModalStatusOpen={setModalStatusOpen}
-          progressBarStatus={currentProgressBarStatus}
+          progressBarStatus={{ complete: tabContents.filter((t) => t.status).length, total: tabContents.length }}
         />
         <ReportModal title="Report" style={{ top: '50%' }}>
           <Report closeModal={closeModal} />

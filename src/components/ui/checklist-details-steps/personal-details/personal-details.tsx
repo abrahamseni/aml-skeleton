@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react'
 import { Input, InputGroup, Label, SmallText, InputError, useSnack } from '@reapit/elements'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
 
@@ -27,6 +27,9 @@ const PersonalDetails = ({ userData }: PersonalDetailsProps) => {
     handleSubmit,
     formState: { errors },
     getValues,
+    trigger,
+    watch,
+    control,
   } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -39,9 +42,8 @@ const PersonalDetails = ({ userData }: PersonalDetailsProps) => {
       [mobilePhone.name]: userData?.mobilePhone,
       [workPhone.name]: userData?.workPhone,
     },
-    mode: 'onBlur',
+    mode: 'all',
   })
-
   const onSubmitHandler = async (): Promise<void> => {
     await updateContact.mutateAsync(
       { ...getValues() },
@@ -115,7 +117,10 @@ const PersonalDetails = ({ userData }: PersonalDetailsProps) => {
         </InputGroup>
       </div>
       <div className="el-mt8">
-        <SmallText hasNoMargin hasGreyText>
+        <SmallText
+          hasNoMargin
+          className={errors.homePhone?.type === 'required' ? 'el-input-error' : ' el-has-grey-text'}
+        >
           *At least one telephone number is required
         </SmallText>
         <div className=" el-flex el-flex-column el-flex-wrap">
@@ -127,7 +132,7 @@ const PersonalDetails = ({ userData }: PersonalDetailsProps) => {
               data-testid={generateTestId(homePhone.name)}
             />
             <Label htmlFor={homePhone.name}>{homePhone.label}</Label>
-            {errors.homePhone?.message && (
+            {errors.homePhone?.message && errors.homePhone?.type !== 'required' && (
               <p data-testid={`test.error.${homePhone.name}`} className="el-input-error">
                 {errors.homePhone.message}
               </p>

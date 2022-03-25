@@ -1,6 +1,6 @@
 export const notificationMessage = {
   SUCCESS: (formName: string) => `Successfully update ${formName} data`,
-  ERROR: (errorMessage: string | undefined) => {
+  ERROR: (errorMessage?: string | undefined) => {
     return errorMessage ? `${errorMessage}` : 'Something went wrong, try to reload your browser'
   },
   /**

@@ -68,6 +68,7 @@ export const useUpdateIdentityCheck = () => {
     {
       onSuccess(contactDataId) {
         queryClient.invalidateQueries(['fetchSingleIdentityCheckByContactId', { id: contactDataId }])
+        queryClient.invalidateQueries(['contact', contactDataId])
       },
     },
   )
