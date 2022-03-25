@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Subtitle, useSnack } from '@reapit/elements'
+import { useSnack } from '@reapit/elements'
 import IdForm, { ValuesType } from './id-form'
 import { ContactModel, IdentityCheckModel, ListItemModel } from '@reapit/foundations-ts-definitions'
 import { useSaveIdentityDocument } from './id-form/identity-check-action'
@@ -69,7 +69,6 @@ const PrimaryId = ({ contact, idCheck, idDocTypes, onSaved }: PrimaryIdProps) =>
 
   return (
     <>
-      <Subtitle>Primary ID</Subtitle>
       <IdForm
         defaultValues={getDefaultValues()}
         idDocTypes={getIdDocTypes()}
