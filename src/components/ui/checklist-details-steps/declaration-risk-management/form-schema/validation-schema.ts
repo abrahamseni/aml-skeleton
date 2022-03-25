@@ -1,20 +1,16 @@
+import FileValidation from 'utils/file-validation'
 import * as Yup from 'yup'
 import { errorMessages } from '../../../../../constants/error-messages'
 import { ValuesType } from './form-field'
 
-/**
- * Make validation is URL OR its base64 with format png/pdf/jpeg/jpg
- */
 export const validationSchema: Yup.SchemaOf<ValuesType> = Yup.object().shape({
-  declarationForm: Yup.string()
-    .trim()
+  declarationForm: FileValidation.create()
     .required(errorMessages.FIELD_REQUIRED)
-    .matches(/(png|jpg|jpeg|pdf)/, errorMessages.WRONG_FILE_TYPE),
+    .maxSize(6, errorMessages.EXCEEDED_MAX_FILE_SIZE),
 
-  riskAssessmentForm: Yup.string()
-    .trim()
+  riskAssessmentForm: FileValidation.create()
     .required(errorMessages.FIELD_REQUIRED)
-    .matches(/(png|jpg|jpeg|pdf)/, errorMessages.WRONG_FILE_TYPE),
+    .maxSize(6, errorMessages.EXCEEDED_MAX_FILE_SIZE),
 
   reason: Yup.string().trim().required(errorMessages.FIELD_REQUIRED),
 

@@ -2,20 +2,22 @@ import React from 'react'
 import { Button, elWFull, FormLayout, InputWrapFull, useSnack } from '@reapit/elements'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { FormField } from './form-field'
 import { validationSchema, ValuesType } from './form-schema'
 import { RightSideContainer } from './__styles__'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
-import { notificationMessage } from '../../../../constants/notification-message'
-import { useUpdateContact } from '../../../../platform-api/contact-api/update-contact'
+import { notificationMessage } from 'constants/notification-message'
+import { useUpdateContact } from 'platform-api/contact-api/update-contact'
+
+import FormField from './form-field'
 import FormFooter from 'components/ui/form-footer/form-footer'
+import { useFileDocumentUpload } from 'platform-api/file-upload-api'
+import { isDataUrl } from 'utils/url'
 
 interface AddressInformationProps {
   userData: ContactModel | undefined
-  switchTabContent: (type: 'forward' | 'backward') => void | undefined
 }
 
-const AddressInformation: React.FC<AddressInformationProps> = ({ userData, switchTabContent }): React.ReactElement => {
+const AddressInformation: React.FC<AddressInformationProps> = ({ userData }): React.ReactElement => {
   // snack notification - snack provider
   const { success, error } = useSnack()
 
@@ -61,27 +63,58 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData, switc
   })
 
   const updateContactData = useUpdateContact(userData!.id!, userData!._eTag!)
+  const uploadFileData = useFileDocumentUpload()
 
-  // button handler - submit
-  const onSubmitHandler = async (): Promise<void> => {
-    await updateContactData.mutateAsync(
+  const updateDataHandler = async (name: string, fileType: any): Promise<void> => {
+    await uploadFileData.fileUpload(
+      { name: name, imageData: currentForm.getValues(fileType)! },
       {
-        primaryAddress: currentForm.getValues('primaryAddress'),
-        secondaryAddress: currentForm.getValues('secondaryAddress'),
-        metadata: {
-          declarationRisk: userData?.metadata?.declarationRisk,
-          ...currentForm.getValues('metadata'),
-        },
-      },
-      {
-        onSuccess: () => {
-          success(notificationMessage.AIF_SUCCESS, 2000)
-        },
-        onError: () => {
-          error(notificationMessage.AIF_ERROR, 2000)
+        onSuccess: (res) => {
+          currentForm.setValue(fileType, res.data.Url)
         },
       },
     )
+  }
+
+  // button handler - submit
+  const onSubmitHandler = async () => {
+    try {
+      // if primaryAddress DocumentImage field have base64 value, then try to upload in fileUpload
+      if (isDataUrl(currentForm.getValues('metadata.primaryAddress.documentImage')!)) {
+        await updateDataHandler(
+          `document-image-primary-address-${userData?.id!}`,
+          'metadata.primaryAddress.documentImage',
+        )
+      }
+
+      // if secondaryAddress Document Image value is base64 form, then try to upload in fileUpload
+      if (isDataUrl(currentForm.getValues('metadata.secondaryAddress.documentImage')!)) {
+        await updateDataHandler(
+          `document-image-secondary-address-${userData?.id!}`,
+          'metadata.secondaryAddress.documentImage',
+        )
+      }
+
+      // if primary/secondary Document Image doesn't have an error, try to update contact data
+      await updateContactData.mutateAsync(
+        {
+          primaryAddress: currentForm.getValues('primaryAddress'),
+          secondaryAddress: currentForm.getValues('secondaryAddress'),
+          metadata: {
+            declarationRisk: userData?.metadata?.declarationRisk,
+            ...currentForm.getValues('metadata'),
+          },
+        },
+        {
+          onSuccess: () => success(notificationMessage.SUCCESS('Address Information'), 3500),
+          onError: (err) => error(err.response?.data.description ?? notificationMessage.DRM_ERROR, 7500),
+        },
+      )
+    } catch (e) {
+      // when file upload error, throw here
+      console.error(uploadFileData.error)
+      error(notificationMessage.UPLOAD_FILE_ERROR, 7500)
+    }
   }
 
   return (
@@ -108,14 +141,11 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData, switc
         <FormFooter
           idUser={userData?.id}
           isFieldError={!!Object.keys(currentForm.formState.errors).length}
-          isFormSubmitting={updateContactData?.isLoading}
-          currentForm={currentForm}
-          switchTabContent={switchTabContent}
-          submitHandler={onSubmitHandler}
+          isFormSubmitting={updateContactData?.isLoading || uploadFileData.isLoading}
         />
       </form>
     </>
   )
 }
 
-export default AddressInformation
+export default React.memo(AddressInformation)

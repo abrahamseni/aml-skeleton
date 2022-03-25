@@ -1,38 +1,28 @@
 import React, { FC, useState } from 'react'
 import { Button, ModalProps, Loader, FlexContainer, PersistantNotification } from '@reapit/elements'
-import { Document, Page } from 'react-pdf/dist/esm/entry.webpack'
-import { SizeMe } from 'react-sizeme'
 import Modal from './modal'
 import { modalMaxHeight, modalHeaderHeight, modalBodyPadding } from './__styles__/modal.style'
 import { styled } from '@linaria/react'
 import { css } from '@linaria/core'
-import { isObjectUrl } from '../../../../utils/url'
+import { isObjectUrl, isSameOrigin } from '../../../utils/url'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faFileLines } from '@fortawesome/free-solid-svg-icons'
 
-interface Props extends ModalProps {
+export interface DocumentPreviewModalProps extends ModalProps {
   src?: string
+  filename?: string
   loading?: boolean
 }
 
-export const DocumentPreviewModal: FC<Props> = ({ src, isOpen, onModalClose, loading }) => {
+export const DocumentPreviewModal: FC<DocumentPreviewModalProps> = ({
+  src,
+  filename,
+  isOpen,
+  onModalClose,
+  loading,
+}) => {
   const [pdfPreviewIsVisible, setPdfPreviewIsVisible] = useState(false)
-  const [pdfNumPages, setPdfNumPages] = useState(0)
-
-  function onPdfPreviewLoadSuccess({ numPages }) {
-    setPdfNumPages(numPages)
-  }
-
-  function getPdfPages(width: number | null) {
-    const padding = '24px'
-    const pages: any = []
-    for (let i = 0; i < pdfNumPages; i++) {
-      pages.push(
-        <div key={i} style={{ backgroundColor: '#ddd', padding: padding, paddingTop: i === 0 ? padding : 0 }}>
-          <Page width={width && width - 24 * 2} pageNumber={i + 1} />
-        </div>,
-      )
-    }
-    return pages
-  }
+  const [imageLoaded, setImageLoaded] = useState(false)
 
   function closeModal() {
     onModalClose()
@@ -57,23 +47,28 @@ export const DocumentPreviewModal: FC<Props> = ({ src, isOpen, onModalClose, loa
         {src &&
           !loading &&
           (!pdfPreviewIsVisible ? (
-            <img src={src} onError={() => setPdfPreviewIsVisible(true)} alt="image preview" />
+            <img
+              src={src}
+              onError={() => setPdfPreviewIsVisible(true)}
+              onLoad={() => setImageLoaded(true)}
+              alt={imageLoaded ? 'image preview' : undefined}
+            />
           ) : (
-            <PdfContainer>
-              <SizeMe>
-                {({ size }) => (
-                  <Document file={src} onLoadSuccess={onPdfPreviewLoadSuccess}>
-                    {getPdfPages(size.width)}
-                  </Document>
-                )}
-              </SizeMe>
-            </PdfContainer>
+            <IconContainer>
+              <Icon icon={faFileLines} />
+            </IconContainer>
           ))}
       </Body>
       <Footer className="el-pt6">
         <FlexContainer isFlexJustifyEnd>
-          <a className="el-button el-intent-primary el-mr4" href={src} download>
-            Download
+          <a
+            className="el-button el-intent-primary el-mr4"
+            href={src}
+            download={filename ? filename : true}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {!src || isSameOrigin(src) ? 'Download' : 'View in new tab'}
           </a>
           <Button intent="low" onClick={closeModal}>
             Close
@@ -89,7 +84,7 @@ export const DocumentPreviewModal: FC<Props> = ({ src, isOpen, onModalClose, loa
   )
 }
 
-export const footerHeight = '141.233px'
+export const footerHeight = '8.827rem'
 
 const Body = styled.div`
   max-height: calc(${modalMaxHeight} - ${modalHeaderHeight} - ${footerHeight} - (2 * ${modalBodyPadding}));
@@ -100,9 +95,14 @@ const Footer = styled.div`
   height: ${footerHeight};
 `
 
-const PdfContainer = styled.div`
-  width: 90%;
-  margin: 0 auto;
+const IconContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 0;
 `
 
+const Icon = styled(FontAwesomeIcon)`
+  color: var(--intent-primary);
+  font-size: 3rem;
+`
 export default DocumentPreviewModal

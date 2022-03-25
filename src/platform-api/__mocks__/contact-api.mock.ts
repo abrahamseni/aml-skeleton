@@ -7,31 +7,30 @@ export const CONTACT_MOCK_DATA_1 = {
   communicationPreferencePhone: false,
   communicationPreferenceSMS: false,
   created: '2016-12-06T10:07:56Z',
-  dateOfBirth: '2020-05-19',
+  dateOfBirth: '1988-05-19',
   email: 'cwilliamson47@rpsfiction.net',
   forename: 'Christopher',
   fromArchive: false,
-  homePhone: undefined,
+  homePhone: '02471896',
   id: 'MLK16000071',
   identityCheck: 'pass',
   marketingConsent: 'notAsked',
   metadata: {
     secondaryAddress: {},
     declarationRisk: {
-      declarationForm: 'urlDeclarationForm.png',
+      declarationForm: 'https://urlDeclarationForm.png',
       reason: 'erw23r',
-      riskAssessmentForm: 'urlRiskAssessmentForm.png',
+      riskAssessmentForm: 'https://urlRiskAssessmentForm.png',
       type: 'Simplified',
     },
     primaryAddress: {
-      documentImage:
-        'https://reapit-marketplace-app-media-dev.s3.eu-west-2.amazonaws.com/MLK16000071-primary-address-id(2).png',
+      documentImage: 'urlDocumentPrimaryAddress.png',
       documentType: 'Mortgage Statement or Mortgage Redemption Statement',
       month: '8',
       year: '1',
     },
   },
-  mobilePhone: undefined,
+  mobilePhone: '07110660399',
   modified: '2022-03-09T06:38:00Z',
   negotiatorIds: ['CLD'],
   officeIds: ['MLK'],
@@ -51,7 +50,7 @@ export const CONTACT_MOCK_DATA_1 = {
   surname: 'Williamson',
   title: 'Mr',
   workAddress: undefined,
-  workPhone: '038233444abc',
+  workPhone: '028233444',
   _eTag: '"40FCC8984F885A89EDC06E8A223014E1"',
   _embedded: undefined,
   _links: {
@@ -83,7 +82,13 @@ export const CONTACT_MOCK_DATA_2 = {
   identityCheck: 'pass',
   marketingConsent: 'notAsked',
   metadata: {
-    secondaryAddress: {},
+    secondaryAddress: {
+      documentImage:
+        'https://reapit-marketplace-app-media-dev.s3.eu-west-2.amazonaws.com/MLK16000071-primary-address-id(2).png',
+      documentType: 'Mortgage Statement or Mortgage Redemption Statement',
+      month: '8',
+      year: '1',
+    },
     declarationRisk: {
       declarationForm:
         'https://reapit-marketplace-app-media-dev.s3.eu-west-2.amazonaws.com/declaration-Simplified-erw23r.png',

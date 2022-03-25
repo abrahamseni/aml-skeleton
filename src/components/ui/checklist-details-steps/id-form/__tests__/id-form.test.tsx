@@ -1,14 +1,17 @@
 import React from 'react'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, render, screen, fireEvent } from '@testing-library/react'
 import IdForm, { IdFormProps } from '../id-form'
 import userEvent from '@testing-library/user-event'
 import { formFields } from '../form-schema/form-field'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import axios from 'axios/axios'
 import AxiosMockAdapter from 'axios-mock-adapter'
-import { identityDocumentTypes } from '../__mocks__'
+import { identityDocumentTypes } from '../__mocks__/identity-document-types'
 import { URLS } from 'constants/api'
 import { wait } from 'utils/test'
+import DocumentPreviewModal, { DocumentPreviewModalProps } from 'components/ui/ui/document-preview-modal'
+import { downloadDocument as downloadDocumentMock } from 'platform-api/document-api'
+import propsRepo from 'utils/mocks/props-repo'
 
 const axiosMock = new AxiosMockAdapter(axios)
 
@@ -21,11 +24,26 @@ jest.mock('react-pdf/dist/esm/entry.webpack', () => {
     Page: () => null,
   }
 })
+jest.mock('components/ui/ui/document-preview-modal', () => {
+  const DocumentPreviewModal = jest.requireActual('components/ui/ui/document-preview-modal')
+  const DocumentPreviewModalMock = jest.fn(() => <></>)
+  return {
+    __esModule: true,
+    ...DocumentPreviewModal,
+    DocumentPreviewModal: DocumentPreviewModalMock,
+    default: DocumentPreviewModalMock,
+  }
+})
+jest.mock('platform-api/document-api')
+jest.mock('@reapit/elements', () => jest.requireActual('utils/mocks/reapit-element-mocks'))
+
+const downloadDocument: jest.Mock = downloadDocumentMock as any
 
 describe('id form', () => {
   beforeEach(() => {
     axiosMock.reset()
     jest.clearAllMocks()
+    propsRepo.clear()
   })
 
   test('can set default values', async () => {
@@ -44,12 +62,35 @@ describe('id form', () => {
     await assertFormValues(defaultValues)
   })
 
+  test('do not save if form is invalid', async () => {
+    const defaultValues = {
+      idType: '',
+      idReference: '',
+      expiryDate: '',
+      documentFile: '',
+    }
+    const onSave = jest.fn()
+    setup({
+      defaultValues,
+      onSave,
+    })
+
+    await wait(0)
+
+    const saveButton = await screen.findByTestId('save-form')
+    userEvent.click(saveButton)
+
+    await wait(0)
+
+    expect(onSave).toBeCalledTimes(0)
+  })
+
   test('error message from validation is correct', async () => {
     setup()
 
     await wait(0)
 
-    const saveButton = await screen.findByTestId('saveButton')
+    const saveButton = await screen.findByTestId('save-form')
     userEvent.click(saveButton)
 
     await wait(0)
@@ -72,7 +113,7 @@ describe('id form', () => {
 
     const expectedValue = await fillFormWithValidValue()
 
-    const saveButton = await screen.findByTestId('saveButton')
+    const saveButton = await screen.findByTestId('save-form')
     userEvent.click(saveButton)
 
     await wait(0)
@@ -81,39 +122,62 @@ describe('id form', () => {
     expect(onSave.mock.calls[0]).toEqual([expectedValue])
   })
 
-  test('can go to next', async () => {
-    const onNext = jest.fn()
+  test('can show document preview from data url', async () => {
+    const defaultValues = {
+      idType: '',
+      idReference: '',
+      expiryDate: '',
+      documentFile: 'data:application/pdf,documentFile',
+    }
     setup({
-      onNext: onNext,
+      defaultValues,
     })
 
-    await wait(0)
+    const props = propsRepo.props['input.documentFile']
 
-    const expectedValue = await fillFormWithValidValue()
+    await act(async () => {
+      await props.onFileView(defaultValues.documentFile)
+    })
 
-    const nextButton = await screen.findByTestId('nextButton')
-    userEvent.click(nextButton)
+    const { src, isOpen } = getDocumentPreviewModalProps()
 
-    await wait(0)
-
-    expect(onNext).toBeCalledTimes(1)
-    expect(onNext.mock.calls[0]).toEqual([expectedValue])
+    expect(src).toBe('data:application/pdf,documentFile')
+    expect(isOpen).toBe(true)
   })
 
-  test('can go to previous', async () => {
-    const onPrevious = jest.fn()
+  test('can show document preview from document id', async () => {
+    const documentId = 'RPT20000039'
+
+    const expectedFilename = 'documentFile.pdf'
+    const blobUrl = 'blob:http://example.com/123'
+    downloadDocument.mockReturnValueOnce(
+      Promise.resolve({
+        filename: expectedFilename,
+        url: blobUrl,
+      }),
+    )
+
+    const defaultValues = {
+      idType: '',
+      idReference: '',
+      expiryDate: '',
+      documentFile: documentId,
+    }
     setup({
-      onPrevious: onPrevious,
+      defaultValues,
     })
 
-    await wait(0)
+    const props = propsRepo.props['input.documentFile']
 
-    const previousButton = await screen.findByTestId('previousButton')
-    userEvent.click(previousButton)
+    await act(async () => {
+      await props.onFileView(defaultValues.documentFile)
+    })
 
-    await wait(0)
+    const { src, filename, isOpen } = getDocumentPreviewModalProps()
 
-    expect(onPrevious).toBeCalledTimes(1)
+    expect(src).toBe(blobUrl)
+    expect(filename).toBe(expectedFilename)
+    expect(isOpen).toBe(true)
   })
 
   test('can show notice text', async () => {
@@ -132,15 +196,16 @@ describe('id form', () => {
 
   test('can show RPS Ref', async () => {
     const rpsRef = '123456'
+    const expectedText = `RPS Ref: ${rpsRef}`
     setup({
       rpsRef: rpsRef,
     })
 
     await wait(0)
 
-    const rpsRetTextEl = await screen.findByTestId('rpsRefText')
+    const rpsRetTextEl = await screen.findByText(expectedText)
 
-    expect(rpsRetTextEl.textContent).toBe(rpsRef)
+    expect(rpsRetTextEl.textContent).toBe(expectedText)
   })
 })
 
@@ -167,7 +232,12 @@ function setup(props: Props = {}) {
   axiosMock
     .onGet(`${window.reapit.config.platformApiUrl}${URLS.CONFIGURATION_DOCUMENT_TYPES}`)
     .reply(200, identityDocumentTypes)
-  renderPrimaryId(props)
+  renderIdForm(props)
+}
+
+function getDocumentPreviewModalProps(): DocumentPreviewModalProps {
+  const DocumentPreviewModalMock: jest.Mock = DocumentPreviewModal as any
+  return DocumentPreviewModalMock.mock.calls.slice(-1)[0][0]
 }
 
 async function createDataUrl(content: string): Promise<string> {
@@ -196,13 +266,13 @@ const queryClient = new QueryClient({
 
 type Props = Partial<IdFormProps>
 
-function renderPrimaryId({ onSave, ...rest }: Props = {}) {
+function renderIdForm({ onSave, ...rest }: Props = {}) {
   queryClient.clear()
 
   const theOnSave = onSave || (() => {})
   return render(
     <QueryClientProvider client={queryClient}>
-      <IdForm onSave={theOnSave} {...rest} />
+      <IdForm idDocTypes={identityDocumentTypes} onSave={theOnSave} {...rest} />
     </QueryClientProvider>,
   )
 }

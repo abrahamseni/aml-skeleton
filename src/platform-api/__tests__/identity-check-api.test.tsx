@@ -10,14 +10,11 @@ import AxiosMockAdapter from 'axios-mock-adapter'
 import { BASE_HEADERS, URLS } from '../../constants/api'
 import React from 'react'
 import { mockBrowserSession } from '../../core/__mocks__/connect-session'
-import { wait } from 'utils/test'
 
 const axiosMock = new AxiosMockAdapter(axios)
 
 jest.unmock('@reapit/connect-session')
 jest.mock('core/connect-session')
-
-const apiUrl = window.reapit.config.platformApiUrl
 
 describe('identity check api', () => {
   beforeEach(() => {
@@ -67,11 +64,11 @@ describe('identity check api', () => {
       negotiatorId: 'uc123',
     }
 
-    axiosMock.onPost(`${apiUrl}${URLS.ID_CHECKS}`).reply(200)
+    axiosMock.onPost(`${URLS.ID_CHECKS}`).reply(200)
 
-    const { result } = renderApiHook(() => useCreateIdentityCheck())
-    await wait(0)
-    await result.current(params)
+    const { result, waitFor } = renderApiHook(() => useCreateIdentityCheck())
+    result.current.createIdentityCheck(params)
+    await waitFor(() => result.current.isSuccess)
 
     expect(axiosMock.history.post.length).toBe(1)
     expect(axiosMock.history.post[0].headers).toEqual(apiHeader())
@@ -92,11 +89,11 @@ describe('identity check api', () => {
 
     const { id, _eTag, ...restParams } = params
 
-    axiosMock.onPatch(`${apiUrl}${URLS.ID_CHECKS}/${id}`).reply(200)
+    axiosMock.onPatch(`${URLS.ID_CHECKS}/${id}`).reply(200)
 
-    const { result } = renderApiHook(() => useUpdateIdentityCheck())
-    await wait(0)
-    await result.current(params)
+    const { result, waitFor } = renderApiHook(() => useUpdateIdentityCheck())
+    result.current.updateIdentityCheck(params)
+    await waitFor(() => result.current.isSuccess)
 
     expect(axiosMock.history.patch.length).toBe(1)
     expect(axiosMock.history.patch[0].headers).toEqual({
@@ -115,7 +112,7 @@ function mockFetcIdentityCheckApi(data?: any) {
       },
     ],
   }
-  axiosMock.onGet(`${apiUrl}${URLS.ID_CHECKS}`).reply(200, aData)
+  axiosMock.onGet(`${URLS.ID_CHECKS}`).reply(200, aData)
 }
 
 function renderApiHook<T>(hook: (...args: any) => T) {

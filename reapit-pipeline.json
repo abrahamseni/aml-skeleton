@@ -1,0 +1,10 @@
+{
+  "id": "34995207-f761-45cc-9760-53824b2b3384",
+  "appId": "34995207-f761-45cc-9760-53824b2b3384",
+  "subDomain": "vital-ball",
+  "packageManager": "yarn",
+  "repospitory": "https://github.com/abrahamseni/aml-skeleton",
+  "buildDir": "build",
+  "outDir": "build",
+  "developerId": "c6e0a078-d50e-430e-b649-2412fba7d26a"
+}

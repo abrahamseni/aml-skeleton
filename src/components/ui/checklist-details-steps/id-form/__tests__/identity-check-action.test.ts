@@ -38,10 +38,10 @@ describe('identity check action', () => {
 
     const { result } = renderHook(() => useSaveIdentityDocument(1))
     await wait(0)
-    await result.current(contact, undefined, idDocument)
+    result.current(contact, undefined, idDocument)
 
     expect(createIdentityCheck).toHaveBeenCalledTimes(1)
-    expect(createIdentityCheck.mock.calls[0][1]).toEqual({
+    expect(createIdentityCheck.mock.calls[0][0]).toEqual({
       contactId: contact.id!,
       identityDocument1: {
         typeId: idDocument.idType,
@@ -78,7 +78,7 @@ describe('identity check action', () => {
     await result.current(contact, idCheck, idDocument)
 
     expect(updateIdentityCheck).toHaveBeenCalledTimes(1)
-    expect(updateIdentityCheck.mock.calls[0][1]).toEqual({
+    expect(updateIdentityCheck.mock.calls[0][0]).toEqual({
       id: idCheck.id,
       _eTag: idCheck._eTag,
       identityDocument1: {
@@ -113,7 +113,7 @@ describe('identity check action', () => {
     await result.current(contact, idCheck, idDocument2)
 
     expect(updateIdentityCheck).toHaveBeenCalledTimes(1)
-    expect(updateIdentityCheck.mock.calls[0][1]).toEqual({
+    expect(updateIdentityCheck.mock.calls[0][0]).toEqual({
       id: idCheck.id,
       _eTag: idCheck._eTag,
       identityDocument2: {
@@ -148,7 +148,7 @@ describe('identity check action', () => {
     await result.current(contact, idCheck, idDocument)
 
     expect(updateIdentityCheck).toHaveBeenCalledTimes(1)
-    expect(updateIdentityCheck.mock.calls[0][1]).toEqual({
+    expect(updateIdentityCheck.mock.calls[0][0]).toEqual({
       id: idCheck.id,
       _eTag: idCheck._eTag,
       identityDocument1: {
@@ -174,7 +174,7 @@ describe('identity check action', () => {
     const { result } = renderHook(() => useSaveIdentityDocument(2))
     await wait(0)
 
-    await expect(result.current(contact, idCheck, idDocument2)).rejects.toEqual(
+    await expect(() => result.current(contact, idCheck, idDocument2)).toThrow(
       new Error(
         'Cannot update "identityDocument2" on identityCheck resource if "identityDocument1" property doesn\'t exist or identityCheck doesn\'t exist',
       ),
@@ -202,11 +202,18 @@ describe('identity check action', () => {
     const { result } = renderHook(() => useSaveIdentityDocument(1))
     await wait(0)
 
-    await expect(result.current(contact, idCheck, idDocument)).rejects.toEqual(
-      new Error(
-        'You are not currently logged in as negotiator. The Reapit Platform API only supports Identity Checks performed by negotiators. As such, you your data will not be saved and you will need to log in as another user to complete this action.',
-      ),
+    expect(
+      result.current(contact, idCheck, idDocument, {
+        onError(error) {
+          expect(error).toEqual(
+            new Error(
+              'You are not currently logged in as negotiator. The Reapit Platform API only supports Identity Checks performed by negotiators. As such, you your data will not be saved and you will need to log in as another user to complete this action.',
+            ),
+          )
+        },
+      }),
     )
+    await wait(0)
     expect(createIdentityCheck).toHaveBeenCalledTimes(0)
   })
 })

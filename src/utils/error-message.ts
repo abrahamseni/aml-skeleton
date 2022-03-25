@@ -1,4 +1,3 @@
-import React from 'react'
 import { FormState } from 'react-hook-form'
 
 import {
@@ -22,10 +21,10 @@ interface AvailableFieldValueType extends Partial<AddressValuesType>, Partial<DR
  * @example displayErrorMessage<AvailableFormFieldType, ValuesType>(buildingNameField.name, formState)
  */
 
-export const displayErrorMessage = <T extends AvailableFieldNameType, U extends AvailableFieldValueType>(
-  fieldName: T,
-  formState: FormState<U>,
-): React.ReactNode | undefined => {
+export const displayErrorMessage = (
+  fieldName: AvailableFieldNameType,
+  formState: FormState<AvailableFieldValueType>,
+): string | undefined => {
   const { errors } = formState
 
   let errorMessage: string | undefined
@@ -115,15 +114,9 @@ export const displayErrorMessage = <T extends AvailableFieldNameType, U extends 
     case 'type':
       errorMessage = errors.type?.message
       break
+    default:
+      undefined
   }
 
-  if (errorMessage) {
-    return (
-      <p data-testid={`test.error.${fieldName}`} className="el-input-error">
-        {errorMessage}
-      </p>
-    )
-  }
-
-  return undefined
+  return errorMessage
 }
