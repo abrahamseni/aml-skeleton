@@ -37,7 +37,7 @@ export type SearchFieldValue = {
 
 export const SearchPage: FC = () => {
   const [searchParams, setSearchParams] = React.useState<SearchContactParam>({})
-  const { register, handleSubmit, reset } = useForm<SearchFieldValue>()
+  const { register, handleSubmit, reset, formState:{errors} } = useForm<SearchFieldValue>()
 
   const onSubmit = (e: SearchFieldValue) =>
     setSearchParams({
@@ -67,7 +67,8 @@ export const SearchPage: FC = () => {
                 type="text"
                 id="name"
                 placeholder="Firstname or Surname"
-                {...register('searchName')}
+                {...register('searchName', { required: true })}
+                errorMessage = {errors.searchName?.type === "required" ? "*Name is required":""}
               />
             </InputWrap>
             <InputWrap>
@@ -130,8 +131,8 @@ export const SearchPage: FC = () => {
                 }
               })
             }
-            currentPage={searchParams.pageNumber!}
-            numberPages={result?.data?.totalPageCount!}
+            currentPage={searchParams.pageNumber ?? 1}
+            numberPages={result?.data?.totalPageCount ?? 1}
           />
         </FlexContainer>
       ) : null}
