@@ -43,8 +43,6 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({ u
   const [declarationFormModalOpen, setDeclarationFormModalOpen] = React.useState<boolean>(false)
   const [riskAssessmentFormModalOpen, setRiskAssessmentFormModalOpen] = React.useState<boolean>(false)
 
-  // local state - identifier
-
   // local function - modal handler
   const handleModal = (type: 'declaration' | 'riskAssessment', option: 'open' | 'close'): void => {
     switch (type) {
@@ -84,9 +82,7 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({ u
     await uploadFileData.fileUpload(
       { name: name, imageData: getValues(fileType)! },
       {
-        onSuccess: (res) => {
-          setValue(fileType, res.data.Url)
-        },
+        onSuccess: (res) => setValue(fileType, res.data.Url),
       },
     )
   }
@@ -94,32 +90,29 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({ u
   // button handler - submit
   const onSubmitHandler = async () => {
     try {
+      // if declaration form field have base64 value, then try to upload in fileUpload
       if (isDataUrl(getValues('declarationForm')!)) {
         await updateDataHandler(`declaration-file-form-${userData?.id!}`, 'declarationForm')
       }
 
+      // if risk assessment form field have base64 value, then try to upload in fileUpload
       if (isDataUrl(getValues('riskAssessmentForm')!)) {
         await updateDataHandler(`risk-assessment-file-form-${userData?.id!}`, 'riskAssessmentForm')
       }
 
-      if (!uploadFileData.isError) {
-        updateContactData.mutate(
-          {
-            metadata: {
-              ...userData?.metadata,
-              declarationRisk: getValues(),
-            },
+      // while uploading declaration/risk assessment not error, then try to update contact data
+      await updateContactData.mutateAsync(
+        {
+          metadata: {
+            ...userData?.metadata,
+            declarationRisk: getValues(),
           },
-          {
-            onSuccess: () => {
-              success(notificationMessage.SUCCESS('Declaration Risk Management'), 3500)
-            },
-            onError: (err) => {
-              error(err.response?.data.description ?? notificationMessage.DRM_ERROR, 7500)
-            },
-          },
-        )
-      }
+        },
+        {
+          onSuccess: () => success(notificationMessage.SUCCESS('Declaration Risk Management'), 3500),
+          onError: (err) => error(err.response?.data.description ?? notificationMessage.DRM_ERROR, 7500),
+        },
+      )
     } catch (e) {
       // when file upload error, throw here
       console.error(uploadFileData.error)

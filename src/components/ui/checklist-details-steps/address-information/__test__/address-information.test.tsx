@@ -18,13 +18,6 @@ const axiosMock = new AxiosMockAdapter(Axios, {
 type AddressInformationProps = React.ComponentPropsWithRef<typeof AddressInformation>
 
 jest.unmock('@reapit/connect-session')
-jest.mock('react-pdf/dist/esm/entry.webpack', () => {
-  return {
-    __esModule: true,
-    Document: () => null,
-    Page: () => null,
-  }
-})
 jest.mock('@reapit/elements', () => jest.requireActual('utils/mocks/reapit-element-mocks'))
 jest.mock('core/connect-session')
 jest.mock('components/ui/ui/document-preview-modal', () => {
@@ -300,7 +293,7 @@ describe('Address Information Component', () => {
       await wait(0)
 
       expect(axiosMock.history.patch[0].url).toEqual('/contacts/MLK16000071')
-      expect(error).toBeCalledTimes(1)
+      expect(error).toBeCalledTimes(2)
       expect(error.mock.calls[0][0]).toMatch(/Failed to submit Declaration Risk Management form/i)
     })
 
