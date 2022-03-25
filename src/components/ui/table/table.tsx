@@ -1,5 +1,6 @@
 import React, { FC } from 'react'
-import { Table, Button, StatusIndicator } from '@reapit/elements'
+import { cx } from '@linaria/core'
+import { Table, Button, StatusIndicator, elWFull } from '@reapit/elements'
 import { TableProps } from './table-type'
 import { useHistory } from 'react-router'
 import { AddressModel } from '@reapit/foundations-ts-definitions'
@@ -32,6 +33,7 @@ export const TableResult: FC<TableProps> = (props) => {
 
   return (
     <Table
+      className={cx(elWFull)}
       numberColumns={5}
       rows={props.items?.map(({ id, surname, forename, primaryAddress, identityCheck }) => ({
         cells: [
