@@ -1,38 +1,7 @@
-import { FormState } from 'react-hook-form'
-
-import {
-  AvailableFormFieldType as AddressFields,
-  ValuesType as AddressValuesType,
-} from '../components/ui/checklist-details-steps/address-information/form-schema'
-import {
-  AvailableFormFieldType as DRMFields,
-  ValuesType as DRMValuesType,
-} from '../components/ui/checklist-details-steps/declaration-risk-management/form-schema'
-
-type AvailableFieldNameType = AddressFields | DRMFields
-
-interface AvailableFieldValueType extends Partial<AddressValuesType>, Partial<DRMValuesType> {}
-
-/**
- * Display Error Message with React Hook Form
- * @param {string} fieldName - adapting to existing type `AvailableFieldNameType`
- * @param {ValueType}formState - you can get from react hook form library hook >> `{formState} = useForm<T>()`
- * @returns React.Node | undefined
- * @example displayErrorMessage<AvailableFormFieldType, ValuesType>(buildingNameField.name, formState)
- */
-
-export const displayErrorMessage = (
-  fieldName: AvailableFieldNameType,
-  formState: FormState<AvailableFieldValueType>,
-): string | undefined => {
-  const { errors } = formState
-
-  let errorMessage: string | undefined
+export const displayErrorMessage = (fieldName: any, errors: any): string | undefined => {
+  let errorMessage: undefined | string
 
   switch (fieldName) {
-    /**
-     * Address Information Form
-     */
     case 'primaryAddress.buildingName':
       errorMessage = errors.primaryAddress?.buildingName?.message
       break
@@ -99,9 +68,6 @@ export const displayErrorMessage = (
     case 'metadata.secondaryAddress.documentType':
       errorMessage = errors.metadata?.secondaryAddress?.documentType?.message
       break
-    /**
-     * Declaration Risk Management Form
-     */
     case 'declarationForm':
       errorMessage = errors.declarationForm?.message
       break
@@ -117,6 +83,5 @@ export const displayErrorMessage = (
     default:
       undefined
   }
-
   return errorMessage
 }

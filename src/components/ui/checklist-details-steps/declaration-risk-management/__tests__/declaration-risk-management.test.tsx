@@ -192,12 +192,12 @@ describe('Declaration Risk Management Form', () => {
 
       const submitButton = getByTestId('save-form')
 
-      axiosMock.onPatch(`${URLS.CONTACTS}/${CONTACT_MOCK_DATA_1.id}`).networkError()
+      axiosMock.onPatch(`${URLS.CONTACTS}/${CONTACT_MOCK_DATA_1.id}`).reply(500)
       fireEvent.click(submitButton)
       await wait(0)
 
-      expect(error).toBeCalledTimes(2)
-      expect(error.mock.calls[0][0]).toMatch(/Failed to submit Declaration Risk Management form/i)
+      expect(error).toBeCalledTimes(1)
+      expect(error.mock.calls[0][0]).toMatch(/Request failed with status code 500/i)
       expect(axiosMock.history.patch[0].url).toEqual('/contacts/MLK16000071')
     })
 
