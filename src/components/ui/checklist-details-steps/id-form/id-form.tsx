@@ -1,5 +1,16 @@
 import React, { FC, useState } from 'react'
-import { InputGroup, Label, Select, Input } from '@reapit/elements'
+import {
+  InputGroup,
+  Label,
+  Select,
+  Input,
+  FormLayout,
+  InputWrapFull,
+  InputWrap,
+  elMb2,
+  FlexContainer,
+  elPl3,
+} from '@reapit/elements'
 import { useForm } from 'react-hook-form'
 import { formFields, ValuesType } from './form-schema/form-field'
 import DocumentPreviewModal from 'components/ui/ui/document-preview-modal'
@@ -13,6 +24,7 @@ import FormFooter from 'components/ui/form-footer/form-footer'
 import FileInput from 'components/ui/ui/file-input'
 import { generateDocumentFilename } from './identity-check-action'
 import { getFileExtensionsFromDataUrl } from 'utils/file'
+import { cx } from '@linaria/core'
 
 const defaultValuesConst = {
   idType: '',
@@ -86,87 +98,98 @@ export const IdForm: FC<IdFormProps> = ({
     setFilename(aFilename)
   }
 
-  function save(values: ValuesType) {
+  function onSubmitHandler(values: ValuesType) {
     onSave(values)
   }
 
   return (
-    <form onSubmit={handleSubmit(save)}>
+    <form onSubmit={handleSubmit(onSubmitHandler)}>
       {noticeText && <p data-testid="noticeText">*{noticeText}</p>}
-      <InputGroup className="el-my3">
-        <Label>{generateLabelField(formFields.idType.label, true)}</Label>
-        <Select
-          {...register(formFields.idType.name)}
-          disabled={disabled}
-          data-testid={`input.${formFields.idType.name}`}
-        >
-          {idDocTypes &&
-            idDocTypes.map((opt) => (
-              <option key={opt.id} value={opt.id}>
-                {opt.value}
-              </option>
-            ))}
-          <option value="" disabled hidden>
-            Please select
-          </option>
-        </Select>
-        {errors.idType?.message && (
-          <p className="el-input-error" data-testid={`error.${formFields.idType.name}`}>
-            {errors.idType.message}
-          </p>
-        )}
-      </InputGroup>
-      <InputGroup className="el-my3">
-        <Label>{generateLabelField(formFields.idReference.label, true)}</Label>
-        <Input
-          type="text"
-          disabled={disabled}
-          {...register(formFields.idReference.name)}
-          data-testid={`input.${formFields.idReference.name}`}
-        />
-        {errors.idReference?.message && (
-          <p className="el-input-error" data-testid={`error.${formFields.idReference.name}`}>
-            {errors.idReference.message}
-          </p>
-        )}
-      </InputGroup>
-      <InputGroup className="el-my3">
-        <Label>{generateLabelField(formFields.expiryDate.label, true)}</Label>
-        <Input
-          type="date"
-          disabled={disabled}
-          {...register(formFields.expiryDate.name)}
-          data-testid={`input.${formFields.expiryDate.name}`}
-        />
-        {errors.expiryDate?.message && (
-          <p className="el-input-error" data-testid={`error.${formFields.expiryDate.name}`}>
-            {errors.expiryDate.message}
-          </p>
-        )}
-      </InputGroup>
-      <div className="el-my3">
-        <FileInput
-          label={generateLabelField(formFields.documentFile.label, true)}
-          defaultValue={getValues('documentFile')}
-          onFileView={openDocumentPreview}
-          accept="image/jpeg, image/png, application/pdf"
-          disabled={disabled}
-          {...register(formFields.documentFile.name)}
-          data-testid={`input.${formFields.documentFile.name}`}
-        />
-        {errors.documentFile?.message && (
-          <p className="el-input-error" data-testid={`error.${formFields.documentFile.name}`}>
-            {errors.documentFile.message}
-          </p>
-        )}
-        <DocumentPreviewModal
-          src={documentPreviewState.document}
-          filename={filename}
-          isOpen={documentPreviewState.isOpen}
-          loading={documentPreviewState.loading}
-          onModalClose={() => setDocumentPreviewState({ isOpen: false, loading: false, document: '' })}
-        />
-      </div>
+      <FormLayout>
+        <InputWrapFull>
+          <InputWrap>
+            <InputGroup>
+              <Label>{generateLabelField(formFields.idType.label, true)}</Label>
+              <Select
+                {...register(formFields.idType.name)}
+                disabled={disabled}
+                data-testid={`input.${formFields.idType.name}`}
+              >
+                {idDocTypes &&
+                  idDocTypes.map((opt) => (
+                    <option key={opt.id} value={opt.id}>
+                      {opt.value}
+                    </option>
+                  ))}
+                <option value="" disabled hidden>
+                  Please select
+                </option>
+              </Select>
+              {errors.idType?.message && (
+                <p className="el-input-error" data-testid={`error.${formFields.idType.name}`}>
+                  {errors.idType.message}
+                </p>
+              )}
+            </InputGroup>
+          </InputWrap>
+          <InputWrap>
+            <InputGroup>
+              <Label>{generateLabelField(formFields.idReference.label, true)}</Label>
+              <Input
+                type="text"
+                disabled={disabled}
+                {...register(formFields.idReference.name)}
+                data-testid={`input.${formFields.idReference.name}`}
+              />
+              {errors.idReference?.message && (
+                <p className="el-input-error" data-testid={`error.${formFields.idReference.name}`}>
+                  {errors.idReference.message}
+                </p>
+              )}
+            </InputGroup>
+          </InputWrap>
+          <InputWrap>
+            <InputGroup>
+              <Label>{generateLabelField(formFields.expiryDate.label, true)}</Label>
+              <Input
+                type="date"
+                disabled={disabled}
+                {...register(formFields.expiryDate.name)}
+                data-testid={`input.${formFields.expiryDate.name}`}
+              />
+              {errors.expiryDate?.message && (
+                <p className="el-input-error" data-testid={`error.${formFields.expiryDate.name}`}>
+                  {errors.expiryDate.message}
+                </p>
+              )}
+            </InputGroup>
+          </InputWrap>
+          <InputWrap>
+            <FlexContainer isFlexColumn className={elPl3}>
+              <Label className={cx(elMb2)}>{generateLabelField(formFields.documentFile.label, true)}</Label>
+              <FileInput
+                defaultValue={getValues('documentFile')}
+                onFileView={openDocumentPreview}
+                accept="image/jpeg, image/png, application/pdf"
+                {...register(formFields.documentFile.name)}
+                data-testid={`input.${formFields.documentFile.name}`}
+              />
+              {errors.documentFile?.message && (
+                <p className="el-input-error" data-testid={`error.${formFields.documentFile.name}`}>
+                  {errors.documentFile.message}
+                </p>
+              )}
+              <DocumentPreviewModal
+                src={documentPreviewState.document}
+                filename={filename}
+                isOpen={documentPreviewState.isOpen}
+                loading={documentPreviewState.loading}
+                onModalClose={() => setDocumentPreviewState({ isOpen: false, loading: false, document: '' })}
+              />
+            </FlexContainer>
+          </InputWrap>
+        </InputWrapFull>
+      </FormLayout>
       <FormFooter
         idUser={rpsRef || ''}
         isFieldError={!!Object.keys(errors).length || !!disabled}

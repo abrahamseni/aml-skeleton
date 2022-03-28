@@ -17,13 +17,6 @@ const axiosMock = new AxiosMockAdapter(axios)
 
 jest.unmock('@reapit/connect-session')
 jest.mock('core/connect-session')
-jest.mock('react-pdf/dist/esm/entry.webpack', () => {
-  return {
-    __esModule: true,
-    Document: () => null,
-    Page: () => null,
-  }
-})
 jest.mock('components/ui/ui/document-preview-modal', () => {
   const DocumentPreviewModal = jest.requireActual('components/ui/ui/document-preview-modal')
   const DocumentPreviewModalMock = jest.fn(() => <></>)

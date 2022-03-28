@@ -1,8 +1,3 @@
-type FormFieldInfo = {
-  name: keyof ValuesType
-  label: string
-}
-
 export interface ValuesType {
   idType: string
   idReference: string
@@ -10,14 +5,7 @@ export interface ValuesType {
   documentFile: string
 }
 
-export interface FormFieldType {
-  idType: FormFieldInfo
-  idReference: FormFieldInfo
-  expiryDate: FormFieldInfo
-  documentFile: FormFieldInfo
-}
-
-export const formFields: FormFieldType = {
+export const formFields = {
   idType: {
     name: 'idType',
     label: 'ID Type',
@@ -34,4 +22,4 @@ export const formFields: FormFieldType = {
     name: 'documentFile',
     label: 'Upload Document',
   },
-}
+} as const
