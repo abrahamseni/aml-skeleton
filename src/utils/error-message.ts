@@ -1,5 +1,4 @@
-export const displayErrorMessage = (fieldName: any, formState: any): string | undefined => {
-  const { errors } = formState
+export const displayErrorMessage = (fieldName: any, errors: any): string | undefined => {
   let errorMessage: undefined | string
 
   switch (fieldName) {

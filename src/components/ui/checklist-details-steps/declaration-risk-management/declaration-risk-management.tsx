@@ -56,7 +56,13 @@ const DeclarationRiskManagement: FC<DeclarationRiskManagementProps> = ({ userDat
     }
   }
 
-  const { register, handleSubmit, formState, getValues, setValue } = useForm<ValuesType>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    getValues,
+    setValue,
+  } = useForm<ValuesType>({
     defaultValues: useMemo(() => initialValues({ declarationForm, reason, riskAssessmentForm, type }), [userData]),
     resolver: yupResolver(validationSchema),
     mode: 'onBlur',
@@ -124,9 +130,9 @@ const DeclarationRiskManagement: FC<DeclarationRiskManagementProps> = ({ userDat
                   onFileView={() => handleModal(declarationFormField.name, 'open')}
                   data-testid={generateTestId(declarationFormField.name)}
                 />
-                {displayErrorMessage(declarationFormField.name, formState) && (
+                {displayErrorMessage(declarationFormField.name, errors) && (
                   <p data-testid={`test.error.${declarationFormField.name}`} className="el-input-error">
-                    {displayErrorMessage(declarationFormField.name, formState)}
+                    {displayErrorMessage(declarationFormField.name, errors)}
                   </p>
                 )}
               </FlexContainer>
@@ -143,9 +149,9 @@ const DeclarationRiskManagement: FC<DeclarationRiskManagementProps> = ({ userDat
                   })}
                 </Select>
                 <Label className={cx(order0, 'el-mb2')}>{generateLabelField(typeField.label, true)}</Label>
-                {displayErrorMessage(typeField.name, formState) && (
+                {displayErrorMessage(typeField.name, errors) && (
                   <p data-testid={`test.error.${typeField.name}`} className="el-input-error">
-                    {displayErrorMessage(typeField.name, formState)}
+                    {displayErrorMessage(typeField.name, errors)}
                   </p>
                 )}
               </InputGroup>
@@ -162,9 +168,9 @@ const DeclarationRiskManagement: FC<DeclarationRiskManagementProps> = ({ userDat
                   accept="image/jpeg, image/png, application/pdf"
                   data-testid={generateTestId(riskAssessmentFormField.name)}
                 />
-                {displayErrorMessage(riskAssessmentFormField.name, formState) && (
+                {displayErrorMessage(riskAssessmentFormField.name, errors) && (
                   <p data-testid={`test.error.${riskAssessmentFormField.name}`} className="el-input-error">
-                    {displayErrorMessage(riskAssessmentFormField.name, formState)}
+                    {displayErrorMessage(riskAssessmentFormField.name, errors)}
                   </p>
                 )}
               </FlexContainer>
@@ -173,9 +179,9 @@ const DeclarationRiskManagement: FC<DeclarationRiskManagementProps> = ({ userDat
               <InputGroup>
                 <TextArea {...register(reasonField.name)} data-testid={generateTestId(reasonField.name)} />
                 <Label>{generateLabelField(reasonField.label, true)}</Label>
-                {displayErrorMessage(reasonField.name, formState) && (
+                {displayErrorMessage(reasonField.name, errors) && (
                   <p data-testid={`test.error.${reasonField.name}`} className="el-input-error">
-                    {displayErrorMessage(reasonField.name, formState)}
+                    {displayErrorMessage(reasonField.name, errors)}
                   </p>
                 )}
               </InputGroup>
@@ -184,7 +190,7 @@ const DeclarationRiskManagement: FC<DeclarationRiskManagementProps> = ({ userDat
         </FormLayout>
         <FormFooter
           idUser={userData?.id}
-          isFieldError={!!Object.keys(formState.errors).length}
+          isFieldError={!!Object.keys(errors).length}
           isFormSubmitting={isUpdateContactLoading || isFileUploadLoading}
         />
       </form>

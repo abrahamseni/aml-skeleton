@@ -35,7 +35,11 @@ const FormField: FC<FormFieldProps> = ({ name, useFormProps }): ReactElement => 
     }
   }
 
-  const { register, getValues, formState } = useFormProps
+  const {
+    register,
+    getValues,
+    formState: { errors },
+  } = useFormProps
 
   const {
     typeField,
@@ -66,9 +70,9 @@ const FormField: FC<FormFieldProps> = ({ name, useFormProps }): ReactElement => 
             data-testid={generateTestId(buildingNameField.name)}
             {...register(buildingNameField.name)}
           />
-          {displayErrorMessage(buildingNameField.name, formState) && (
+          {displayErrorMessage(buildingNameField.name, errors) && (
             <p data-testid={`test.error.${buildingNameField.name}`} className="el-input-error">
-              {displayErrorMessage(buildingNameField.name, formState)}
+              {displayErrorMessage(buildingNameField.name, errors)}
             </p>
           )}
         </InputWrap>
@@ -80,9 +84,9 @@ const FormField: FC<FormFieldProps> = ({ name, useFormProps }): ReactElement => 
             data-testid={generateTestId(buildingNumberField.name)}
             {...register(buildingNumberField.name)}
           />
-          {displayErrorMessage(buildingNumberField.name, formState) && (
+          {displayErrorMessage(buildingNumberField.name, errors) && (
             <p data-testid={`test.error.${buildingNumberField.name}`} className="el-input-error">
-              {displayErrorMessage(buildingNumberField.name, formState)}
+              {displayErrorMessage(buildingNumberField.name, errors)}
             </p>
           )}
         </InputWrap>
@@ -94,9 +98,9 @@ const FormField: FC<FormFieldProps> = ({ name, useFormProps }): ReactElement => 
             data-testid={generateTestId(postcodeField.name)}
             {...register(postcodeField.name)}
           />
-          {displayErrorMessage(postcodeField.name, formState) && (
+          {displayErrorMessage(postcodeField.name, errors) && (
             <p data-testid={`test.error.${postcodeField.name}`} className="el-input-error">
-              {displayErrorMessage(postcodeField.name, formState)}
+              {displayErrorMessage(postcodeField.name, errors)}
             </p>
           )}
         </InputWrap>
@@ -110,9 +114,9 @@ const FormField: FC<FormFieldProps> = ({ name, useFormProps }): ReactElement => 
             data-testid={generateTestId(line1Field.name)}
             {...register(line1Field.name)}
           />
-          {displayErrorMessage(line1Field.name, formState) && (
+          {displayErrorMessage(line1Field.name, errors) && (
             <p data-testid={`test.error.${line1Field.name}`} className="el-input-error">
-              {displayErrorMessage(line1Field.name, formState)}
+              {displayErrorMessage(line1Field.name, errors)}
             </p>
           )}
         </InputWrap>
@@ -124,9 +128,9 @@ const FormField: FC<FormFieldProps> = ({ name, useFormProps }): ReactElement => 
             data-testid={generateTestId(line2Field.name)}
             {...register(line2Field.name)}
           />
-          {displayErrorMessage(line2Field.name, formState) && (
+          {displayErrorMessage(line2Field.name, errors) && (
             <p data-testid={`test.error.${line2Field.name}`} className="el-input-error">
-              {displayErrorMessage(line2Field.name, formState)}
+              {displayErrorMessage(line2Field.name, errors)}
             </p>
           )}
         </InputWrap>
@@ -138,9 +142,9 @@ const FormField: FC<FormFieldProps> = ({ name, useFormProps }): ReactElement => 
             data-testid={generateTestId(line3Field.name)}
             {...register(line3Field.name)}
           />
-          {displayErrorMessage(line3Field.name, formState) && (
+          {displayErrorMessage(line3Field.name, errors) && (
             <p data-testid={`test.error.${line3Field.name}`} className="el-input-error">
-              {displayErrorMessage(line3Field.name, formState)}
+              {displayErrorMessage(line3Field.name, errors)}
             </p>
           )}
         </InputWrap>
@@ -152,9 +156,9 @@ const FormField: FC<FormFieldProps> = ({ name, useFormProps }): ReactElement => 
             data-testid={generateTestId(line4Field.name)}
             {...register(line4Field.name)}
           />
-          {displayErrorMessage(line4Field.name, formState) && (
+          {displayErrorMessage(line4Field.name, errors) && (
             <p data-testid={`test.error.${line4Field.name}`} className="el-input-error">
-              {displayErrorMessage(line4Field.name, formState)}
+              {displayErrorMessage(line4Field.name, errors)}
             </p>
           )}
         </InputWrap>
@@ -172,9 +176,9 @@ const FormField: FC<FormFieldProps> = ({ name, useFormProps }): ReactElement => 
                 )
               })}
             </Select>
-            {displayErrorMessage(yearField.name, formState) && (
+            {displayErrorMessage(yearField.name, errors) && (
               <p data-testid={`test.error.${yearField.name}`} className="el-input-error">
-                {displayErrorMessage(yearField.name, formState)}
+                {displayErrorMessage(yearField.name, errors)}
               </p>
             )}
           </InputGroup>
@@ -191,9 +195,9 @@ const FormField: FC<FormFieldProps> = ({ name, useFormProps }): ReactElement => 
                 )
               })}
             </Select>
-            {displayErrorMessage(monthField.name, formState) && (
+            {displayErrorMessage(monthField.name, errors) && (
               <p data-testid={`test.error.${monthField.name}`} className="el-input-error">
-                {displayErrorMessage(monthField.name, formState)}
+                {displayErrorMessage(monthField.name, errors)}
               </p>
             )}
           </InputGroup>
@@ -210,9 +214,9 @@ const FormField: FC<FormFieldProps> = ({ name, useFormProps }): ReactElement => 
                 )
               })}
             </Select>
-            {displayErrorMessage(documentTypeField.name, formState) && (
+            {displayErrorMessage(documentTypeField.name, errors) && (
               <p data-testid={`test.error.${documentTypeField.name}`} className="el-input-error">
-                {displayErrorMessage(documentTypeField.name, formState)}
+                {displayErrorMessage(documentTypeField.name, errors)}
               </p>
             )}
           </InputGroup>
@@ -229,9 +233,9 @@ const FormField: FC<FormFieldProps> = ({ name, useFormProps }): ReactElement => 
               defaultValue={getValues(documentImageField.name)}
               accept="image/jpeg, image/png, application/pdf"
             />
-            {displayErrorMessage(documentImageField.name, formState) && (
+            {displayErrorMessage(documentImageField.name, errors) && (
               <p data-testid={`test.error.${documentImageField.name}`} className="el-input-error">
-                {displayErrorMessage(documentImageField.name, formState)}
+                {displayErrorMessage(documentImageField.name, errors)}
               </p>
             )}
           </FlexContainer>
