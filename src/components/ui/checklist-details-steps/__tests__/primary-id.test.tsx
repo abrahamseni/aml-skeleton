@@ -29,13 +29,6 @@ const axiosMock = new AxiosMockAdapter(axios)
 
 jest.mock('../id-form/identity-check-action')
 jest.mock('../../../../core/connect-session')
-jest.mock('react-pdf/dist/esm/entry.webpack', () => {
-  return {
-    __esModule: true,
-    Document: () => null,
-    Page: () => null,
-  }
-})
 jest.mock('@reapit/elements', () => jest.requireActual('utils/mocks/reapit-element-mocks'))
 
 describe('primary id', () => {

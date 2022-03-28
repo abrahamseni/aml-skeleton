@@ -17,13 +17,6 @@ const axiosMock = new AxiosMockAdapter(Axios, {
 })
 
 jest.unmock('@reapit/connect-session')
-jest.mock('react-pdf/dist/esm/entry.webpack', () => {
-  return {
-    __esModule: true,
-    Document: () => null,
-    Page: () => null,
-  }
-})
 jest.mock('@reapit/elements', () => jest.requireActual('utils/mocks/reapit-element-mocks'))
 jest.mock('core/connect-session')
 jest.mock('components/ui/ui/document-preview-modal', () => {
@@ -194,7 +187,7 @@ describe('Declaration Risk Management Form', () => {
       expect(success.mock.calls[0][0]).toMatch(/Successfully update declaration risk management/i)
     })
 
-    it('should able to click "save button", and return notification if error', async () => {
+    it('will show error notification, when user network is error', async () => {
       const { getByTestId } = renderComponent(defaultDRMProps)
 
       const submitButton = getByTestId('save-form')
@@ -203,10 +196,13 @@ describe('Declaration Risk Management Form', () => {
       fireEvent.click(submitButton)
       await wait(0)
 
-      expect(axiosMock.history.patch[0].url).toEqual('/contacts/MLK16000071')
       expect(error).toBeCalledTimes(1)
-      expect(error.mock.calls[0][0]).toMatch(/Something is not working, try to reload your browser/i)
+      expect(error.mock.calls[0][0]).toMatch(/Request failed with status code 500/i)
+      expect(axiosMock.history.patch[0].url).toEqual('/contacts/MLK16000071')
     })
+
+    it.todo('will show error notification, when failed to upload file Image')
+    it.todo('will show error notification, when failed to update contact data')
   })
 })
 

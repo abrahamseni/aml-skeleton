@@ -6,7 +6,6 @@ interface GenerateOptionsType {
   label: string
 }
 
-// generate years value
 export const generateOptionsYearsOrMonths = (type: 'months' | 'years'): GenerateOptionsType[] => {
   const MAX_NUMBER_OF_YEARS = 101
   const MAX_NUMBER_OF_MONTHS = 12
@@ -31,7 +30,6 @@ export const generateOptionsYearsOrMonths = (type: 'months' | 'years'): Generate
   })
 }
 
-// Available document type options
 const optionsDocumentType: GenerateOptionsType[] = [
   { label: 'Please Select', value: '' },
   { label: DOCUMENT_TYPE.MORTGATE, value: DOCUMENT_TYPE.MORTGATE },
@@ -51,7 +49,6 @@ const optionsDocumentType: GenerateOptionsType[] = [
   { label: DOCUMENT_TYPE.SMART_SEARCH_CCD_REPORT, value: DOCUMENT_TYPE.SMART_SEARCH_CCD_REPORT },
 ]
 
-// Available risk assessment type options
 const optionsRiskAssessmentType: GenerateOptionsType[] = [
   { label: 'Please select...', value: '' },
   { label: RISK_ASSESSMENT_TYPE.SIMPLIFIED, value: RISK_ASSESSMENT_TYPE.SIMPLIFIED },

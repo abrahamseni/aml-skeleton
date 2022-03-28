@@ -15,8 +15,7 @@ export const useUpdateContact = (id: string, _eTag: string) => {
       })
     },
     {
-      // ✅ invalidate contact by id
-      onSuccess: () => {
+      onSettled: () => {
         queryClient.invalidateQueries(['contact', id])
       },
     },
