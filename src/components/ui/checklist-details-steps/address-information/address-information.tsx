@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, useState, useMemo } from 'react'
+import React, { FC, ReactElement, useState } from 'react'
 import { Button, FormLayout, InputWrapFull, useSnack } from '@reapit/elements'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -56,7 +56,7 @@ const AddressInformation: FC<AddressInformationProps> = ({ userData }): ReactEle
     register,
     formState: { errors },
   } = useForm<ValuesType>({
-    defaultValues: useMemo(() => initialValues({ primaryAddress, secondaryAddress, metadata }), [userData]),
+    defaultValues: initialValues({ primaryAddress, secondaryAddress, metadata }),
     resolver: yupResolver(validationSchema),
     mode: 'onBlur',
   })
@@ -64,15 +64,6 @@ const AddressInformation: FC<AddressInformationProps> = ({ userData }): ReactEle
   const { mutateAsync, isLoading: isUpdateContactLoading } = useUpdateContact(userData?.id!, userData?._eTag!)
 
   const { fileUpload, isLoading: isFileUploadLoading } = useFileDocumentUpload()
-
-  const getUpdatedFieldsValue = {
-    primaryAddress: getValues('primaryAddress'),
-    secondaryAddress: getValues('secondaryAddress'),
-    metadata: {
-      declarationRisk: userData?.metadata?.declarationRisk,
-      ...getValues('metadata'),
-    },
-  }
 
   const uploadFileDocumentHandler = async (
     name: string,
@@ -102,9 +93,19 @@ const AddressInformation: FC<AddressInformationProps> = ({ userData }): ReactEle
         )
       }
 
-      await mutateAsync(getUpdatedFieldsValue, {
-        onSuccess: () => success(notificationMessage.SUCCESS('Address Information'), 3500),
-      })
+      await mutateAsync(
+        {
+          primaryAddress: getValues('primaryAddress'),
+          secondaryAddress: getValues('secondaryAddress'),
+          metadata: {
+            declarationRisk: userData?.metadata?.declarationRisk,
+            ...getValues('metadata'),
+          },
+        },
+        {
+          onSuccess: () => success(notificationMessage.SUCCESS('Address Information'), 3500),
+        },
+      )
     } catch (e: any) {
       if (e.response?.status === 412) {
         error(notificationMessage.NOT_MATCH_E_TAG, 7500)
