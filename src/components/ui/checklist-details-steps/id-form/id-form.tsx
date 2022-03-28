@@ -25,7 +25,7 @@ import FileInput from 'components/ui/ui/file-input'
 import { generateDocumentFilename } from './identity-check-action'
 import { getFileExtensionsFromDataUrl } from 'utils/file'
 import { cx } from '@linaria/core'
-import { displayErrorMessage } from 'utils/error-message'
+import ErrorMessage from 'components/ui/ui/error-message'
 
 const defaultValuesConst = {
   idType: '',
@@ -126,11 +126,7 @@ export const IdForm: FC<IdFormProps> = ({
                   Please select
                 </option>
               </Select>
-              {displayErrorMessage(formFields.idType.name, errors) && (
-                <p className="el-input-error" data-testid={`error.${formFields.idType.name}`}>
-                  {displayErrorMessage(formFields.idType.name, errors)}
-                </p>
-              )}
+              <ErrorMessage name={formFields.idType.name} errors={errors} />
             </InputGroup>
           </InputWrap>
           <InputWrap>
@@ -142,11 +138,7 @@ export const IdForm: FC<IdFormProps> = ({
                 {...register(formFields.idReference.name)}
                 data-testid={`input.${formFields.idReference.name}`}
               />
-              {displayErrorMessage(formFields.idReference.name, errors) && (
-                <p className="el-input-error" data-testid={`error.${formFields.idReference.name}`}>
-                  {displayErrorMessage(formFields.idReference.name, errors)}
-                </p>
-              )}
+              <ErrorMessage name={formFields.idReference.name} errors={errors} />
             </InputGroup>
           </InputWrap>
           <InputWrap>
@@ -158,11 +150,7 @@ export const IdForm: FC<IdFormProps> = ({
                 {...register(formFields.expiryDate.name)}
                 data-testid={`input.${formFields.expiryDate.name}`}
               />
-              {displayErrorMessage(formFields.expiryDate.name, errors) && (
-                <p className="el-input-error" data-testid={`error.${formFields.expiryDate.name}`}>
-                  {displayErrorMessage(formFields.expiryDate.name, errors)}
-                </p>
-              )}
+              <ErrorMessage name={formFields.expiryDate.name} errors={errors} />
             </InputGroup>
           </InputWrap>
           <InputWrap>
@@ -175,11 +163,7 @@ export const IdForm: FC<IdFormProps> = ({
                 {...register(formFields.documentFile.name)}
                 data-testid={`input.${formFields.documentFile.name}`}
               />
-              {displayErrorMessage(formFields.documentFile.name, errors) && (
-                <p className="el-input-error" data-testid={`error.${formFields.documentFile.name}`}>
-                  {displayErrorMessage(formFields.documentFile.name, errors)}
-                </p>
-              )}
+              <ErrorMessage name={formFields.documentFile.name} errors={errors} />
               <DocumentPreviewModal
                 src={documentPreviewState.document}
                 filename={filename}
