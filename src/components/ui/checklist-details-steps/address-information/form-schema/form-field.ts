@@ -7,18 +7,18 @@ export interface ValuesType {
   primaryAddress?: UpdatedAddressModel
   secondaryAddress?: UpdatedAddressModel
   metadata: {
-    primaryAddress?: {
+    primaryAddress: {
       documentImage?: string
       documentType?: string
       month?: string
       year?: string
     }
-    secondaryAddress?: {
+    secondaryAddress: {
       documentImage?: string
       documentType?: string
       month?: string
       year?: string
-    }
+    } | null
   }
 }
 
