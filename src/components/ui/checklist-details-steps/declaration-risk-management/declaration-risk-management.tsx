@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, memo, useMemo, useState } from 'react'
+import React, { FC, ReactElement, memo, useState } from 'react'
 import {
   FlexContainer,
   InputGroup,
@@ -63,7 +63,7 @@ const DeclarationRiskManagement: FC<DeclarationRiskManagementProps> = ({ userDat
     getValues,
     setValue,
   } = useForm<ValuesType>({
-    defaultValues: useMemo(() => initialValues({ declarationForm, reason, riskAssessmentForm, type }), [userData]),
+    defaultValues: initialValues({ declarationForm, reason, riskAssessmentForm, type }),
     resolver: yupResolver(validationSchema),
     mode: 'onBlur',
   })
@@ -71,13 +71,6 @@ const DeclarationRiskManagement: FC<DeclarationRiskManagementProps> = ({ userDat
   const { mutateAsync, isLoading: isUpdateContactLoading } = useUpdateContact(userData!.id!, userData!._eTag!)
 
   const { fileUpload, isLoading: isFileUploadLoading } = useFileDocumentUpload()
-
-  const getUpdatedFieldsValues = {
-    metadata: {
-      ...userData?.metadata,
-      declarationRisk: getValues(),
-    },
-  }
 
   const uploadFileDocumentHandler = async (
     name: string,
@@ -101,9 +94,17 @@ const DeclarationRiskManagement: FC<DeclarationRiskManagementProps> = ({ userDat
         await uploadFileDocumentHandler(`risk-assessment-file-form-${userData?.id!}`, 'riskAssessmentForm')
       }
 
-      await mutateAsync(getUpdatedFieldsValues, {
-        onSuccess: () => success(notificationMessage.SUCCESS('Declaration Risk Management'), 3500),
-      })
+      await mutateAsync(
+        {
+          metadata: {
+            ...userData?.metadata,
+            declarationRisk: getValues(),
+          },
+        },
+        {
+          onSuccess: () => success(notificationMessage.SUCCESS('Declaration Risk Management'), 3500),
+        },
+      )
     } catch (e: any) {
       if (e.response?.status === 412) {
         error(notificationMessage.NOT_MATCH_E_TAG, 7500)

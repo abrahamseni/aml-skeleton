@@ -17,14 +17,18 @@ import DocumentPreviewModal from 'components/ui/ui/document-preview-modal'
 
 interface FormFieldProps {
   name: 'primaryAddress' | 'secondaryAddress'
-  useFormProps: UseFormReturn<ValuesType>
+  useFormProps: {
+    errors: UseFormReturn<ValuesType>['formState']['errors']
+    register: UseFormReturn<ValuesType>['register']
+    getValues: UseFormReturn<ValuesType>['getValues']
+  }
 }
 
 const FormField: FC<FormFieldProps> = ({ name, useFormProps }): ReactElement => {
   const isPrimaryAddress = name === 'primaryAddress'
 
-  const [imagePrimaryAddress, setImagePrimaryAddress] = useState<boolean>(false)
-  const [imageSecondaryAddress, setImageSecondaryAddress] = useState<boolean>(false)
+  const [imagePrimaryAddress, setImagePrimaryAddress] = useState(false)
+  const [imageSecondaryAddress, setImageSecondaryAddress] = useState(false)
 
   // local function - modal handler
   const modalHandler = (option: 'open' | 'close'): void => {
@@ -35,11 +39,7 @@ const FormField: FC<FormFieldProps> = ({ name, useFormProps }): ReactElement => 
     }
   }
 
-  const {
-    register,
-    getValues,
-    formState: { errors },
-  } = useFormProps
+  const { register, getValues, errors } = useFormProps
 
   const {
     typeField,
