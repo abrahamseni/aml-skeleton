@@ -13,18 +13,18 @@ import {
 import { cx } from '@linaria/core'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { generateLabelField, generateOptionsType, generateTestId } from 'utils/generator'
+import { generateLabelField, generateOptionsType } from 'utils/generator'
 import { formField, ValuesType, validationSchema } from './form-schema'
 import { order0 } from './__styles__'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
 import { notificationMessage } from 'constants/notification-message'
 import { useUpdateContact } from 'platform-api/contact-api/update-contact'
-import { displayErrorMessage } from 'utils/error-message'
 import { FileInput } from 'components/ui/ui/file-input'
 import { useFileDocumentUpload } from 'platform-api/file-upload-api'
 import { isDataUrl } from 'utils/url'
 import FormFooter from 'components/ui/form-footer/form-footer'
 import DocumentPreviewModal from 'components/ui/ui/document-preview-modal'
+import ErrorMessage from 'components/ui/ui/error-message'
 
 const initialValues = ({ declarationForm, reason, riskAssessmentForm, type }): ValuesType => ({
   declarationForm,
@@ -129,18 +129,14 @@ const DeclarationRiskManagement: FC<DeclarationRiskManagementProps> = ({ userDat
                   {...register(declarationFormField.name)}
                   defaultValue={declarationForm}
                   onFileView={() => handleModal(declarationFormField.name, 'open')}
-                  data-testid={generateTestId(declarationFormField.name)}
+                  data-testid={declarationFormField.name}
                 />
-                {displayErrorMessage(declarationFormField.name, errors) && (
-                  <p data-testid={`test.error.${declarationFormField.name}`} className="el-input-error">
-                    {displayErrorMessage(declarationFormField.name, errors)}
-                  </p>
-                )}
+                <ErrorMessage name={declarationFormField.name} errors={errors} />
               </FlexContainer>
             </InputWrap>
             <InputWrap className="el-my3">
               <InputGroup>
-                <Select {...register(typeField.name)} data-testid={generateTestId(typeField.name)}>
+                <Select {...register(typeField.name)} data-testid={typeField.name}>
                   {generateOptionsType('riskAssessmentType').map((v) => {
                     return (
                       <option key={v.value} value={v.value}>
@@ -150,11 +146,7 @@ const DeclarationRiskManagement: FC<DeclarationRiskManagementProps> = ({ userDat
                   })}
                 </Select>
                 <Label className={cx(order0, 'el-mb2')}>{generateLabelField(typeField.label, true)}</Label>
-                {displayErrorMessage(typeField.name, errors) && (
-                  <p data-testid={`test.error.${typeField.name}`} className="el-input-error">
-                    {displayErrorMessage(typeField.name, errors)}
-                  </p>
-                )}
+                <ErrorMessage name={typeField.name} errors={errors} />
               </InputGroup>
             </InputWrap>
             <InputWrap className="el-mt6">
@@ -167,24 +159,16 @@ const DeclarationRiskManagement: FC<DeclarationRiskManagementProps> = ({ userDat
                   defaultValue={riskAssessmentForm}
                   onFileView={() => handleModal(riskAssessmentFormField.name, 'open')}
                   accept="image/jpeg, image/png, application/pdf"
-                  data-testid={generateTestId(riskAssessmentFormField.name)}
+                  data-testid={riskAssessmentFormField.name}
                 />
-                {displayErrorMessage(riskAssessmentFormField.name, errors) && (
-                  <p data-testid={`test.error.${riskAssessmentFormField.name}`} className="el-input-error">
-                    {displayErrorMessage(riskAssessmentFormField.name, errors)}
-                  </p>
-                )}
+                <ErrorMessage name={riskAssessmentFormField.name} errors={errors} />
               </FlexContainer>
             </InputWrap>
             <InputWrap className="el-mt6">
               <InputGroup>
-                <TextArea {...register(reasonField.name)} data-testid={generateTestId(reasonField.name)} />
+                <TextArea {...register(reasonField.name)} data-testid={reasonField.name} />
                 <Label>{generateLabelField(reasonField.label, true)}</Label>
-                {displayErrorMessage(reasonField.name, errors) && (
-                  <p data-testid={`test.error.${reasonField.name}`} className="el-input-error">
-                    {displayErrorMessage(reasonField.name, errors)}
-                  </p>
-                )}
+                <ErrorMessage name={reasonField.name} errors={errors} />
               </InputGroup>
             </InputWrap>
           </InputWrapFull>
