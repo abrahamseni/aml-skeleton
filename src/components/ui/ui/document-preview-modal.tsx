@@ -42,7 +42,11 @@ export const DocumentPreviewModal: FC<DocumentPreviewModalProps> = ({
         overflow-y: hidden;
       `}
     >
-      {loading && <FlexContainer isFlexJustifyCenter><Loader label="Loading" /></FlexContainer>}
+      {loading && (
+        <FlexContainer isFlexJustifyCenter>
+          <Loader label="Loading" />
+        </FlexContainer>
+      )}
       {src && !loading && (
         <>
           <Body>
