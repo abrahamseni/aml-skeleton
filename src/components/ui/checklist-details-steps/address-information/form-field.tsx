@@ -1,15 +1,5 @@
-import React from 'react'
-import {
-  elMb2,
-  InputGroup,
-  Label,
-  Select,
-  InputWrap,
-  InputWrapFull,
-  elMt4,
-  FlexContainer,
-  elPl3,
-} from '@reapit/elements'
+import React, { FC, ReactElement, useState } from 'react'
+import { InputGroup, Label, Select, InputWrap, InputWrapFull, FlexContainer } from '@reapit/elements'
 import { formFields, ValuesType } from './form-schema'
 import { UseFormReturn } from 'react-hook-form'
 import { displayErrorMessage } from '../../../../utils/error-message'
@@ -22,39 +12,31 @@ import {
 import { cx } from '@linaria/core'
 import { order0 } from './__styles__'
 
-import DocumentPreviewModal from 'components/ui/ui/document-preview-modal'
 import { FileInput } from 'components/ui/ui/file-input'
+import DocumentPreviewModal from 'components/ui/ui/document-preview-modal'
 
 interface FormFieldProps {
-  /**
-   * Available render option between primaryAddress and secondaryAddress
-   */
-  identity: 'primaryAddress' | 'secondaryAddress'
-  /**
-   * Pass Reach Hook Form hook
-   */
-  rhfProps: UseFormReturn<ValuesType>
+  name: 'primaryAddress' | 'secondaryAddress'
+  useFormProps: UseFormReturn<ValuesType>
 }
 
-const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.ReactElement => {
-  const isPrimaryAddress = !!(identity === 'primaryAddress')
-  // local state - modal handler
-  const [imagePrimaryAddress, setImagePrimaryAddress] = React.useState<boolean>(false)
-  const [imageSecondaryAddress, setImageSecondaryAddress] = React.useState<boolean>(false)
+const FormField: FC<FormFieldProps> = ({ name, useFormProps }): ReactElement => {
+  const isPrimaryAddress = name === 'primaryAddress'
+
+  const [imagePrimaryAddress, setImagePrimaryAddress] = useState<boolean>(false)
+  const [imageSecondaryAddress, setImageSecondaryAddress] = useState<boolean>(false)
 
   // local function - modal handler
   const modalHandler = (option: 'open' | 'close'): void => {
-    if (identity === 'primaryAddress') {
-      setImagePrimaryAddress(option === 'open' ? true : false)
+    if (name === 'primaryAddress') {
+      setImagePrimaryAddress(option === 'open')
     } else {
-      setImageSecondaryAddress(option === 'open' ? true : false)
+      setImageSecondaryAddress(option === 'open')
     }
   }
 
-  // passed useForm hook from parent
-  const { register, getValues, formState } = rhfProps
+  const { register, getValues, formState } = useFormProps
 
-  // adjusting field name and field label with initialized value
   const {
     typeField,
     buildingNameField,
@@ -68,7 +50,7 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
     monthField,
     yearField,
     documentTypeField,
-  } = formFields(identity)
+  } = formFields(name)
 
   return (
     <>
@@ -235,16 +217,16 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
             )}
           </InputGroup>
         </InputWrap>
-        <InputWrap className={elMt4}>
-          <FlexContainer isFlexColumn className={elPl3}>
-            <Label className={cx(elMb2, order0)}>
+        <InputWrap className="el-mt4">
+          <FlexContainer isFlexColumn className="el-pl3">
+            <Label className={cx('el-mb2', order0)}>
               {generateLabelField(documentImageField.label, isPrimaryAddress)}
             </Label>
             <FileInput
               data-testid={generateTestId(documentImageField.name)}
               {...register(documentImageField.name)}
-              defaultValue={getValues(documentImageField.name)}
               onFileView={() => modalHandler('open')}
+              defaultValue={getValues(documentImageField.name)}
               accept="image/jpeg, image/png, application/pdf"
             />
             {displayErrorMessage(documentImageField.name, formState) && (
@@ -255,10 +237,9 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
           </FlexContainer>
         </InputWrap>
       </InputWrapFull>
-      {/* Document Image Address */}
       <DocumentPreviewModal
         src={getValues(documentImageField.name)}
-        isOpen={identity === 'primaryAddress' ? imagePrimaryAddress : imageSecondaryAddress}
+        isOpen={name === 'primaryAddress' ? imagePrimaryAddress : imageSecondaryAddress}
         onModalClose={() => modalHandler('close')}
       />
     </>
