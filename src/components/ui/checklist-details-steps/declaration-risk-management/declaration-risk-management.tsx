@@ -20,8 +20,9 @@ import { ContactModel } from '@reapit/foundations-ts-definitions'
 import { notificationMessage } from 'constants/notification-message'
 import { useUpdateContact } from 'platform-api/contact-api/update-contact'
 import { FileInput } from 'components/ui/ui/file-input'
-import { useFileDocumentUpload } from 'platform-api/file-upload-api'
+import { useFileDocumentUpload } from 'platform-api/file-upload-api/post-file-upload'
 import { isDataUrl } from 'utils/url'
+
 import FormFooter from 'components/ui/form-footer/form-footer'
 import DocumentPreviewModal from 'components/ui/ui/document-preview-modal'
 import ErrorMessage from 'components/ui/ui/error-message'
@@ -106,11 +107,7 @@ const DeclarationRiskManagement: FC<DeclarationRiskManagementProps> = ({ userDat
         },
       )
     } catch (e: any) {
-      if (e.response?.status === 412) {
-        error(notificationMessage.NOT_MATCH_E_TAG, 7500)
-      } else {
-        error(e.message ?? notificationMessage.DRM_ERROR, 7500)
-      }
+      error(e.message ?? notificationMessage.DRM_ERROR, 7500)
       console.error(e.message)
     }
   }

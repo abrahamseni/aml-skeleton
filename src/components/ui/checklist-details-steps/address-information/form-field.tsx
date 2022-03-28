@@ -186,7 +186,6 @@ const FormField: FC<FormFieldProps> = ({ name, useFormProps }): ReactElement => 
               {...register(documentImageField.name)}
               onFileView={() => modalHandler('open')}
               defaultValue={getValues(documentImageField.name)}
-              accept="image/jpeg, image/png, application/pdf"
             />
             <ErrorMessage name={documentImageField.name} errors={errors} />
           </FlexContainer>

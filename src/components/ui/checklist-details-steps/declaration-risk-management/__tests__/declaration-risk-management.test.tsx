@@ -199,9 +199,6 @@ describe('Declaration Risk Management Form', () => {
       expect(error.mock.calls[0][0]).toMatch(/Request failed with status code 500/i)
       expect(axiosMock.history.patch[0].url).toEqual('/contacts/MLK16000071')
     })
-
-    it.todo('will show error notification, when failed to upload file Image')
-    it.todo('will show error notification, when failed to update contact data')
   })
 })
 

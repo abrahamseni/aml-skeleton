@@ -10,7 +10,7 @@ import { useUpdateContact } from 'platform-api/contact-api/update-contact'
 
 import FormField from './form-field'
 import FormFooter from 'components/ui/form-footer/form-footer'
-import { useFileDocumentUpload } from 'platform-api/file-upload-api'
+import { useFileDocumentUpload } from 'platform-api/file-upload-api/post-file-upload'
 import { isDataUrl } from 'utils/url'
 
 const initialValues = ({ primaryAddress, secondaryAddress, metadata }): ValuesType => ({
@@ -107,11 +107,7 @@ const AddressInformation: FC<AddressInformationProps> = ({ userData }): ReactEle
         },
       )
     } catch (e: any) {
-      if (e.response?.status === 412) {
-        error(notificationMessage.NOT_MATCH_E_TAG, 7500)
-      } else {
-        error(e.message ?? notificationMessage.DRM_ERROR, 7500)
-      }
+      error(e.message ?? notificationMessage.DRM_ERROR, 7500)
       console.error(e.message)
     }
   }

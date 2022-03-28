@@ -296,9 +296,6 @@ describe('Address Information Component', () => {
       expect(error).toBeCalledTimes(1)
       expect(error.mock.calls[0][0]).toMatch(/Request failed with status code 500/i)
     })
-
-    it.todo('will show error notification, when failed to upload file Image')
-    it.todo('will show error notification, when failed to update contact data')
   })
 })
 
