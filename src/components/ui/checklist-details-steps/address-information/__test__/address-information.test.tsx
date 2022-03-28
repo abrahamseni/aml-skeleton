@@ -282,7 +282,7 @@ describe('Address Information Component', () => {
       expect(success.mock.calls[0][0]).toMatch(/Successfully update Address Information data/i)
     })
 
-    it.skip('will show error notification, when user network is error', async () => {
+    it('will show error notification, when user network is error', async () => {
       const { getByTestId } = renderComponent(defaultAddressInformationProps)
 
       const submitButton = getByTestId('save-form')
