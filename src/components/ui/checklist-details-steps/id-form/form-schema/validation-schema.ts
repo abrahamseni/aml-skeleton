@@ -9,7 +9,7 @@ const validationSchema: Yup.SchemaOf<ValuesType> = Yup.object({
   expiryDate: Yup.string().required(errorMessages.FIELD_REQUIRED),
   documentFile: FileValidation.create()
     .required(errorMessages.FIELD_REQUIRED)
-    .maxSize(6, errorMessages.EXCEEDED_MAX_FILE_SIZE),
+    .maxSize(3, errorMessages.EXCEEDED_MAX_FILE_SIZE),
 })
 
 export default validationSchema

@@ -12,6 +12,7 @@ import FormField from './form-field'
 import FormFooter from 'components/ui/form-footer/form-footer'
 import { useFileDocumentUpload } from 'platform-api/file-upload-api/post-file-upload'
 import { isDataUrl } from 'utils/url'
+import { getFormSaveErrorMessage } from '../../../../utils/error-message'
 
 const initialValues = ({ primaryAddress, secondaryAddress, metadata }): ValuesType => ({
   primaryAddress: {
@@ -107,7 +108,7 @@ const AddressInformation: FC<AddressInformationProps> = ({ userData }): ReactEle
         },
       )
     } catch (e: any) {
-      error(e.message ?? notificationMessage.DRM_ERROR, 7500)
+      error(getFormSaveErrorMessage('Address Information', e), 7500)
       console.error(e.message)
     }
   }
