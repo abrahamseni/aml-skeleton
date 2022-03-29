@@ -1,6 +1,6 @@
 export const notificationMessage = {
   SUCCESS: (formName: string) => `Successfully save ${formName} data`,
-  ERROR: (errorMessage: string | undefined) => {
+  ERROR: (errorMessage?: string | undefined) => {
     return errorMessage ? `${errorMessage}` : 'Something went wrong, try to reload your browser'
   },
   FORM_SAVE_ERROR: (formName: string) => `Failed to save ${formName} form, try to reload your browser`,

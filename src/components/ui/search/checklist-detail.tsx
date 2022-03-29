@@ -35,7 +35,6 @@ import {
   isCompletedSecondaryID,
 } from '../../../utils/completed-sections'
 
-import { generateProgressBarResult } from '../../../utils/generator'
 import Report from '../report/report'
 import { useFetchIdentityDocumentTypes } from '../../../platform-api/configuration-api'
 
@@ -121,9 +120,6 @@ export const ChecklistDetailPage: FC = () => {
     queryIdentityDocumentTypes,
   })
 
-  // progress bar indicator
-  const currentProgressBarStatus = generateProgressBarResult({ tabContents })
-
   if (
     (userDataIsFetching && !userData) ||
     (identityCheckIsFetching && !identityCheckIsRefetching) ||
@@ -184,8 +180,8 @@ export const ChecklistDetailPage: FC = () => {
         </FlexContainer>
         <div>
           <ProgressBarSteps
-            currentStep={currentProgressBarStatus.complete}
-            numberSteps={currentProgressBarStatus.total}
+            currentStep={tabContents.filter((t) => t.status).length}
+            numberSteps={tabContents.length}
             className="el-mt6"
           />
         </div>
@@ -233,8 +229,9 @@ export const ChecklistDetailPage: FC = () => {
           userData={userData}
           idCheck={identityCheck!}
           isModalStatusOpen={isModalStatusOpen}
+          closeModal={() => setModalStatusOpen(false)}
           setModalStatusOpen={setModalStatusOpen}
-          progressBarStatus={currentProgressBarStatus}
+          progressBarStatus={{ complete: tabContents.filter((t) => t.status).length, total: tabContents.length }}
         />
         <ReportModal title="Report" style={{ top: '50%' }}>
           <Report closeModal={closeModal} />

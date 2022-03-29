@@ -115,7 +115,7 @@ describe('Personal Details Form', () => {
       fireEvent.blur(testTitleField)
       await wait(0)
 
-      const testTitleFieldErrorMessage = getByTestId(`test.error.${title.name}`)
+      const testTitleFieldErrorMessage = getByTestId(`error.${title.name}`)
       expect(testTitleFieldErrorMessage).not.toBeUndefined
       expect(testTitleFieldErrorMessage.textContent).toMatch(/Required/i)
       // forename
@@ -127,7 +127,7 @@ describe('Personal Details Form', () => {
       fireEvent.blur(testForenameField)
       await wait(0)
 
-      const testForenameFieldErrorMessage = getByTestId(`test.error.${forename.name}`)
+      const testForenameFieldErrorMessage = getByTestId(`error.${forename.name}`)
       expect(testForenameFieldErrorMessage).not.toBeUndefined
       expect(testForenameFieldErrorMessage.textContent).toMatch(/Required/i)
       // surname
@@ -139,7 +139,7 @@ describe('Personal Details Form', () => {
       fireEvent.blur(testSurnameField)
       await wait(0)
 
-      const testSurnameFieldErrorMessage = getByTestId(`test.error.${surname.name}`)
+      const testSurnameFieldErrorMessage = getByTestId(`error.${surname.name}`)
       expect(testSurnameFieldErrorMessage).not.toBeUndefined
       expect(testSurnameFieldErrorMessage.textContent).toMatch(/Required/i)
       // date of birth
@@ -151,7 +151,7 @@ describe('Personal Details Form', () => {
       fireEvent.blur(testDateOfBirth)
       await wait(0)
 
-      const testDateOfBirthErrorMessage = getByTestId(`test.error.${dateOfBirth.name}`)
+      const testDateOfBirthErrorMessage = getByTestId(`error.${dateOfBirth.name}`)
       expect(testDateOfBirthErrorMessage).not.toBeUndefined
       expect(testDateOfBirthErrorMessage.textContent).toMatch(/Required/i)
       // email
@@ -163,7 +163,7 @@ describe('Personal Details Form', () => {
       fireEvent.blur(testEmailField)
       await wait(0)
 
-      const testEmailFieldErrorMessage = getByTestId(`test.error.${email.name}`)
+      const testEmailFieldErrorMessage = getByTestId(`error.${email.name}`)
       expect(testEmailFieldErrorMessage).not.toBeUndefined
       expect(testEmailFieldErrorMessage.textContent).toMatch(/Required/i)
     })
