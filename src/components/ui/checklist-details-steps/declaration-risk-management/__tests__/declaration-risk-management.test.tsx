@@ -57,19 +57,19 @@ describe('Declaration Risk Management Form', () => {
       const { getByTestId } = renderComponent(defaultDRMProps)
 
       // declaration file
-      const testDeclarationFileField = getByTestId(`test.${declarationFormField.name}`) as HTMLInputElement
+      const testDeclarationFileField = getByTestId(`${declarationFormField.name}`) as HTMLInputElement
       expect(testDeclarationFileField.value).toMatch(/urlRiskAssessmentForm.png/i)
 
       // risk assessment type
-      const testTypeField = getByTestId(`test.${typeField.name}`) as HTMLSelectElement
+      const testTypeField = getByTestId(`${typeField.name}`) as HTMLSelectElement
       expect(testTypeField.value).toMatch(/Simplified/i)
 
       // risk assessment file
-      const testAssessmentFormField = getByTestId(`test.${riskAssessmentFormField.name}`) as HTMLInputElement
+      const testAssessmentFormField = getByTestId(`${riskAssessmentFormField.name}`) as HTMLInputElement
       expect(testAssessmentFormField.value).toMatch(/urlRiskAssessmentForm.png/i)
 
       // for reason
-      const testReasonField = getByTestId(`test.${reasonField.name}`) as HTMLTextAreaElement
+      const testReasonField = getByTestId(`${reasonField.name}`) as HTMLTextAreaElement
       expect(testReasonField.value).toMatch(/erw23r/i)
 
       fireEvent.change(testTypeField, { target: { value: 'Enhanced' } })
@@ -83,7 +83,7 @@ describe('Declaration Risk Management Form', () => {
       const { getByTestId } = renderComponent(defaultDRMProps)
 
       // upload declaration file
-      const testDeclarationFile = getByTestId('test.declarationForm') as HTMLInputElement
+      const testDeclarationFile = getByTestId('declarationForm') as HTMLInputElement
       expect(testDeclarationFile.value).not.toEqual('')
 
       const testDeclarationFileRemoveButton = testDeclarationFile.nextElementSibling?.childNodes[1] as HTMLSpanElement
@@ -93,12 +93,12 @@ describe('Declaration Risk Management Form', () => {
 
       expect(testDeclarationFile.value).toEqual('')
 
-      const declarationFileErrorMessage = getByTestId('test.error.declarationForm') as HTMLParagraphElement
+      const declarationFileErrorMessage = getByTestId('error.declarationForm') as HTMLParagraphElement
       expect(declarationFileErrorMessage).not.toBeUndefined()
       expect(declarationFileErrorMessage.textContent).toMatch(/required/i)
 
       // risk assessment type
-      const testTypeField = getByTestId('test.type') as HTMLSelectElement
+      const testTypeField = getByTestId('type') as HTMLSelectElement
       expect(testTypeField.value).toMatch(/Simplified/i)
 
       fireEvent.change(testTypeField, { target: { value: '' } })
@@ -106,12 +106,12 @@ describe('Declaration Risk Management Form', () => {
       fireEvent.blur(testTypeField)
       await wait(0)
 
-      const typeFieldErrorMessage = getByTestId('test.error.type')
+      const typeFieldErrorMessage = getByTestId('error.type')
       expect(typeFieldErrorMessage).not.toBeUndefined
       expect(typeFieldErrorMessage.textContent).toMatch(/Required/i)
 
       // reason for type
-      const testReasonTypeField = getByTestId('test.reason') as HTMLTextAreaElement
+      const testReasonTypeField = getByTestId('reason') as HTMLTextAreaElement
       expect(testReasonTypeField.value).toMatch(/erw23r/i)
 
       fireEvent.change(testReasonTypeField, { target: { value: '' } })
@@ -119,7 +119,7 @@ describe('Declaration Risk Management Form', () => {
       fireEvent.blur(testReasonTypeField)
       await wait(0)
 
-      const testReasonTypeFieldErrorMessage = getByTestId('test.error.reason')
+      const testReasonTypeFieldErrorMessage = getByTestId('error.reason')
       expect(testReasonTypeFieldErrorMessage).not.toBeUndefined
       expect(testReasonTypeFieldErrorMessage.textContent).toMatch(/Required/i)
     })
@@ -132,7 +132,7 @@ describe('Declaration Risk Management Form', () => {
       expect(saveButton.getAttribute('disabled')).not.toBeTruthy()
 
       // reason for type
-      const testReasonTypeField = getByTestId('test.reason') as HTMLTextAreaElement
+      const testReasonTypeField = getByTestId('reason') as HTMLTextAreaElement
       expect(testReasonTypeField.value).toMatch(/erw23r/i)
 
       fireEvent.change(testReasonTypeField, { target: { value: '' } })
@@ -140,7 +140,7 @@ describe('Declaration Risk Management Form', () => {
       fireEvent.blur(testReasonTypeField)
       await wait(0)
 
-      const testReasonTypeFieldErrorMessage = getByTestId('test.error.reason')
+      const testReasonTypeFieldErrorMessage = getByTestId('error.reason')
       expect(testReasonTypeFieldErrorMessage).not.toBeUndefined
       expect(testReasonTypeFieldErrorMessage.textContent).toMatch(/Required/i)
 
@@ -151,8 +151,7 @@ describe('Declaration Risk Management Form', () => {
       const { getByTestId } = renderComponent(defaultDRMProps)
 
       // declaration file
-      const eyeDeclarationFile = getByTestId('test.declarationForm').nextElementSibling
-        ?.childNodes[0] as HTMLSpanElement
+      const eyeDeclarationFile = getByTestId('declarationForm').nextElementSibling?.childNodes[0] as HTMLSpanElement
 
       fireEvent.click(eyeDeclarationFile)
       await wait(0)
@@ -161,7 +160,7 @@ describe('Declaration Risk Management Form', () => {
       expect(DeclarationModalIsOpen).toBeTruthy()
 
       // risk assessment file
-      const eyeRiskAssessmentFile = getByTestId('test.riskAssessmentForm').nextElementSibling
+      const eyeRiskAssessmentFile = getByTestId('riskAssessmentForm').nextElementSibling
         ?.childNodes[0] as HTMLSpanElement
 
       fireEvent.click(eyeRiskAssessmentFile)
@@ -200,9 +199,6 @@ describe('Declaration Risk Management Form', () => {
       expect(error.mock.calls[0][0]).toMatch(/Request failed with status code 500/i)
       expect(axiosMock.history.patch[0].url).toEqual('/contacts/MLK16000071')
     })
-
-    it.todo('will show error notification, when failed to upload file Image')
-    it.todo('will show error notification, when failed to update contact data')
   })
 })
 
