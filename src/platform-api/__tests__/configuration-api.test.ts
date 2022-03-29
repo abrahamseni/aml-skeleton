@@ -1,5 +1,5 @@
-import { getIdentityDocumentTypes } from '../configuration-api'
-getIdentityDocumentTypes
+import { fetchIdentityDocumentTypes } from '../configuration-api/configuration-api'
+fetchIdentityDocumentTypes
 // import { ListItemModel } from '@reapit/foundations-ts-definitions'
 // import { mockBrowserSession } from '../__mocks__/session'
 

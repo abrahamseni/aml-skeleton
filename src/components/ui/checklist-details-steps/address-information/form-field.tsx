@@ -12,8 +12,8 @@ import {
 import { cx } from '@linaria/core'
 import { order0 } from './__styles__'
 
-import { FileInput } from 'components/ui/ui/file-input'
-import DocumentPreviewModal from 'components/ui/ui/document-preview-modal'
+import { FileInput } from 'components/ui/elements/file-input'
+import DocumentPreviewModal from 'components/ui/elements/document-preview-modal'
 
 interface FormFieldProps {
   name: 'primaryAddress' | 'secondaryAddress'

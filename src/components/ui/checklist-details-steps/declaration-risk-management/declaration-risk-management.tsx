@@ -20,11 +20,11 @@ import { ContactModel } from '@reapit/foundations-ts-definitions'
 import { notificationMessage } from 'constants/notification-message'
 import { useUpdateContact } from 'platform-api/contact-api/update-contact'
 import { displayErrorMessage } from 'utils/error-message'
-import { FileInput } from 'components/ui/ui/file-input'
+import { FileInput } from 'components/ui/elements/file-input'
 import { useFileDocumentUpload } from 'platform-api/file-upload-api'
 import { isDataUrl } from 'utils/url'
 import FormFooter from 'components/ui/form-footer/form-footer'
-import DocumentPreviewModal from 'components/ui/ui/document-preview-modal'
+import DocumentPreviewModal from 'components/ui/elements/document-preview-modal'
 
 const initialValues = ({ declarationForm, reason, riskAssessmentForm, type }): ValuesType => ({
   declarationForm,
