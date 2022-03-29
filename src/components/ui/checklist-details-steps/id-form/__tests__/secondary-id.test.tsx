@@ -148,7 +148,7 @@ describe('secondary id', () => {
 
     saveIdentityDocument.mock.calls[0][3].onSuccess()
     expect(success).toBeCalledTimes(1)
-    expect(success.mock.calls[0][0]).toBe('Successfully update secondary id')
+    expect(success.mock.calls[0][0]).toBe('Successfully save Secondary ID data')
   })
 
   test('show error notification when failed to save', async () => {
@@ -169,9 +169,9 @@ describe('secondary id', () => {
 
     expect(saveIdentityDocument).toBeCalledTimes(1)
 
-    saveIdentityDocument.mock.calls[0][3].onError()
+    saveIdentityDocument.mock.calls[0][3].onError(new Error())
     expect(error).toBeCalledTimes(1)
-    expect(error.mock.calls[0][0]).toBe('Cannot update secondary id, try to reload your browser')
+    expect(error.mock.calls[0][0]).toBe('Failed to save Secondary ID form, try to reload your browser')
   })
 
   test('form is disabled when primary id form is not completed', async () => {

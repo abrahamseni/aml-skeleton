@@ -13,6 +13,7 @@ import { formFields } from './form-schema/form-field'
 import FormFooter from '../../form-footer/form-footer'
 import { generateLabelField, generateTestId } from 'utils/generator'
 import { notificationMessage } from '../../../../constants/notification-message'
+import { getFormSaveErrorMessage } from '../../../../utils/error-message'
 
 type PersonalDetailsProps = {
   userData: ContactModel
@@ -47,9 +48,9 @@ const PersonalDetails = ({ userData }: PersonalDetailsProps) => {
       { ...getValues() },
       {
         onSuccess: () => {
-          successAlert(notificationMessage.SUCCESS('personal details'))
+          successAlert(notificationMessage.SUCCESS('Personal Details'))
         },
-        onError: (err) => errorAlert(notificationMessage.ERROR(err?.message)),
+        onError: (err) => errorAlert(getFormSaveErrorMessage('Personal Details', err)),
       },
     )
   }

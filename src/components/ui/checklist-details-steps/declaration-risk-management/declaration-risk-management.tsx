@@ -26,6 +26,7 @@ import { isDataUrl } from 'utils/url'
 import FormFooter from 'components/ui/form-footer/form-footer'
 import DocumentPreviewModal from 'components/ui/elements/document-preview-modal'
 import ErrorMessage from 'components/ui/elements/error-message'
+import { getFormSaveErrorMessage } from '../../../../utils/error-message'
 
 const initialValues = ({ declarationForm, reason, riskAssessmentForm, type }): ValuesType => ({
   declarationForm,
@@ -107,7 +108,7 @@ const DeclarationRiskManagement: FC<DeclarationRiskManagementProps> = ({ userDat
         },
       )
     } catch (e: any) {
-      error(e.message ?? notificationMessage.DRM_ERROR, 7500)
+      error(getFormSaveErrorMessage('Declaration Risk Management', e), 7500)
       console.error(e.message)
     }
   }

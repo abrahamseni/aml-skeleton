@@ -142,7 +142,7 @@ describe('primary id', () => {
 
     saveIdentityDocument.mock.calls[0][3].onSuccess()
     expect(success).toBeCalledTimes(1)
-    expect(success.mock.calls[0][0]).toBe('Successfully update primary id')
+    expect(success.mock.calls[0][0]).toBe('Successfully save Primary ID data')
   })
 
   test('show error notification when failed to save', async () => {
@@ -163,9 +163,9 @@ describe('primary id', () => {
 
     expect(saveIdentityDocument).toBeCalledTimes(1)
 
-    saveIdentityDocument.mock.calls[0][3].onError()
+    saveIdentityDocument.mock.calls[0][3].onError(new Error())
     expect(error).toBeCalledTimes(1)
-    expect(error.mock.calls[0][0]).toBe('Cannot update primary id, try to reload your browser')
+    expect(error.mock.calls[0][0]).toBe('Failed to save Primary ID form, try to reload your browser')
   })
 })
 
