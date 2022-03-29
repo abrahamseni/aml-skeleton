@@ -1,4 +1,4 @@
-import FileValidation from 'utils/file-validation'
+import FileValidation from '../../../../../utils/file-validation'
 import * as Yup from 'yup'
 import { errorMessages } from '../../../../../constants/error-messages'
 import { ValuesType } from './form-field'

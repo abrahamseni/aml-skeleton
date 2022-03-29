@@ -10,7 +10,7 @@ import DeclarationRiskManagement from '../declaration-risk-management'
 import { wait } from 'utils/test'
 import { error, success } from 'utils/mocks/useSnack'
 import { CONTACT_MOCK_DATA_1, CONTACT_MOCK_DATA_2 } from 'platform-api/__mocks__/contact-api.mock'
-import DocumentPreviewModal, { DocumentPreviewModalProps } from 'components/ui/ui/document-preview-modal'
+import DocumentPreviewModal, { DocumentPreviewModalProps } from 'components/ui/elements/document-preview-modal'
 
 const axiosMock = new AxiosMockAdapter(Axios, {
   onNoMatch: 'throwException',
@@ -19,8 +19,8 @@ const axiosMock = new AxiosMockAdapter(Axios, {
 jest.unmock('@reapit/connect-session')
 jest.mock('@reapit/elements', () => jest.requireActual('utils/mocks/reapit-element-mocks'))
 jest.mock('core/connect-session')
-jest.mock('components/ui/ui/document-preview-modal', () => {
-  const DocumentPreviewModal = jest.requireActual('components/ui/ui/document-preview-modal')
+jest.mock('components/ui/elements/document-preview-modal', () => {
+  const DocumentPreviewModal = jest.requireActual('components/ui/elements/document-preview-modal')
   const DocumentPreviewModalMock = jest.fn(() => <></>)
   return {
     __esModule: true,

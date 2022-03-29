@@ -1,31 +1,19 @@
 import React, { FC, useState } from 'react'
-import {
-  InputGroup,
-  Label,
-  Select,
-  Input,
-  FormLayout,
-  InputWrapFull,
-  InputWrap,
-  elMb2,
-  FlexContainer,
-  elPl3,
-} from '@reapit/elements'
+import { InputGroup, Label, Select, Input, FormLayout, InputWrapFull, InputWrap, FlexContainer } from '@reapit/elements'
 import { useForm } from 'react-hook-form'
 import { formFields, ValuesType } from './form-schema/form-field'
-import DocumentPreviewModal from 'components/ui/ui/document-preview-modal'
+import DocumentPreviewModal from '../../elements/document-preview-modal'
 import { useDownloadDocument } from 'platform-api/document-api'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { isDataUrl } from 'utils/url'
 import validationSchema from './form-schema/validation-schema'
 import { generateLabelField } from 'utils/generator'
 import { ListItemModel } from '@reapit/foundations-ts-definitions'
-import FormFooter from 'components/ui/form-footer/form-footer'
-import FileInput from 'components/ui/ui/file-input'
+import FormFooter from '../../form-footer/form-footer'
+import FileInput from '../../elements/file-input'
 import { generateDocumentFilename } from './identity-check-action'
-import { getFileExtensionsFromDataUrl } from 'utils/file'
-import { cx } from '@linaria/core'
-import ErrorMessage from 'components/ui/ui/error-message'
+import { getFileExtensionsFromDataUrl } from '../../../../utils/file'
+import ErrorMessage from '../../elements/error-message'
 
 const defaultValuesConst = {
   idType: '',
@@ -154,8 +142,8 @@ export const IdForm: FC<IdFormProps> = ({
             </InputGroup>
           </InputWrap>
           <InputWrap>
-            <FlexContainer isFlexColumn className={elPl3}>
-              <Label className={cx(elMb2)}>{generateLabelField(formFields.documentFile.label, true)}</Label>
+            <FlexContainer isFlexColumn className="el-pl3">
+              <Label className="el-mb2">{generateLabelField(formFields.documentFile.label, true)}</Label>
               <FileInput
                 defaultValue={getValues('documentFile')}
                 onFileView={openDocumentPreview}

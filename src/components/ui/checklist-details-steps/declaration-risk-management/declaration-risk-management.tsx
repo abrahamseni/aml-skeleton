@@ -19,13 +19,13 @@ import { order0 } from './__styles__'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
 import { notificationMessage } from 'constants/notification-message'
 import { useUpdateContact } from 'platform-api/contact-api/update-contact'
-import { FileInput } from 'components/ui/ui/file-input'
+import { FileInput } from 'components/ui/elements/file-input'
 import { useFileDocumentUpload } from 'platform-api/file-upload-api/post-file-upload'
 import { isDataUrl } from 'utils/url'
 
 import FormFooter from 'components/ui/form-footer/form-footer'
-import DocumentPreviewModal from 'components/ui/ui/document-preview-modal'
-import ErrorMessage from 'components/ui/ui/error-message'
+import DocumentPreviewModal from 'components/ui/elements/document-preview-modal'
+import ErrorMessage from 'components/ui/elements/error-message'
 
 const initialValues = ({ declarationForm, reason, riskAssessmentForm, type }): ValuesType => ({
   declarationForm,

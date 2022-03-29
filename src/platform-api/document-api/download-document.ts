@@ -1,5 +1,5 @@
-import axios from '../axios/axios'
-import { URLS } from '../constants/api'
+import axios from '../../axios/axios'
+import { URLS } from '../../constants/api'
 import mime from 'mime'
 
 export const downloadDocument = async (id: string) => {

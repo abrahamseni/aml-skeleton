@@ -174,7 +174,7 @@ describe('identity check action', () => {
     const { result } = renderHook(() => useSaveIdentityDocument(2))
     await wait(0)
 
-    await expect(() => result.current(contact, idCheck, idDocument2)).toThrow(
+    await expect(result.current(contact, idCheck, idDocument2)).rejects.toEqual(
       new Error(
         'Cannot update "identityDocument2" on identityCheck resource if "identityDocument1" property doesn\'t exist or identityCheck doesn\'t exist',
       ),
