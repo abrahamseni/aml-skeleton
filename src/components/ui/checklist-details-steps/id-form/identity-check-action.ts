@@ -6,6 +6,8 @@ import { useCreateIdentityCheck, useUpdateIdentityCheck } from '../../../../plat
 import { getFileExtensionsFromDataUrl } from '../../../../utils/file'
 import { isDataUrl } from '../../../../utils/url'
 import { ValuesType } from './form-schema/form-field'
+import UserError from '../../../../exceptions/user-error'
+import { logError } from 'utils/dev'
 
 type ActionResponseListeners<TData = any, TError = any> = {
   onSuccess?: (data: TData) => void
@@ -18,7 +20,19 @@ export const useSaveIdentityDocument = (identityDocumentIndex: 1 | 2) => {
   const { createIdentityCheck } = useCreateIdentityCheck()
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
 
-  async function saveIdentityDocument(
+  async function saveIdentityDocument(...args: Parameters<typeof trySaveIdentityDocument>) {
+    const options = args[3]
+    try {
+      await trySaveIdentityDocument(...args)
+    } catch (err: any) {
+      logError(err)
+      options?.onError && options.onError(err)
+    } finally {
+      options?.onSettled && options.onSettled()
+    }
+  }
+
+  async function trySaveIdentityDocument(
     contact: ContactModel,
     idCheck: IdentityCheckModel | undefined,
     values: ValuesType,
@@ -55,13 +69,9 @@ export const useSaveIdentityDocument = (identityDocumentIndex: 1 | 2) => {
       }
       const userCode = connectSession?.loginIdentity.userCode
       if (!userCode) {
-        options?.onError &&
-          options.onError(
-            new Error(
-              'You are not currently logged in as negotiator. The Reapit Platform API only supports Identity Checks performed by negotiators. As such, you your data will not be saved and you will need to log in as another user to complete this action.',
-            ),
-          )
-        return
+        throw new UserError(
+          'You are not currently logged in as negotiator. The Reapit Platform API only supports Identity Checks performed by negotiators. As such, you your data will not be saved and you will need to log in as another user to complete this action.',
+        )
       }
       await createIdentityCheck(
         {
