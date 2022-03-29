@@ -1,5 +1,5 @@
 import React from 'react'
-import { displayErrorMessage } from 'utils/error-message'
+import { displayErrorMessage } from '../../../utils/error-message'
 
 type Props = {
   name: string

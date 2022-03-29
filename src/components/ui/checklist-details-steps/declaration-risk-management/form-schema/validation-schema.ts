@@ -20,7 +20,7 @@ export const validationSchema: Yup.SchemaOf<ValuesType> = Yup.object().shape({
           return true
         }
 
-        const availableFormat = ['jpeg', 'png', 'jpg', 'svg']
+        const availableFormat = ['jpeg', 'png', 'jpg', 'svg+xml']
         const currentFileFormat = getFileExtensionsFromDataUrl(value)
 
         if (availableFormat.includes(currentFileFormat)) {

@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import { useSnack } from '@reapit/elements'
-import IdForm, { ValuesType } from './id-form'
+import IdForm from './id-form'
+import { ValuesType } from './form-schema'
 import { ContactModel, IdentityCheckModel, ListItemModel } from '@reapit/foundations-ts-definitions'
-import { useSaveIdentityDocument } from './id-form/identity-check-action'
-import { notificationMessage } from 'constants/notification-message'
+import { useSaveIdentityDocument } from './identity-check-action'
+import { notificationMessage } from '../../../../constants/notification-message'
 
 const defaultValues = {
   idType: '',

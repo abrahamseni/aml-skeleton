@@ -1,21 +1,21 @@
 import React from 'react'
 import { act, render } from '@testing-library/react'
-import * as identityCheckAction from '../id-form/identity-check-action'
-import { getSaveIdentityDocument } from '../id-form/__mocks__/identity-check-action'
+import * as identityCheckAction from '../identity-check-action'
+import { getSaveIdentityDocument } from '../__mocks__/identity-check-action'
 import PrimaryId, { PrimaryIdProps } from '../primary-id'
-import IdForm, { IdFormProps } from '../id-form/id-form'
+import IdForm, { IdFormProps } from '../id-form'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import axios from 'axios'
 import AxiosMockAdapter from 'axios-mock-adapter'
-import { identityDocumentTypes } from '../id-form/__mocks__/identity-document-types'
-import { URLS } from '../../../../constants/api'
+import { identityDocumentTypes } from '../__mocks__/identity-document-types'
+import { URLS } from '../../../../../constants/api'
 import '@alex_neo/jest-expect-message'
-import { success, error } from 'utils/mocks/useSnack'
+import { success, error } from '../../../../../utils/mocks/useSnack'
 
 const saveIdentityDocument = getSaveIdentityDocument(identityCheckAction)
 
-jest.mock('../id-form/id-form', () => {
-  const IdForm = jest.requireActual('../id-form/id-form')
+jest.mock('../id-form', () => {
+  const IdForm = jest.requireActual('../id-form')
   const IdFormMock = jest.fn(() => <></>)
   return {
     __esModule: true,
@@ -27,9 +27,9 @@ jest.mock('../id-form/id-form', () => {
 
 const axiosMock = new AxiosMockAdapter(axios)
 
-jest.mock('../id-form/identity-check-action')
-jest.mock('../../../../core/connect-session')
-jest.mock('@reapit/elements', () => jest.requireActual('utils/mocks/reapit-element-mocks'))
+jest.mock('../identity-check-action')
+jest.mock('../../../../../core/connect-session')
+jest.mock('@reapit/elements', () => jest.requireActual('../../../../../utils/mocks/reapit-element-mocks'))
 
 describe('primary id', () => {
   beforeEach(() => {

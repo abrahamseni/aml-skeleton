@@ -1,12 +1,10 @@
 import React, { FC, useState } from 'react'
 import { Button, ModalProps, Loader, FlexContainer, PersistantNotification } from '@reapit/elements'
 import Modal from './modal'
-import { modalMaxHeight, modalHeaderHeight, modalBodyPadding } from './__styles__/modal.style'
-import { styled } from '@linaria/react'
 import { css } from '@linaria/core'
 import { isObjectUrl } from '../../../utils/url'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFileLines } from '@fortawesome/free-solid-svg-icons'
+import { Body, Footer, IconContainer, Icon } from './__styles__/document-preview.style'
 
 export interface DocumentPreviewModalProps extends ModalProps {
   src?: string
@@ -90,25 +88,4 @@ export const DocumentPreviewModal: FC<DocumentPreviewModalProps> = ({
   )
 }
 
-export const footerHeight = '8.827rem'
-
-const Body = styled.div`
-  max-height: calc(${modalMaxHeight} - ${modalHeaderHeight} - ${footerHeight} - (2 * ${modalBodyPadding}));
-  overflow-y: auto;
-  padding: 0 0.75rem;
-`
-const Footer = styled.div`
-  height: ${footerHeight};
-`
-
-const IconContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  padding: 1.5rem 0;
-`
-
-const Icon = styled(FontAwesomeIcon)`
-  color: var(--intent-primary);
-  font-size: 3rem;
-`
 export default DocumentPreviewModal

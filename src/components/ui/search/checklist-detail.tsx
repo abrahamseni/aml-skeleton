@@ -19,8 +19,7 @@ import { UseQueryResult } from 'react-query'
 import { ContactModel, IdentityCheckModel, ListItemModel } from '@reapit/foundations-ts-definitions'
 import { Link } from 'react-router-dom'
 import PersonalDetails from '../checklist-details-steps/personal-details'
-import PrimaryId from '../checklist-details-steps/primary-id'
-import SecondaryId from '../checklist-details-steps/secondary-id'
+import { PrimaryId, SecondaryId } from '../checklist-details-steps/id-form'
 import { DeclarationRiskManagement } from '../checklist-details-steps/declaration-risk-management'
 import { AddressInformation } from '../checklist-details-steps/address-information'
 
@@ -37,7 +36,7 @@ import {
 } from '../../../utils/completed-sections'
 
 import Report from '../report/report'
-import { useGetIdentityDocumentTypes } from 'platform-api/configuration-api'
+import { useFetchIdentityDocumentTypes } from '../../../platform-api/configuration-api'
 
 interface GenerateTabsContentProps {
   querySingleContact: UseQueryResult<ContactModel, Error>
@@ -100,7 +99,7 @@ export const ChecklistDetailPage: FC = () => {
     isError: identityCheckIsError,
   } = queryIdentityCheck
 
-  const queryIdentityDocumentTypes = useGetIdentityDocumentTypes()
+  const queryIdentityDocumentTypes = useFetchIdentityDocumentTypes()
   const {
     data: identityDocumentTypes,
     isFetching: identityDocumentTypesIsFetching,

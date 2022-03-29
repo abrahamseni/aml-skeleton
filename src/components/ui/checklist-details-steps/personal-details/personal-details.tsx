@@ -11,7 +11,7 @@ import { useUpdateContact } from '../../../../platform-api/contact-api/update-co
 import validationSchema from './form-schema/validation-schema'
 import { formFields } from './form-schema/form-field'
 import FormFooter from '../../form-footer/form-footer'
-import { generateLabelField, generateTestId } from 'utils/generator'
+import { generateLabelField } from 'utils/generator'
 import { notificationMessage } from '../../../../constants/notification-message'
 
 type PersonalDetailsProps = {
@@ -44,6 +44,7 @@ const PersonalDetails = ({ userData }: PersonalDetailsProps) => {
     },
     mode: 'all',
   })
+  const watchFields = watch([mobilePhone.name, workPhone.name])
   const onSubmitHandler = async (): Promise<void> => {
     await updateContact.mutateAsync(
       { ...getValues() },
@@ -55,11 +56,18 @@ const PersonalDetails = ({ userData }: PersonalDetailsProps) => {
       },
     )
   }
+
+  // Callback version of watch.  It's your responsibility to unsubscribe when done.
+  React.useEffect(() => {
+    const subscription = watch((value, { name, type }) => console.log(value, name, type))
+    return () => subscription.unsubscribe()
+  }, [watchFields])
+
   return (
     <form onSubmit={handleSubmit(onSubmitHandler)} data-testid="personal.details.form">
       <div className="el-flex el-flex-column el-flex-wrap">
         <InputGroup className="el-flex1">
-          <Input id={title.name} type="text" {...register(title.name)} data-testid={generateTestId(title.name)} />
+          <Input id={title.name} type="text" {...register(title.name)} data-testid={`test.${title.name}`} />
           <Label htmlFor={title.name}>{generateLabelField(title.label, true)}</Label>
           {errors.title?.message && (
             <p data-testid={`test.error.${title.name}`} className="el-input-error">
@@ -68,12 +76,7 @@ const PersonalDetails = ({ userData }: PersonalDetailsProps) => {
           )}
         </InputGroup>
         <InputGroup className="el-mt6 el-flex1">
-          <Input
-            id={forename.name}
-            type="text"
-            {...register(forename.name)}
-            data-testid={generateTestId(forename.name)}
-          />
+          <Input id={forename.name} type="text" {...register(forename.name)} data-testid={`test.${forename.name}`} />
           <Label htmlFor={forename.name}>{generateLabelField(forename.label, true)}</Label>
           {errors.forename?.message && (
             <p data-testid={`test.error.${forename.name}`} className="el-input-error">
@@ -82,7 +85,7 @@ const PersonalDetails = ({ userData }: PersonalDetailsProps) => {
           )}
         </InputGroup>
         <InputGroup className="el-mt6 el-flex1">
-          <Input id={surname.name} type="text" {...register(surname.name)} data-testid={generateTestId(surname.name)} />
+          <Input id={surname.name} type="text" {...register(surname.name)} data-testid={`test.${surname.name}`} />
           <Label htmlFor={surname.name}> {generateLabelField(surname.label, true)}</Label>
           {errors.surname?.message && (
             <p data-testid={`test.error.${surname.name}`} className="el-input-error">
@@ -97,7 +100,7 @@ const PersonalDetails = ({ userData }: PersonalDetailsProps) => {
             id={dateOfBirth.name}
             type="date"
             {...register(dateOfBirth.name)}
-            data-testid={generateTestId(dateOfBirth.name)}
+            data-testid={`test.${dateOfBirth.name}`}
           />
           <Label htmlFor={dateOfBirth.name}>{generateLabelField(dateOfBirth.label, true)}</Label>
           {errors.dateOfBirth?.message && (
@@ -107,7 +110,7 @@ const PersonalDetails = ({ userData }: PersonalDetailsProps) => {
           )}
         </InputGroup>
         <InputGroup className="el-mt6 el-flex1">
-          <Input id={email.name} type="email" {...register(email.name)} data-testid={generateTestId(email.name)} />
+          <Input id={email.name} type="email" {...register(email.name)} data-testid={`test.${email.name}`} />
           <Label htmlFor={email.name}>{generateLabelField(email.label, true)}</Label>
           {errors.email?.message && (
             <p data-testid={`test.error.${email.name}`} className="el-input-error">
@@ -129,7 +132,7 @@ const PersonalDetails = ({ userData }: PersonalDetailsProps) => {
               id={homePhone.name}
               type="text"
               {...register(homePhone.name)}
-              data-testid={generateTestId(homePhone.name)}
+              data-testid={`test.${homePhone.name}`}
             />
             <Label htmlFor={homePhone.name}>{homePhone.label}</Label>
             {errors.homePhone?.message && errors.homePhone?.type !== 'required' && (
@@ -143,7 +146,7 @@ const PersonalDetails = ({ userData }: PersonalDetailsProps) => {
               id={mobilePhone.name}
               type="text"
               {...register(mobilePhone.name)}
-              data-testid={generateTestId(mobilePhone.name)}
+              data-testid={`test.${mobilePhone.name}`}
             />
             <Label htmlFor={mobilePhone.name}>{mobilePhone.label}</Label>
             {errors.mobilePhone?.message && (
@@ -157,7 +160,7 @@ const PersonalDetails = ({ userData }: PersonalDetailsProps) => {
               id={workPhone.name}
               type="text"
               {...register(workPhone.name)}
-              data-testid={generateTestId(workPhone.name)}
+              data-testid={`test.${workPhone.name}`}
             />
             <Label htmlFor={workPhone.name}>{workPhone.label}</Label>
             {errors.workPhone?.message && (

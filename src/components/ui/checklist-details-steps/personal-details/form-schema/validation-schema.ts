@@ -29,23 +29,23 @@ const validationSchema = Yup.object().shape({
       message: 'Please enter a valid phone number format',
       excludeEmptyString: true,
     })
-    .nullable(),
-  // .when(['mobilePhone', 'workPhone'], {
-  //   is: (mobilePhone, workPhone) => {
-  //     // console.log(!mobilePhone, !workPhone, {})
-  //     return !mobilePhone && !workPhone
-  //   },
-  //   then: (schema) => {
-  //     //true condition
-  //     // console.log('then', { schema })
-  //     return schema.required(errorMessages.FIELD_REQUIRED)
-  //   },
-  //   otherwise: (schema) => {
-  //     //false condition
-  //     // console.log('otherwise', { schema })
-  //     return schema
-  //   },
-  // }),
+    .nullable()
+    .when(['mobilePhone', 'workPhone'], {
+      is: (mobilePhone, workPhone) => {
+        // console.log(!mobilePhone, !workPhone, {})
+        return !mobilePhone && !workPhone
+      },
+      then: (schema) => {
+        //true condition
+        // console.log('then', { schema })
+        return schema.required(errorMessages.FIELD_REQUIRED)
+      },
+      otherwise: (schema) => {
+        //false condition
+        // console.log('otherwise', { schema })
+        return schema
+      },
+    }),
 })
 
 export default validationSchema

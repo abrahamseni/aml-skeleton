@@ -9,7 +9,7 @@ import Axios from '../../../../../axios/axios'
 import { URLS } from '../../../../../constants/api'
 import { wait } from 'utils/test'
 import { error, success } from 'utils/mocks/useSnack'
-import DocumentPreviewModal, { DocumentPreviewModalProps } from 'components/ui/ui/document-preview-modal'
+import DocumentPreviewModal, { DocumentPreviewModalProps } from 'components/ui/elements/document-preview-modal'
 
 const axiosMock = new AxiosMockAdapter(Axios, {
   onNoMatch: 'throwException',
@@ -20,8 +20,8 @@ type AddressInformationProps = React.ComponentPropsWithRef<typeof AddressInforma
 jest.unmock('@reapit/connect-session')
 jest.mock('@reapit/elements', () => jest.requireActual('utils/mocks/reapit-element-mocks'))
 jest.mock('core/connect-session')
-jest.mock('components/ui/ui/document-preview-modal', () => {
-  const DocumentPreviewModal = jest.requireActual('components/ui/ui/document-preview-modal')
+jest.mock('components/ui/elements/document-preview-modal', () => {
+  const DocumentPreviewModal = jest.requireActual('components/ui/elements/document-preview-modal')
   const DocumentPreviewModalMock = jest.fn(() => <></>)
   return {
     __esModule: true,
@@ -51,7 +51,7 @@ describe('Address Information Component', () => {
     it('field on the form should able to assert with initial value', () => {
       const { getByTestId: getByTestIdAssertOne, unmount: unmountAssertOne } =
         renderComponent(defaultAddressInformationProps)
-      const testBuildingNameField1 = getByTestIdAssertOne(`test.${primaryBuildingNameField.name}`) as HTMLInputElement
+      const testBuildingNameField1 = getByTestIdAssertOne(`${primaryBuildingNameField.name}`) as HTMLInputElement
 
       expect(testBuildingNameField1.value).not.toBeNull()
       expect(testBuildingNameField1.value).toMatch(/qwqd/i)
@@ -63,7 +63,7 @@ describe('Address Information Component', () => {
         'v2',
       )
 
-      const testBuildingNameField2 = getByTestIdAssertTwo(`test.${primaryBuildingNameField.name}`) as HTMLInputElement
+      const testBuildingNameField2 = getByTestIdAssertTwo(`${primaryBuildingNameField.name}`) as HTMLInputElement
 
       expect(testBuildingNameField2.value).not.toMatch(/qwqd/i)
       expect(testBuildingNameField2.value).not.toBeNull()
@@ -132,8 +132,8 @@ describe('Address Information Component', () => {
 
       expect(totalTextFields + totalOptionFields).toEqual(22)
 
-      const primaryBuildingNameFields = getByTestId(`test.${primaryBuildingNameField.name}`) as HTMLInputElement
-      const secondaryBuildingNameFields = getByTestId(`test.${secondaryBuildingNameField.name}`) as HTMLInputElement
+      const primaryBuildingNameFields = getByTestId(`${primaryBuildingNameField.name}`) as HTMLInputElement
+      const secondaryBuildingNameFields = getByTestId(`${secondaryBuildingNameField.name}`) as HTMLInputElement
 
       expect(primaryBuildingNameFields.value).toMatch(/Primary Address Building Name Test 2/i)
       expect(secondaryBuildingNameFields.value).toMatch(/Secondary Address Building Name Test 2/i)
@@ -143,7 +143,7 @@ describe('Address Information Component', () => {
       const { getByTestId } = renderComponent(defaultAddressInformationProps, 'v2')
 
       // text input
-      const buildingNameField = getByTestId(`test.${primaryBuildingNameField.name}`) as HTMLInputElement
+      const buildingNameField = getByTestId(`${primaryBuildingNameField.name}`) as HTMLInputElement
       expect(buildingNameField.value).toMatch(/Primary Address Building Name Test 2/i)
 
       fireEvent.change(buildingNameField, { target: { value: 'Primary Address Building Name Test 3' } })
@@ -151,7 +151,7 @@ describe('Address Information Component', () => {
       expect(buildingNameField.value).toMatch(/Primary Address Building Name Test 3/i)
 
       // select input
-      const documentTypeField = getByTestId(`test.${primaryDocumentTypeField.name}`) as HTMLSelectElement
+      const documentTypeField = getByTestId(`${primaryDocumentTypeField.name}`) as HTMLSelectElement
       expect(documentTypeField.value).toMatch(/Mortgage Statement or Mortgage Redemption Statement/i)
 
       fireEvent.change(documentTypeField, { target: { value: 'Current Council Tax Bill' } })
@@ -163,7 +163,7 @@ describe('Address Information Component', () => {
       const { getByTestId } = renderComponent(defaultAddressInformationProps)
 
       // post code
-      const postCodePrimaryField = getByTestId('test.primaryAddress.postcode') as HTMLInputElement
+      const postCodePrimaryField = getByTestId('primaryAddress.postcode') as HTMLInputElement
       expect(postCodePrimaryField.value).not.toEqual('')
 
       fireEvent.change(postCodePrimaryField, { target: { value: '' } })
@@ -171,12 +171,12 @@ describe('Address Information Component', () => {
       fireEvent.blur(postCodePrimaryField)
       await wait(0)
 
-      const postCodePrimaryFieldErrorMessage = getByTestId('test.error.primaryAddress.postcode')
+      const postCodePrimaryFieldErrorMessage = getByTestId('error.primaryAddress.postcode')
       expect(postCodePrimaryFieldErrorMessage).not.toBeUndefined()
       expect(postCodePrimaryFieldErrorMessage.textContent).toMatch(/required/i)
 
       // line 1
-      const line1PrimaryField = getByTestId('test.primaryAddress.line1') as HTMLInputElement
+      const line1PrimaryField = getByTestId('primaryAddress.line1') as HTMLInputElement
       expect(line1PrimaryField.value).toMatch(/Chichester Way/i)
 
       fireEvent.change(line1PrimaryField, { target: { value: '' } })
@@ -184,12 +184,12 @@ describe('Address Information Component', () => {
       fireEvent.blur(line1PrimaryField)
       await wait(0)
 
-      const line1PrimaryFieldErrorMessage = getByTestId('test.error.primaryAddress.line1') as HTMLParagraphElement
+      const line1PrimaryFieldErrorMessage = getByTestId('error.primaryAddress.line1') as HTMLParagraphElement
       expect(line1PrimaryFieldErrorMessage).not.toBeUndefined()
       expect(line1PrimaryFieldErrorMessage.textContent).toMatch(/required/i)
 
       // line 3
-      const line3PrimaryField = getByTestId('test.primaryAddress.line3') as HTMLInputElement
+      const line3PrimaryField = getByTestId('primaryAddress.line3') as HTMLInputElement
       expect(line3PrimaryField.value).toMatch(/Hertfordshire/i)
 
       fireEvent.change(line3PrimaryField, { target: { value: '' } })
@@ -197,12 +197,12 @@ describe('Address Information Component', () => {
       fireEvent.blur(line3PrimaryField)
       await wait(0)
 
-      const line3PrimaryFieldErrorMessage = getByTestId('test.error.primaryAddress.line3') as HTMLParagraphElement
+      const line3PrimaryFieldErrorMessage = getByTestId('error.primaryAddress.line3') as HTMLParagraphElement
       expect(line3PrimaryFieldErrorMessage).not.toBeUndefined()
       expect(line3PrimaryFieldErrorMessage.textContent).toMatch(/required/i)
 
       // document primary address
-      const documentFilePrimaryField = getByTestId('test.metadata.primaryAddress.documentType') as HTMLInputElement
+      const documentFilePrimaryField = getByTestId('metadata.primaryAddress.documentType') as HTMLInputElement
       expect(documentFilePrimaryField.value).toMatch(/Mortgage Statement or Mortgage Redemption Statement/i)
 
       fireEvent.change(documentFilePrimaryField, { target: { value: '' } })
@@ -211,7 +211,7 @@ describe('Address Information Component', () => {
       await wait(0)
 
       const documentFilePrimaryFieldErrorMessage = getByTestId(
-        'test.error.metadata.primaryAddress.documentType',
+        'error.metadata.primaryAddress.documentType',
       ) as HTMLParagraphElement
       expect(documentFilePrimaryFieldErrorMessage).not.toBeUndefined()
       expect(documentFilePrimaryFieldErrorMessage.textContent).toMatch(/required/i)
@@ -225,7 +225,7 @@ describe('Address Information Component', () => {
       const { getByTestId } = renderComponent(defaultAddressInformationProps)
 
       // post code
-      const postCodePrimaryField = getByTestId('test.primaryAddress.postcode') as HTMLInputElement
+      const postCodePrimaryField = getByTestId('primaryAddress.postcode') as HTMLInputElement
       expect(postCodePrimaryField.value).toMatch(/WD25 9TY/i)
 
       fireEvent.change(postCodePrimaryField, { target: { value: '' } })
@@ -233,7 +233,7 @@ describe('Address Information Component', () => {
       fireEvent.blur(postCodePrimaryField)
       await wait(0)
 
-      const postCodePrimaryFieldErrorMessage = getByTestId('test.error.primaryAddress.postcode') as HTMLParagraphElement
+      const postCodePrimaryFieldErrorMessage = getByTestId('error.primaryAddress.postcode') as HTMLParagraphElement
       expect(postCodePrimaryFieldErrorMessage).not.toBeUndefined()
       expect(postCodePrimaryFieldErrorMessage.textContent).toMatch(/required/i)
 
@@ -245,7 +245,7 @@ describe('Address Information Component', () => {
       const { getByTestId } = renderComponent(defaultAddressInformationProps, 'v2')
 
       // primary address file input
-      const eyeDocumentFilePrimary = getByTestId('test.metadata.primaryAddress.documentImage').nextElementSibling
+      const eyeDocumentFilePrimary = getByTestId('metadata.primaryAddress.documentImage').nextElementSibling
         ?.childNodes[0] as HTMLSpanElement
 
       fireEvent.click(eyeDocumentFilePrimary)
@@ -255,7 +255,7 @@ describe('Address Information Component', () => {
       expect(DocumentFilePrimaryIsOpen).toBeTruthy()
 
       // secondary address file input
-      const eyeDocumentFileSecondary = getByTestId('test.metadata.secondaryAddress.documentImage').nextElementSibling
+      const eyeDocumentFileSecondary = getByTestId('metadata.secondaryAddress.documentImage').nextElementSibling
         ?.childNodes[0] as HTMLSpanElement as HTMLSpanElement
 
       fireEvent.click(eyeDocumentFileSecondary)
@@ -296,9 +296,6 @@ describe('Address Information Component', () => {
       expect(error).toBeCalledTimes(1)
       expect(error.mock.calls[0][0]).toMatch(/Request failed with status code 500/i)
     })
-
-    it.todo('will show error notification, when failed to upload file Image')
-    it.todo('will show error notification, when failed to update contact data')
   })
 })
 
