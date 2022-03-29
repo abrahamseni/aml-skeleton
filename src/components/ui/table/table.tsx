@@ -26,6 +26,14 @@ export const generateAddress = (address: AddressModel | undefined) => {
   return filteredAddressEntries
 }
 
+export const generateForename = (forename: string | undefined) => {
+  return forename !== null ? forename : ''
+}
+
+export const generateSurname = (surname: string | undefined) => {
+  return surname !== null ? surname : ''
+}
+
 export const TableResult: FC<TableProps> = (props) => {
   if (!props.items || !props.items.length) return null
 
@@ -39,7 +47,7 @@ export const TableResult: FC<TableProps> = (props) => {
         cells: [
           {
             label: 'Name',
-            value: forename + ' ' + surname ?? '',
+            value: generateForename(forename) + ' ' + generateSurname(surname),
             narrowTable: {
               showLabel: true,
             },
