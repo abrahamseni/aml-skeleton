@@ -1,5 +1,6 @@
 import { notificationMessage } from '../constants/notification-message'
 import { UserErrorName } from '../exceptions/user-error'
+import { AxiosError } from 'axios'
 
 export const displayErrorMessage = (fieldName: string, errors: any): string | undefined => {
   const splittedFieldsName = fieldName.split('.')
@@ -21,16 +22,18 @@ export const displayErrorMessage = (fieldName: string, errors: any): string | un
   return errorObj.message
 }
 
-export const getFormSaveErrorMessage = (formName: string, error: any) => {
+export const getFormSaveErrorMessage = (formName: string, error: Error) => {
   if (error.name === UserErrorName) {
     return error.message
   }
 
-  if (!error.response) {
+  const axiosErr = error as AxiosError
+
+  if (!axiosErr.response) {
     return notificationMessage.FORM_SAVE_ERROR(formName)
   }
 
-  const data = error.response.data || {}
+  const data = axiosErr.response.data || {}
 
   if (typeof data.description !== 'string') {
     return notificationMessage.FORM_SAVE_ERROR(formName)
