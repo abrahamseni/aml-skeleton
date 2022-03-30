@@ -47,11 +47,13 @@ const ModalStatus = ({
       </BodyText>
       <div className="el-flex el-flex-row el-flex-wrap">
         {[
-          { label: 'Passed', value: 'pass', className: '' },
-          { label: 'Fail', value: 'fail', className: 'el-ml8' },
-          { label: 'Pending', value: 'pending', className: 'el-ml8' },
-          { label: 'Cancelled', value: 'warnings', className: 'el-ml8' },
+          { label: 'Unknown', value: 'unknown', className: '' },
           { label: 'Unchecked', value: 'unchecked', className: 'el-ml8' },
+          { label: 'Pending', value: 'pending', className: 'el-ml8' },
+          { label: 'Fail', value: 'fail', className: 'el-ml8' },
+          { label: 'Cancelled', value: 'cancelled', className: 'el-ml8' },
+          { label: 'Warnings', value: 'warnings', className: 'el-ml8' },
+          { label: 'Passed', value: 'pass', className: 'el-ml8' },
         ].map(({ label, value, className }, index) => (
           <InputGroup
             key={index}
