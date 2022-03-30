@@ -22,7 +22,6 @@ import { ID_STATUS } from '../../../constants/id-status'
 import { useForm } from 'react-hook-form'
 import { SearchContactParam, useFetchContactsBy } from '../../../platform-api/contact-api'
 import { TableResult } from '../table/table'
-import { generateLabelField, generateTestId } from 'utils/generator'
 
 export type SearchableDropdownKey = {
   id: string
@@ -38,7 +37,12 @@ export type SearchFieldValue = {
 
 export const SearchPage: FC = () => {
   const [searchParams, setSearchParams] = React.useState<SearchContactParam>({})
-  const { register, handleSubmit, reset, formState:{errors} } = useForm<SearchFieldValue>()
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<SearchFieldValue>()
 
   const onSubmit = (e: SearchFieldValue) =>
     setSearchParams({
@@ -62,7 +66,7 @@ export const SearchPage: FC = () => {
     <FlexContainer isFlexAuto isFlexColumn className={cx(elRowGap6)}>
       <Subtitle>Client Search</Subtitle>
       <FlexContainer className={cx(elWFull)}>
-        <form className={cx(elWFull, elFlexJustifyCenter)} onSubmit={handleSubmit(onSubmit)} data-testid='form'>
+        <form className={cx(elWFull, elFlexJustifyCenter)} onSubmit={handleSubmit(onSubmit)} data-testid="form">
           <FormLayout hasMargin>
             <InputWrap>
               <InputGroup
@@ -71,7 +75,7 @@ export const SearchPage: FC = () => {
                 id="name"
                 placeholder="Firstname or Surname"
                 {...register('searchName', { required: true })}
-                errorMessage = {errors.searchName?.type === "required" ? "*Name is required":""}
+                errorMessage={errors.searchName?.type === 'required' ? '*Name is required' : ''}
                 data-testid={'test.input.searchName'}
               />
             </InputWrap>
@@ -87,10 +91,20 @@ export const SearchPage: FC = () => {
             </InputWrap>
             <InputWrap>
               <Label>Search by ID Status</Label>
-              <Select placeholder="Please select..." defaultValue="" {...register('searchIdStatus')} data-testid={'test.select.searchIdStatus'}>
+              <Select
+                placeholder="Please select..."
+                defaultValue=""
+                {...register('searchIdStatus')}
+                data-testid={'test.select.searchIdStatus'}
+              >
                 {ID_STATUS.map((status, index) => {
                   return (
-                    <option key={status.value} value={status.value} disabled={index === 0} data-testid={'test.option.status.value'}>
+                    <option
+                      key={status.value}
+                      value={status.value}
+                      disabled={index === 0}
+                      data-testid={'test.option.status'}
+                    >
                       {status.label}
                     </option>
                   )
@@ -116,7 +130,11 @@ export const SearchPage: FC = () => {
         ) : (
           <>
             {!searchParams || Number(result.data?._embedded?.length) === 0 ? (
-              <PersistantNotification data-testid={`test.persistantnotification.notfound`} isExpanded={true} isFullWidth>
+              <PersistantNotification
+                data-testid={`test.persistantnotification.notfound`}
+                isExpanded={true}
+                isFullWidth
+              >
                 No search results
               </PersistantNotification>
             ) : (

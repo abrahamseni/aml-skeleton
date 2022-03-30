@@ -26,12 +26,12 @@ export const generateAddress = (address: AddressModel | undefined) => {
   return filteredAddressEntries
 }
 
-export const generateForename = (forename: string | undefined) => {
-  return forename !== null ? forename : ''
+export const checkNullValue = (str: string) => {
+  return str !== null ? titleCase(str) : ''
 }
 
-export const generateSurname = (surname: string | undefined) => {
-  return surname !== null ? surname : ''
+export const titleCase = (str: string) => {
+  return str.toLowerCase().replace(/\b(\w)/g, (s) => s.toUpperCase())
 }
 
 export const TableResult: FC<TableProps> = (props) => {
@@ -47,7 +47,7 @@ export const TableResult: FC<TableProps> = (props) => {
         cells: [
           {
             label: 'Name',
-            value: generateForename(forename) + ' ' + generateSurname(surname),
+            value: checkNullValue(forename) + ' ' + checkNullValue(surname),
             narrowTable: {
               showLabel: true,
             },
@@ -74,7 +74,7 @@ export const TableResult: FC<TableProps> = (props) => {
             },
             children: (
               <>
-                <StatusIndicator intent={status[identityCheck]} /> {identityCheck}
+                <StatusIndicator intent={status[identityCheck]} /> {titleCase(identityCheck)}
               </>
             ),
           },
