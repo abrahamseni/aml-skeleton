@@ -2,7 +2,7 @@ import { cx } from '@linaria/core'
 import { BodyText, Button, ButtonGroup, elMt6, FlexContainer, StatusIndicator, Subtitle } from '@reapit/elements'
 import React from 'react'
 import { useQueryClient } from 'react-query'
-import { ReportTable, ReportWrap } from './__styles__/styles'
+import { endBorder, ReportTable, ReportWrap } from './__styles__/styles'
 import { ContactModel, IdentityCheckModel } from '@reapit/foundations-ts-definitions'
 import {
   isCompletedProfile,
@@ -15,6 +15,7 @@ import { generateAddress } from '../table/table'
 import { useAtom } from 'jotai'
 import { identityTypeAtom } from 'atoms/atoms'
 import ReactToPrint from 'react-to-print'
+import _merge from 'lodash.merge'
 
 type Props = {
   closeModal: () => void
@@ -98,20 +99,29 @@ const generateReport = (reportData: ReportModel, idTypes: any) => {
 export default function Report({ closeModal }: Props) {
   const [idTypes] = useAtom(identityTypeAtom)
   const qc = useQueryClient()
-  const qcData = qc.getQueriesData<ContactModel | IdentityCheckModel>([])
+  const contactData = qc.getQueriesData<ContactModel | IdentityCheckModel>(['contact'])
+  const idData = qc.getQueriesData<ContactModel | IdentityCheckModel>(['fetchSingleIdentityCheckByContactId'])
   let data: ReportModel = {}
-  if (qcData.length > 0) {
-    qcData.forEach((d) => {
-      data = { ...data, ...(d[1] as any) }
+  if (contactData.length > 0) {
+    contactData.forEach((d) => {
+      data = _merge(data, d[1] as any)
     })
   }
+  if (idData.length > 0) {
+    idData.forEach((d) => {
+      data = _merge(data, d[1] as any)
+    })
+  }
+  console.log('data', data)
 
   const printRef = React.useRef<HTMLDivElement>(null)
 
   return (
     <FlexContainer isFlexColumn>
       <ReportWrap ref={printRef}>
-        <Subtitle>Mr. John Smith</Subtitle>
+        <Subtitle>
+          {data.title} {data.forename} {data.surname}
+        </Subtitle>
         <ReportTable>
           <thead>
             <tr>
@@ -133,6 +143,7 @@ export default function Report({ closeModal }: Props) {
               })}
           </tbody>
         </ReportTable>
+        <hr className={endBorder} />
       </ReportWrap>
       <FlexContainer className={cx(elMt6)} isFlexJustifyEnd>
         <ButtonGroup>
