@@ -26,6 +26,14 @@ export const generateAddress = (address: AddressModel | undefined) => {
   return filteredAddressEntries
 }
 
+export const checkNullValue = (str: string) => {
+  return str !== null ? titleCase(str) : ''
+}
+
+export const titleCase = (str: string) => {
+  return str.toLowerCase().replace(/\b(\w)/g, (s) => s.toUpperCase())
+}
+
 export const TableResult: FC<TableProps> = (props) => {
   if (!props.items || !props.items.length) return null
 
@@ -39,7 +47,7 @@ export const TableResult: FC<TableProps> = (props) => {
         cells: [
           {
             label: 'Name',
-            value: forename + ' ' + surname ?? '',
+            value: checkNullValue(forename) + ' ' + checkNullValue(surname),
             narrowTable: {
               showLabel: true,
             },
@@ -66,7 +74,7 @@ export const TableResult: FC<TableProps> = (props) => {
             },
             children: (
               <>
-                <StatusIndicator intent={status[identityCheck]} /> {identityCheck}
+                <StatusIndicator intent={status[identityCheck]} /> {titleCase(identityCheck)}
               </>
             ),
           },

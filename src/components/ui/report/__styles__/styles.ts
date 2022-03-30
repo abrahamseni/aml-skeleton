@@ -1,3 +1,4 @@
+import { css } from '@linaria/core'
 import { styled } from '@linaria/react'
 
 export const ReportTable = styled.table`
@@ -20,6 +21,14 @@ export const ReportTable = styled.table`
   }
 `
 
+export const endBorder = css`
+  display: none;
+
+  @media print {
+    display: block;
+  }
+`
+
 export const ReportWrap = styled.div`
   margin: auto;
   @media print {
@@ -34,6 +43,11 @@ export const ReportWrap = styled.div`
       padding: 40px;
       font-size: 14px;
       line-height: 18px;
+    }
+    & table,
+    tr,
+    td {
+      border: 1px solid black;
     }
   }
 `
