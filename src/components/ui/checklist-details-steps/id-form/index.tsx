@@ -1,3 +1,2 @@
-export { default as default } from './id-form'
-
-export * from './form-schema/form-field'
+export { default as PrimaryId } from './primary-id'
+export { default as SecondaryId } from './secondary-id'

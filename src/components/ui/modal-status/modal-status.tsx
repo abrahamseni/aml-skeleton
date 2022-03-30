@@ -1,27 +1,43 @@
 import React, { useState } from 'react'
-import { Modal, BodyText, InputGroup, Button } from '@reapit/elements'
+import { Modal, BodyText, InputGroup, Button, useSnack } from '@reapit/elements'
 import { ContactModel, IdentityCheckModel } from '@reapit/foundations-ts-definitions'
 
+import { notificationMessage } from 'constants/notification-message'
 import { useUpdateIdentityCheck } from '../../../platform-api/identity-check-api'
-import { GenerateProgressBarResult } from 'utils/generator'
 
 type Props = {
   userData: ContactModel
   idCheck: IdentityCheckModel
   isModalStatusOpen: boolean
+  closeModal: () => void
   setModalStatusOpen: React.Dispatch<React.SetStateAction<boolean>>
-  progressBarStatus: GenerateProgressBarResult
+  progressBarStatus
 }
 
-const ModalStatus = ({ userData, idCheck, isModalStatusOpen, setModalStatusOpen, progressBarStatus }: Props) => {
+const ModalStatus = ({
+  userData,
+  idCheck,
+  isModalStatusOpen,
+  closeModal,
+  setModalStatusOpen,
+  progressBarStatus,
+}: Props) => {
   const [userStatus, setUserStatus] = useState<string>(userData!.identityCheck!)
   const { updateIdentityCheck } = useUpdateIdentityCheck()
-  // const createIdentityCheck = useCreateIdentityCheck()
+  const { success: successAlert, error: errorAlert } = useSnack()
 
   const handleUpdateStatus = () => {
-    return updateIdentityCheck({ id: idCheck.id!, _eTag: idCheck._eTag!, status: userStatus, contactId: userData.id! })
+    return updateIdentityCheck(
+      { id: idCheck.id!, _eTag: idCheck._eTag!, status: userStatus, contactId: userData.id! },
+      {
+        onSuccess: () => {
+          successAlert(notificationMessage.SUCCESS('status'), 2000)
+          closeModal()
+        },
+        onError: () => errorAlert(notificationMessage.ERROR()),
+      },
+    )
   }
-
   return (
     <Modal isOpen={isModalStatusOpen} onModalClose={() => setModalStatusOpen(false)} title="Update Status">
       <BodyText>
@@ -31,11 +47,13 @@ const ModalStatus = ({ userData, idCheck, isModalStatusOpen, setModalStatusOpen,
       </BodyText>
       <div className="el-flex el-flex-row el-flex-wrap">
         {[
-          { label: 'Passed', value: 'pass', className: '' },
-          { label: 'Fail', value: 'fail', className: 'el-ml8' },
-          { label: 'Pending', value: 'pending', className: 'el-ml8' },
-          { label: 'Cancelled', value: 'warnings', className: 'el-ml8' },
+          { label: 'Unknown', value: 'unknown', className: '' },
           { label: 'Unchecked', value: 'unchecked', className: 'el-ml8' },
+          { label: 'Pending', value: 'pending', className: 'el-ml8' },
+          { label: 'Fail', value: 'fail', className: 'el-ml8' },
+          { label: 'Cancelled', value: 'cancelled', className: 'el-ml8' },
+          { label: 'Warnings', value: 'warnings', className: 'el-ml8' },
+          { label: 'Passed', value: 'pass', className: 'el-ml8' },
         ].map(({ label, value, className }, index) => (
           <InputGroup
             key={index}

@@ -1,6 +1,5 @@
-import React from 'react'
+import React, { FC, ReactElement, memo, useState } from 'react'
 import {
-  elMb2,
   FlexContainer,
   InputGroup,
   Label,
@@ -9,99 +8,95 @@ import {
   FormLayout,
   InputWrapFull,
   InputWrap,
-  elMy6,
-  elMt6,
-  elMb6,
   useSnack,
-  elWFull,
-  elPl3,
 } from '@reapit/elements'
 import { cx } from '@linaria/core'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { generateLabelField, generateOptionsType, generateTestId } from 'utils/generator'
+import { generateLabelField, generateOptionsType } from 'utils/generator'
 import { formField, ValuesType, validationSchema } from './form-schema'
 import { order0 } from './__styles__'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
 import { notificationMessage } from 'constants/notification-message'
 import { useUpdateContact } from 'platform-api/contact-api/update-contact'
-import DocumentPreviewModal from 'components/ui/ui/document-preview-modal'
-import FormFooter from 'components/ui/form-footer/form-footer'
-import { displayErrorMessage } from 'utils/error-message'
-import { FileInput } from 'components/ui/ui/file-input'
-import { useFileDocumentUpload } from 'platform-api/file-upload-api'
+import { FileInput } from 'components/ui/elements/file-input'
+import { useFileDocumentUpload } from 'platform-api/file-upload-api/post-file-upload'
 import { isDataUrl } from 'utils/url'
+
+import FormFooter from 'components/ui/form-footer/form-footer'
+import DocumentPreviewModal from 'components/ui/elements/document-preview-modal'
+import ErrorMessage from 'components/ui/elements/error-message'
+import { getFormSaveErrorMessage } from '../../../../utils/error-message'
+
+const initialValues = ({ declarationForm, reason, riskAssessmentForm, type }): ValuesType => ({
+  declarationForm,
+  reason,
+  riskAssessmentForm,
+  type,
+})
 
 interface DeclarationRiskManagementProps {
   userData: ContactModel | undefined
 }
 
-const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({ userData }): React.ReactElement => {
-  // snack notification - snack provider
-  const { success, error } = useSnack()
-  // local state - modal handler
-  const [declarationFormModalOpen, setDeclarationFormModalOpen] = React.useState<boolean>(false)
-  const [riskAssessmentFormModalOpen, setRiskAssessmentFormModalOpen] = React.useState<boolean>(false)
+const DeclarationRiskManagement: FC<DeclarationRiskManagementProps> = ({ userData }): ReactElement => {
+  const { declarationForm, reason, riskAssessmentForm, type } = userData?.metadata?.declarationRisk ?? {}
 
-  // local function - modal handler
-  const handleModal = (type: 'declaration' | 'riskAssessment', option: 'open' | 'close'): void => {
+  const { success, error } = useSnack()
+
+  const [declarationFormModalOpen, setDeclarationFormModalOpen] = useState<boolean>(false)
+  const [riskAssessmentFormModalOpen, setRiskAssessmentFormModalOpen] = useState<boolean>(false)
+
+  const handleModal = (type: 'declarationForm' | 'riskAssessmentForm', option: 'open' | 'close'): void => {
     switch (type) {
-      case 'riskAssessment':
-        setRiskAssessmentFormModalOpen(!!(option === 'open'))
+      case 'riskAssessmentForm':
+        setRiskAssessmentFormModalOpen(option === 'open')
         break
-      case 'declaration':
-        setDeclarationFormModalOpen(!!(option === 'open'))
+      case 'declarationForm':
+        setDeclarationFormModalOpen(option === 'open')
         break
     }
   }
 
-  const { declarationForm, reason, riskAssessmentForm, type } = userData?.metadata?.declarationRisk ?? {}
-
-  // setup initial values from context
-  const INITIAL_VALUES: ValuesType = {
-    declarationForm,
-    reason,
-    riskAssessmentForm,
-    type,
-  }
-
-  // setup and integrate with initial value
-  const { register, handleSubmit, formState, getValues, setValue } = useForm<ValuesType>({
-    defaultValues: INITIAL_VALUES,
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    getValues,
+    setValue,
+  } = useForm<ValuesType>({
+    defaultValues: initialValues({ declarationForm, reason, riskAssessmentForm, type }),
     resolver: yupResolver(validationSchema),
     mode: 'onBlur',
   })
 
-  // declare form
-  const { declarationFormField, riskAssessmentFormField, typeField, reasonField } = formField()
+  const { mutateAsync, isLoading: isUpdateContactLoading } = useUpdateContact(userData!.id!, userData!._eTag!)
 
-  const updateContactData = useUpdateContact(userData!.id!, userData!._eTag!)
-  const uploadFileData = useFileDocumentUpload()
+  const { fileUpload, isLoading: isFileUploadLoading } = useFileDocumentUpload()
 
-  const updateDataHandler = async (name: string, fileType: keyof ValuesType): Promise<void> => {
-    await uploadFileData.fileUpload(
-      { name: name, imageData: getValues(fileType)! },
+  const uploadFileDocumentHandler = async (
+    name: string,
+    fileType: 'declarationForm' | 'riskAssessmentForm',
+  ): Promise<void> => {
+    await fileUpload(
+      { name: name, imageData: getValues(fileType) },
       {
         onSuccess: (res) => setValue(fileType, res.data.Url),
       },
     )
   }
 
-  // button handler - submit
   const onSubmitHandler = async () => {
     try {
-      // if declaration form field have base64 value, then try to upload in fileUpload
-      if (isDataUrl(getValues('declarationForm')!)) {
-        await updateDataHandler(`declaration-file-form-${userData?.id!}`, 'declarationForm')
+      if (isDataUrl(getValues('declarationForm') as string)) {
+        await uploadFileDocumentHandler(`declaration-file-form-${userData?.id!}`, 'declarationForm')
       }
 
-      // if risk assessment form field have base64 value, then try to upload in fileUpload
-      if (isDataUrl(getValues('riskAssessmentForm')!)) {
-        await updateDataHandler(`risk-assessment-file-form-${userData?.id!}`, 'riskAssessmentForm')
+      if (isDataUrl(getValues('riskAssessmentForm') as string)) {
+        await uploadFileDocumentHandler(`risk-assessment-file-form-${userData?.id!}`, 'riskAssessmentForm')
       }
 
-      // while uploading declaration/risk assessment not error, then try to update contact data
-      await updateContactData.mutateAsync(
+      await mutateAsync(
         {
           metadata: {
             ...userData?.metadata,
@@ -110,41 +105,36 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({ u
         },
         {
           onSuccess: () => success(notificationMessage.SUCCESS('Declaration Risk Management'), 3500),
-          onError: (err) => error(err.response?.data.description ?? notificationMessage.DRM_ERROR, 7500),
         },
       )
-    } catch (e) {
-      // when file upload error, throw here
-      console.error(uploadFileData.error)
-      error(notificationMessage.UPLOAD_FILE_ERROR, 7500)
+    } catch (e: any) {
+      error(getFormSaveErrorMessage('Declaration Risk Management', e), 7500)
+      console.error(e.message)
     }
   }
+
+  const { declarationFormField, riskAssessmentFormField, typeField, reasonField } = formField()
 
   return (
     <>
       <form onSubmit={handleSubmit<ValuesType>(onSubmitHandler)}>
-        <FormLayout hasMargin className={elWFull} data-testid="declaration.risk.management.form">
+        <FormLayout hasMargin data-testid="declaration.risk.management.form">
           <InputWrapFull>
-            <InputWrap className={elMb6}>
-              <FlexContainer isFlexColumn className={elPl3}>
-                <Label className={cx(order0, elMb2)}>{generateLabelField(declarationFormField.label, true)}</Label>
+            <InputWrap className="el-mb6">
+              <FlexContainer isFlexColumn className="el-pl3">
+                <Label className={cx(order0, 'el-mb2')}>{generateLabelField(declarationFormField.label, true)}</Label>
                 <FileInput
                   {...register(declarationFormField.name)}
                   defaultValue={declarationForm}
-                  onFileView={() => handleModal('declaration', 'open')}
-                  accept="image/jpeg, image/png, application/pdf"
-                  data-testid={generateTestId(declarationFormField.name)}
+                  onFileView={() => handleModal(declarationFormField.name, 'open')}
+                  data-testid={declarationFormField.name}
                 />
-                {displayErrorMessage(declarationFormField.name, formState) && (
-                  <p data-testid={`test.error.${declarationFormField.name}`} className="el-input-error">
-                    {displayErrorMessage(declarationFormField.name, formState)}
-                  </p>
-                )}
+                <ErrorMessage name={declarationFormField.name} errors={errors} />
               </FlexContainer>
             </InputWrap>
-            <InputWrap className={elMy6}>
+            <InputWrap className="el-my3">
               <InputGroup>
-                <Select {...register(typeField.name)} data-testid={generateTestId(typeField.name)}>
+                <Select {...register(typeField.name)} data-testid={typeField.name}>
                   {generateOptionsType('riskAssessmentType').map((v) => {
                     return (
                       <option key={v.value} value={v.value}>
@@ -153,64 +143,52 @@ const DeclarationRiskManagement: React.FC<DeclarationRiskManagementProps> = ({ u
                     )
                   })}
                 </Select>
-                <Label className={cx(order0, elMb2)}>{generateLabelField(typeField.label, true)}</Label>
-                {displayErrorMessage(typeField.name, formState) && (
-                  <p data-testid={`test.error.${typeField.name}`} className="el-input-error">
-                    {displayErrorMessage(typeField.name, formState)}
-                  </p>
-                )}
+                <Label className={cx(order0, 'el-mb2')}>{generateLabelField(typeField.label, true)}</Label>
+                <ErrorMessage name={typeField.name} errors={errors} />
               </InputGroup>
             </InputWrap>
-            <InputWrap className={elMt6}>
-              <FlexContainer isFlexColumn className={elPl3}>
-                <Label className={cx(order0, elMb2)}>{generateLabelField(riskAssessmentFormField.label, true)}</Label>
+            <InputWrap className="el-mt6">
+              <FlexContainer isFlexColumn className="el-pl3">
+                <Label className={cx(order0, 'el-mb2')}>
+                  {generateLabelField(riskAssessmentFormField.label, true)}
+                </Label>
                 <FileInput
                   {...register(riskAssessmentFormField.name)}
                   defaultValue={riskAssessmentForm}
-                  onFileView={() => handleModal('riskAssessment', 'open')}
+                  onFileView={() => handleModal(riskAssessmentFormField.name, 'open')}
                   accept="image/jpeg, image/png, application/pdf"
-                  data-testid={generateTestId(riskAssessmentFormField.name)}
+                  data-testid={riskAssessmentFormField.name}
                 />
-                {displayErrorMessage(riskAssessmentFormField.name, formState) && (
-                  <p data-testid={`test.error.${riskAssessmentFormField.name}`} className="el-input-error">
-                    {displayErrorMessage(riskAssessmentFormField.name, formState)}
-                  </p>
-                )}
+                <ErrorMessage name={riskAssessmentFormField.name} errors={errors} />
               </FlexContainer>
             </InputWrap>
-            <InputWrap className={elMt6}>
+            <InputWrap className="el-mt6">
               <InputGroup>
-                <TextArea {...register(reasonField.name)} data-testid={generateTestId(reasonField.name)} />
+                <TextArea {...register(reasonField.name)} data-testid={reasonField.name} />
                 <Label>{generateLabelField(reasonField.label, true)}</Label>
-                {displayErrorMessage(reasonField.name, formState) && (
-                  <p data-testid={`test.error.${reasonField.name}`} className="el-input-error">
-                    {displayErrorMessage(reasonField.name, formState)}
-                  </p>
-                )}
+                <ErrorMessage name={reasonField.name} errors={errors} />
               </InputGroup>
             </InputWrap>
           </InputWrapFull>
         </FormLayout>
         <FormFooter
           idUser={userData?.id}
-          isFieldError={!!Object.keys(formState.errors).length}
-          isFormSubmitting={updateContactData?.isLoading || uploadFileData.isLoading}
+          isFieldError={!!Object.keys(errors).length}
+          isFormSubmitting={isUpdateContactLoading || isFileUploadLoading}
         />
       </form>
-      {/* Modal Declaration Form */}
       <DocumentPreviewModal
         src={getValues(declarationFormField.name)}
         isOpen={declarationFormModalOpen}
-        onModalClose={() => handleModal('declaration', 'close')}
+        onModalClose={() => handleModal(declarationFormField.name, 'close')}
       />
-      {/* Modal Risk Assessment Form */}
       <DocumentPreviewModal
         src={getValues(riskAssessmentFormField.name)}
         isOpen={riskAssessmentFormModalOpen}
-        onModalClose={() => handleModal('riskAssessment', 'close')}
+        onModalClose={() => handleModal(riskAssessmentFormField.name, 'close')}
       />
     </>
   )
 }
 
-export default React.memo(DeclarationRiskManagement)
+export default memo(DeclarationRiskManagement)

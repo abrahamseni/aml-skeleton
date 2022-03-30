@@ -9,7 +9,7 @@ import AxiosMockAdapter from 'axios-mock-adapter'
 import { identityDocumentTypes } from '../__mocks__/identity-document-types'
 import { URLS } from 'constants/api'
 import { wait } from 'utils/test'
-import DocumentPreviewModal, { DocumentPreviewModalProps } from 'components/ui/ui/document-preview-modal'
+import DocumentPreviewModal, { DocumentPreviewModalProps } from 'components/ui/elements/document-preview-modal'
 import { downloadDocument as downloadDocumentMock } from 'platform-api/document-api'
 import propsRepo from 'utils/mocks/props-repo'
 
@@ -17,15 +17,8 @@ const axiosMock = new AxiosMockAdapter(axios)
 
 jest.unmock('@reapit/connect-session')
 jest.mock('core/connect-session')
-jest.mock('react-pdf/dist/esm/entry.webpack', () => {
-  return {
-    __esModule: true,
-    Document: () => null,
-    Page: () => null,
-  }
-})
-jest.mock('components/ui/ui/document-preview-modal', () => {
-  const DocumentPreviewModal = jest.requireActual('components/ui/ui/document-preview-modal')
+jest.mock('components/ui/elements/document-preview-modal', () => {
+  const DocumentPreviewModal = jest.requireActual('components/ui/elements/document-preview-modal')
   const DocumentPreviewModalMock = jest.fn(() => <></>)
   return {
     __esModule: true,

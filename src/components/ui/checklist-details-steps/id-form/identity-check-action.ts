@@ -1,6 +1,6 @@
 import { useReapitConnect } from '@reapit/connect-session'
 import { ContactModel, IdentityCheckModel } from '@reapit/foundations-ts-definitions'
-import { now } from 'utils/date'
+import { now } from '../../../../utils/date'
 import { reapitConnectBrowserSession } from '../../../../core/connect-session'
 import { useCreateIdentityCheck, useUpdateIdentityCheck } from '../../../../platform-api/identity-check-api'
 import { getFileExtensionsFromDataUrl } from '../../../../utils/file'
@@ -18,7 +18,7 @@ export const useSaveIdentityDocument = (identityDocumentIndex: 1 | 2) => {
   const { createIdentityCheck } = useCreateIdentityCheck()
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
 
-  function saveIdentityDocument(
+  async function saveIdentityDocument(
     contact: ContactModel,
     idCheck: IdentityCheckModel | undefined,
     values: ValuesType,
@@ -39,7 +39,7 @@ export const useSaveIdentityDocument = (identityDocumentIndex: 1 | 2) => {
     const identityDocumentPropName = 'identityDocument' + identityDocumentIndex
 
     if (idCheck) {
-      updateIdentityCheck(
+      await updateIdentityCheck(
         {
           id: idCheck.id!,
           _eTag: idCheck._eTag!,
@@ -63,7 +63,7 @@ export const useSaveIdentityDocument = (identityDocumentIndex: 1 | 2) => {
           )
         return
       }
-      createIdentityCheck(
+      await createIdentityCheck(
         {
           contactId: contact.id!,
           identityDocument1: newIdentityDocument,

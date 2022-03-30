@@ -1,5 +1,5 @@
-import React from 'react'
-import { Button, elWFull, FormLayout, InputWrapFull, useSnack } from '@reapit/elements'
+import React, { FC, ReactElement, useState } from 'react'
+import { Button, FormLayout, InputWrapFull, useSnack } from '@reapit/elements'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { validationSchema, ValuesType } from './form-schema'
@@ -10,24 +10,20 @@ import { useUpdateContact } from 'platform-api/contact-api/update-contact'
 
 import FormField from './form-field'
 import FormFooter from 'components/ui/form-footer/form-footer'
-import { useFileDocumentUpload } from 'platform-api/file-upload-api'
+import { useFileDocumentUpload } from 'platform-api/file-upload-api/post-file-upload'
 import { isDataUrl } from 'utils/url'
+import { getFormSaveErrorMessage } from '../../../../utils/error-message'
 
-interface AddressInformationProps {
-  userData: ContactModel | undefined
-}
-
-const AddressInformation: React.FC<AddressInformationProps> = ({ userData }): React.ReactElement => {
-  // snack notification - snack provider
-  const { success, error } = useSnack()
-
-  const [isSecondaryFormActive, setIsSecondaryFormActive] = React.useState<boolean>(!!userData?.secondaryAddress)
-
-  // get user data from parent
-  const { primaryAddress, secondaryAddress, metadata } = userData ?? {}
-
-  // reformat metadata
-  const formattedMetadata: ValuesType['metadata'] = {
+const initialValues = ({ primaryAddress, secondaryAddress, metadata }): ValuesType => ({
+  primaryAddress: {
+    type: 'primary',
+    ...primaryAddress,
+  },
+  secondaryAddress: {
+    type: 'secondary',
+    ...secondaryAddress,
+  },
+  metadata: {
     primaryAddress: {
       documentImage: metadata?.primaryAddress?.documentImage ?? '',
       documentType: metadata?.primaryAddress?.documentType ?? '',
@@ -40,88 +36,92 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData }): Re
       month: metadata?.secondaryAddress?.month ?? '',
       year: metadata?.secondaryAddress?.year ?? '',
     },
-  }
+  },
+})
 
-  // setup initial values
-  const INITIAL_VALUES: ValuesType = {
-    primaryAddress: {
-      type: 'primary',
-      ...primaryAddress,
-    },
-    secondaryAddress: {
-      type: 'secondary',
-      ...secondaryAddress,
-    },
-    metadata: formattedMetadata,
-  }
+interface AddressInformationProps {
+  userData: ContactModel | undefined
+}
 
-  // setup and integrate initial value with useForm Hook
-  const currentForm = useForm<ValuesType>({
-    defaultValues: INITIAL_VALUES,
+const AddressInformation: FC<AddressInformationProps> = ({ userData }): ReactElement => {
+  const [isSecondaryFormActive, setIsSecondaryFormActive] = useState(!!userData?.secondaryAddress)
+
+  const { primaryAddress, secondaryAddress, metadata } = userData ?? {}
+
+  const { success, error } = useSnack()
+
+  const {
+    getValues,
+    setValue,
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<ValuesType>({
+    defaultValues: initialValues({ primaryAddress, secondaryAddress, metadata }),
     resolver: yupResolver(validationSchema),
     mode: 'onBlur',
   })
 
-  const updateContactData = useUpdateContact(userData!.id!, userData!._eTag!)
-  const uploadFileData = useFileDocumentUpload()
+  const { mutateAsync, isLoading: isUpdateContactLoading } = useUpdateContact(userData?.id!, userData?._eTag!)
 
-  const updateDataHandler = async (name: string, fileType: any): Promise<void> => {
-    await uploadFileData.fileUpload(
-      { name: name, imageData: currentForm.getValues(fileType)! },
+  const { fileUpload, isLoading: isFileUploadLoading } = useFileDocumentUpload()
+
+  const uploadFileDocumentHandler = async (
+    name: string,
+    fileType: 'metadata.primaryAddress.documentImage' | 'metadata.secondaryAddress.documentImage',
+  ): Promise<void> => {
+    await fileUpload(
+      { name: name, imageData: getValues(fileType) as string },
       {
-        onSuccess: (res) => {
-          currentForm.setValue(fileType, res.data.Url)
-        },
+        onSuccess: (res) => setValue(fileType, res.data.Url),
       },
     )
   }
 
-  // button handler - submit
   const onSubmitHandler = async () => {
     try {
-      // if primaryAddress DocumentImage field have base64 value, then try to upload in fileUpload
-      if (isDataUrl(currentForm.getValues('metadata.primaryAddress.documentImage')!)) {
-        await updateDataHandler(
+      if (isDataUrl(getValues('metadata.primaryAddress.documentImage') as string)) {
+        await uploadFileDocumentHandler(
           `document-image-primary-address-${userData?.id!}`,
           'metadata.primaryAddress.documentImage',
         )
       }
 
-      // if secondaryAddress Document Image value is base64 form, then try to upload in fileUpload
-      if (isDataUrl(currentForm.getValues('metadata.secondaryAddress.documentImage')!)) {
-        await updateDataHandler(
+      if (isDataUrl(getValues('metadata.secondaryAddress.documentImage') as string)) {
+        await uploadFileDocumentHandler(
           `document-image-secondary-address-${userData?.id!}`,
           'metadata.secondaryAddress.documentImage',
         )
       }
 
-      // if primary/secondary Document Image doesn't have an error, try to update contact data
-      await updateContactData.mutateAsync(
+      await mutateAsync(
         {
-          primaryAddress: currentForm.getValues('primaryAddress'),
-          secondaryAddress: currentForm.getValues('secondaryAddress'),
+          primaryAddress: getValues('primaryAddress'),
+          secondaryAddress: getValues('secondaryAddress'),
           metadata: {
             declarationRisk: userData?.metadata?.declarationRisk,
-            ...currentForm.getValues('metadata'),
+            ...getValues('metadata'),
           },
         },
         {
           onSuccess: () => success(notificationMessage.SUCCESS('Address Information'), 3500),
-          onError: (err) => error(err.response?.data.description ?? notificationMessage.DRM_ERROR, 7500),
         },
       )
-    } catch (e) {
-      // when file upload error, throw here
-      console.error(uploadFileData.error)
-      error(notificationMessage.UPLOAD_FILE_ERROR, 7500)
+    } catch (e: any) {
+      error(getFormSaveErrorMessage('Address Information', e), 7500)
+      console.error(e.message)
     }
   }
 
   return (
     <>
-      <form onSubmit={currentForm.handleSubmit(onSubmitHandler)}>
-        <FormLayout hasMargin className={elWFull}>
-          <FormField identity="primaryAddress" rhfProps={currentForm} data-testid="form.primaryAddress" />
+      <form onSubmit={handleSubmit(onSubmitHandler)}>
+        <FormLayout hasMargin>
+          <FormField
+            name="primaryAddress"
+            useFormProps={{ register, getValues, errors }}
+            data-testid="form.primaryAddress"
+          />
           <InputWrapFull>
             <RightSideContainer>
               <Button
@@ -135,13 +135,17 @@ const AddressInformation: React.FC<AddressInformationProps> = ({ userData }): Re
             </RightSideContainer>
           </InputWrapFull>
           {isSecondaryFormActive && (
-            <FormField identity="secondaryAddress" rhfProps={currentForm} data-testid="form.secondaryAddress" />
+            <FormField
+              name="secondaryAddress"
+              useFormProps={{ register, getValues, errors }}
+              data-testid="form.secondaryAddress"
+            />
           )}
         </FormLayout>
         <FormFooter
           idUser={userData?.id}
-          isFieldError={!!Object.keys(currentForm.formState.errors).length}
-          isFormSubmitting={updateContactData?.isLoading || uploadFileData.isLoading}
+          isFieldError={!!Object.keys(errors).length}
+          isFormSubmitting={isUpdateContactLoading || isFileUploadLoading}
         />
       </form>
     </>

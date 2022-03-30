@@ -1,9 +1,13 @@
 import React, { useState } from 'react'
-import { Subtitle, useSnack } from '@reapit/elements'
-import IdForm, { ValuesType } from './id-form'
+import { useSnack } from '@reapit/elements'
+import IdForm from './id-form'
+import { ValuesType } from './form-schema'
 import { ContactModel, IdentityCheckModel, ListItemModel } from '@reapit/foundations-ts-definitions'
-import { useSaveIdentityDocument } from './id-form/identity-check-action'
-import { notificationMessage } from 'constants/notification-message'
+import { useSaveIdentityDocument } from './identity-check-action'
+import { notificationMessage } from '../../../../constants/notification-message'
+import { getFormSaveErrorMessage } from 'utils/error-message'
+
+const formName = 'Secondary ID'
 
 const defaultValues = {
   idType: '',
@@ -62,11 +66,11 @@ const SecondaryId = ({ contact, idCheck, idDocTypes, onSaved }: SecondaryIdProps
 
     saveIdentityDocument(contact, idCheck, values, {
       onSuccess() {
-        success(notificationMessage.PI2_SUCCESS)
+        success(notificationMessage.SUCCESS(formName))
         onSaved && onSaved()
       },
-      onError() {
-        error(notificationMessage.PI2_ERROR)
+      onError(err) {
+        error(getFormSaveErrorMessage(formName, err))
       },
       onSettled() {
         setLoading(false)
@@ -76,7 +80,6 @@ const SecondaryId = ({ contact, idCheck, idDocTypes, onSaved }: SecondaryIdProps
 
   return (
     <>
-      <Subtitle>Secondary ID</Subtitle>
       <IdForm
         defaultValues={getDefaultValues()}
         idDocTypes={getIdDocTypes()}

@@ -1,60 +1,41 @@
-import React from 'react'
-import {
-  elMb2,
-  InputGroup,
-  Label,
-  Select,
-  InputWrap,
-  InputWrapFull,
-  elMt4,
-  FlexContainer,
-  elPl3,
-} from '@reapit/elements'
+import React, { FC, ReactElement, useState } from 'react'
+import { InputGroup, Label, Select, InputWrap, InputWrapFull, FlexContainer } from '@reapit/elements'
 import { formFields, ValuesType } from './form-schema'
 import { UseFormReturn } from 'react-hook-form'
-import { displayErrorMessage } from '../../../../utils/error-message'
-import {
-  generateLabelField,
-  generateOptionsType,
-  generateOptionsYearsOrMonths,
-  generateTestId,
-} from '../../../../utils/generator'
+import { generateLabelField, generateOptionsType, generateOptionsYearsOrMonths } from 'utils/generator'
 import { cx } from '@linaria/core'
 import { order0 } from './__styles__'
 
-import DocumentPreviewModal from 'components/ui/ui/document-preview-modal'
-import { FileInput } from 'components/ui/ui/file-input'
+import { FileInput } from 'components/ui/elements/file-input'
+import DocumentPreviewModal from 'components/ui/elements/document-preview-modal'
+import ErrorMessage from 'components/ui/elements/error-message'
 
 interface FormFieldProps {
-  /**
-   * Available render option between primaryAddress and secondaryAddress
-   */
-  identity: 'primaryAddress' | 'secondaryAddress'
-  /**
-   * Pass Reach Hook Form hook
-   */
-  rhfProps: UseFormReturn<ValuesType>
+  name: 'primaryAddress' | 'secondaryAddress'
+  useFormProps: {
+    errors: UseFormReturn<ValuesType>['formState']['errors']
+    register: UseFormReturn<ValuesType>['register']
+    getValues: UseFormReturn<ValuesType>['getValues']
+  }
 }
 
-const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.ReactElement => {
-  const isPrimaryAddress = !!(identity === 'primaryAddress')
-  // local state - modal handler
-  const [imagePrimaryAddress, setImagePrimaryAddress] = React.useState<boolean>(false)
-  const [imageSecondaryAddress, setImageSecondaryAddress] = React.useState<boolean>(false)
+const FormField: FC<FormFieldProps> = ({ name, useFormProps }): ReactElement => {
+  const isPrimaryAddress = name === 'primaryAddress'
+
+  const [imagePrimaryAddress, setImagePrimaryAddress] = useState(false)
+  const [imageSecondaryAddress, setImageSecondaryAddress] = useState(false)
 
   // local function - modal handler
   const modalHandler = (option: 'open' | 'close'): void => {
-    if (identity === 'primaryAddress') {
-      setImagePrimaryAddress(option === 'open' ? true : false)
+    if (name === 'primaryAddress') {
+      setImagePrimaryAddress(option === 'open')
     } else {
-      setImageSecondaryAddress(option === 'open' ? true : false)
+      setImageSecondaryAddress(option === 'open')
     }
   }
 
-  // passed useForm hook from parent
-  const { register, getValues, formState } = rhfProps
+  const { register, getValues, errors } = useFormProps
 
-  // adjusting field name and field label with initialized value
   const {
     typeField,
     buildingNameField,
@@ -68,7 +49,7 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
     monthField,
     yearField,
     documentTypeField,
-  } = formFields(identity)
+  } = formFields(name)
 
   return (
     <>
@@ -81,42 +62,30 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
             type="text"
             autoComplete="off"
             label={generateLabelField(buildingNameField.label)}
-            data-testid={generateTestId(buildingNameField.name)}
+            data-testid={buildingNameField.name}
             {...register(buildingNameField.name)}
           />
-          {displayErrorMessage(buildingNameField.name, formState) && (
-            <p data-testid={`test.error.${buildingNameField.name}`} className="el-input-error">
-              {displayErrorMessage(buildingNameField.name, formState)}
-            </p>
-          )}
+          <ErrorMessage name={buildingNameField.name} errors={errors} />
         </InputWrap>
         <InputWrap>
           <InputGroup
             type="text"
             autoComplete="off"
             label={generateLabelField(buildingNumberField.label)}
-            data-testid={generateTestId(buildingNumberField.name)}
+            data-testid={buildingNumberField.name}
             {...register(buildingNumberField.name)}
           />
-          {displayErrorMessage(buildingNumberField.name, formState) && (
-            <p data-testid={`test.error.${buildingNumberField.name}`} className="el-input-error">
-              {displayErrorMessage(buildingNumberField.name, formState)}
-            </p>
-          )}
+          <ErrorMessage name={buildingNumberField.name} errors={errors} />
         </InputWrap>
         <InputWrap>
           <InputGroup
             type="text"
             autoComplete="off"
             label={generateLabelField(postcodeField.label, isPrimaryAddress)}
-            data-testid={generateTestId(postcodeField.name)}
+            data-testid={postcodeField.name}
             {...register(postcodeField.name)}
           />
-          {displayErrorMessage(postcodeField.name, formState) && (
-            <p data-testid={`test.error.${postcodeField.name}`} className="el-input-error">
-              {displayErrorMessage(postcodeField.name, formState)}
-            </p>
-          )}
+          <ErrorMessage name={postcodeField.name} errors={errors} />
         </InputWrap>
       </InputWrapFull>
       <InputWrapFull>
@@ -125,63 +94,47 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
             type="text"
             autoComplete="off"
             label={generateLabelField(line1Field.label, isPrimaryAddress)}
-            data-testid={generateTestId(line1Field.name)}
+            data-testid={line1Field.name}
             {...register(line1Field.name)}
           />
-          {displayErrorMessage(line1Field.name, formState) && (
-            <p data-testid={`test.error.${line1Field.name}`} className="el-input-error">
-              {displayErrorMessage(line1Field.name, formState)}
-            </p>
-          )}
+          <ErrorMessage name={line1Field.name} errors={errors} />
         </InputWrap>
         <InputWrap>
           <InputGroup
             type="text"
             autoComplete="off"
             label={generateLabelField(line2Field.label)}
-            data-testid={generateTestId(line2Field.name)}
+            data-testid={line2Field.name}
             {...register(line2Field.name)}
           />
-          {displayErrorMessage(line2Field.name, formState) && (
-            <p data-testid={`test.error.${line2Field.name}`} className="el-input-error">
-              {displayErrorMessage(line2Field.name, formState)}
-            </p>
-          )}
+          <ErrorMessage name={line2Field.name} errors={errors} />
         </InputWrap>
         <InputWrap>
           <InputGroup
             type="text"
             autoComplete="off"
             label={generateLabelField(line3Field.label, isPrimaryAddress)}
-            data-testid={generateTestId(line3Field.name)}
+            data-testid={line3Field.name}
             {...register(line3Field.name)}
           />
-          {displayErrorMessage(line3Field.name, formState) && (
-            <p data-testid={`test.error.${line3Field.name}`} className="el-input-error">
-              {displayErrorMessage(line3Field.name, formState)}
-            </p>
-          )}
+          <ErrorMessage name={line3Field.name} errors={errors} />
         </InputWrap>
         <InputWrap>
           <InputGroup
             type="text"
             autoComplete="off"
             label={generateLabelField(line4Field.label)}
-            data-testid={generateTestId(line4Field.name)}
+            data-testid={line4Field.name}
             {...register(line4Field.name)}
           />
-          {displayErrorMessage(line4Field.name, formState) && (
-            <p data-testid={`test.error.${line4Field.name}`} className="el-input-error">
-              {displayErrorMessage(line4Field.name, formState)}
-            </p>
-          )}
+          <ErrorMessage name={line4Field.name} errors={errors} />
         </InputWrap>
       </InputWrapFull>
       <InputWrapFull data-testid="option.field.wrapper">
         <InputWrap>
           <InputGroup>
             <Label>{generateLabelField(yearField.label, isPrimaryAddress)}</Label>
-            <Select {...register(yearField.name)} data-testid={generateTestId(yearField.name)}>
+            <Select {...register(yearField.name)} data-testid={yearField.name}>
               {generateOptionsYearsOrMonths('years').map((v) => {
                 return (
                   <option key={v.value} value={v.value}>
@@ -190,17 +143,13 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
                 )
               })}
             </Select>
-            {displayErrorMessage(yearField.name, formState) && (
-              <p data-testid={`test.error.${yearField.name}`} className="el-input-error">
-                {displayErrorMessage(yearField.name, formState)}
-              </p>
-            )}
+            <ErrorMessage name={yearField.name} errors={errors} />
           </InputGroup>
         </InputWrap>
         <InputWrap>
           <InputGroup>
             <Label>{generateLabelField(monthField.label, isPrimaryAddress)}</Label>
-            <Select {...register(monthField.name)} data-testid={generateTestId(monthField.name)}>
+            <Select {...register(monthField.name)} data-testid={monthField.name}>
               {generateOptionsYearsOrMonths('months').map((v) => {
                 return (
                   <option key={v.value} value={v.value}>
@@ -209,17 +158,13 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
                 )
               })}
             </Select>
-            {displayErrorMessage(monthField.name, formState) && (
-              <p data-testid={`test.error.${monthField.name}`} className="el-input-error">
-                {displayErrorMessage(monthField.name, formState)}
-              </p>
-            )}
+            <ErrorMessage name={monthField.name} errors={errors} />
           </InputGroup>
         </InputWrap>
         <InputWrap>
           <InputGroup>
             <Label>{generateLabelField(documentTypeField.label, isPrimaryAddress)}</Label>
-            <Select {...register(documentTypeField.name)} data-testid={generateTestId(documentTypeField.name)}>
+            <Select {...register(documentTypeField.name)} data-testid={documentTypeField.name}>
               {generateOptionsType('documentType').map((v) => {
                 return (
                   <option key={v.value} value={v.value}>
@@ -228,37 +173,27 @@ const FormField: React.FC<FormFieldProps> = ({ identity, rhfProps }): React.Reac
                 )
               })}
             </Select>
-            {displayErrorMessage(documentTypeField.name, formState) && (
-              <p data-testid={`test.error.${documentTypeField.name}`} className="el-input-error">
-                {displayErrorMessage(documentTypeField.name, formState)}
-              </p>
-            )}
+            <ErrorMessage name={documentTypeField.name} errors={errors} />
           </InputGroup>
         </InputWrap>
-        <InputWrap className={elMt4}>
-          <FlexContainer isFlexColumn className={elPl3}>
-            <Label className={cx(elMb2, order0)}>
+        <InputWrap className="el-mt4">
+          <FlexContainer isFlexColumn className="el-pl3">
+            <Label className={cx('el-mb2', order0)}>
               {generateLabelField(documentImageField.label, isPrimaryAddress)}
             </Label>
             <FileInput
-              data-testid={generateTestId(documentImageField.name)}
+              data-testid={documentImageField.name}
               {...register(documentImageField.name)}
-              defaultValue={getValues(documentImageField.name)}
               onFileView={() => modalHandler('open')}
-              accept="image/jpeg, image/png, application/pdf"
+              defaultValue={getValues(documentImageField.name)}
             />
-            {displayErrorMessage(documentImageField.name, formState) && (
-              <p data-testid={`test.error.${documentImageField.name}`} className="el-input-error">
-                {displayErrorMessage(documentImageField.name, formState)}
-              </p>
-            )}
+            <ErrorMessage name={documentImageField.name} errors={errors} />
           </FlexContainer>
         </InputWrap>
       </InputWrapFull>
-      {/* Document Image Address */}
       <DocumentPreviewModal
         src={getValues(documentImageField.name)}
-        isOpen={identity === 'primaryAddress' ? imagePrimaryAddress : imageSecondaryAddress}
+        isOpen={name === 'primaryAddress' ? imagePrimaryAddress : imageSecondaryAddress}
         onModalClose={() => modalHandler('close')}
       />
     </>
