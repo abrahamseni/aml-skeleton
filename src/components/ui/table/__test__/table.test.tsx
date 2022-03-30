@@ -1,3 +1,4 @@
+/* eslint-disable  */
 import React from 'react'
 import { render, screen, fireEvent, within } from '@testing-library/react'
 import AxiosMockAdapter from 'axios-mock-adapter'
@@ -20,21 +21,18 @@ describe('Table Show & Search', () => {
     axiosMock.reset()
   })
 
-  describe('Snapshot',()=>{
+  describe('Snapshot', () => {
     it('snapshot table', () => {
       expect(render(<TableResult items={defaultTableProps} />)).toMatchSnapshot()
     })
-
   })
 
-  describe('Table',()=>{
+  describe('Table', () => {
     it('show Loader', () => {
       // const { getByTestId } = render(<SearchPage />);
-
       // fireEvent.
     })
   })
-  
 
   // it('onSubmit to have been called ', async () => {
   //     const { getByTestId } = renderSearch(defaultSearchParams);

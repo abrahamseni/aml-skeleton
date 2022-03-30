@@ -7,8 +7,8 @@ import { formFields } from '../form-schema'
 import AxiosMockAdapter from 'axios-mock-adapter'
 import Axios from '../../../../../axios/axios'
 import { URLS } from '../../../../../constants/api'
-import { wait } from 'utils/test'
-import { error, success } from 'utils/mocks/useSnack'
+import { wait } from '../../../../../utils/test'
+import { error, success } from '../../../../../utils/mocks/useSnack'
 import DocumentPreviewModal, { DocumentPreviewModalProps } from 'components/ui/elements/document-preview-modal'
 
 const axiosMock = new AxiosMockAdapter(Axios, {
@@ -20,8 +20,8 @@ type AddressInformationProps = React.ComponentPropsWithRef<typeof AddressInforma
 jest.unmock('@reapit/connect-session')
 jest.mock('@reapit/elements', () => jest.requireActual('utils/mocks/reapit-element-mocks'))
 jest.mock('core/connect-session')
-jest.mock('components/ui/elements/document-preview-modal', () => {
-  const DocumentPreviewModal = jest.requireActual('components/ui/elements/document-preview-modal')
+jest.mock('components/ui/ui/document-preview-modal', () => {
+  const DocumentPreviewModal = jest.requireActual('components/ui/ui/document-preview-modal')
   const DocumentPreviewModalMock = jest.fn(() => <></>)
   return {
     __esModule: true,
@@ -217,10 +217,6 @@ describe('Address Information Component', () => {
       expect(documentFilePrimaryFieldErrorMessage.textContent).toMatch(/required/i)
     })
 
-    it.todo('should not show "error message" when not required field is empty')
-
-    it.todo('should show "message" when some of field have more than set max value')
-
     it('should not able to tap "save" button, when required file is empty', async () => {
       const { getByTestId } = renderComponent(defaultAddressInformationProps)
 
@@ -311,7 +307,7 @@ const getDocumentPreviewModalProps = (type: 'primaryAddress' | 'secondaryAddress
 }
 
 const defaultAddressInformationProps: AddressInformationProps = {
-  userData: CONTACT_MOCK_DATA_1,
+  contactData: CONTACT_MOCK_DATA_1,
 }
 
 const queryClient = new QueryClient({
@@ -332,7 +328,7 @@ const renderComponent = (props: AddressInformationProps, typeMock: 'v1' | 'v2' =
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <AddressInformation {...props} userData={SELECTED_MOCK_TYPE} />
+      <AddressInformation {...props} contactData={SELECTED_MOCK_TYPE} />
     </QueryClientProvider>,
   )
 }

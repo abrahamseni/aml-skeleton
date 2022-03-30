@@ -5,14 +5,14 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { validationSchema, ValuesType } from './form-schema'
 import { RightSideContainer } from './__styles__'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
-import { notificationMessage } from 'constants/notification-message'
-import { useUpdateContact } from 'platform-api/contact-api/update-contact'
+import { notificationMessage } from '../../../../constants/notification-message'
+import { useUpdateContact } from '../../../../platform-api/contact-api/update-contact'
 
 import FormField from './form-field'
-import FormFooter from 'components/ui/form-footer/form-footer'
-import { useFileDocumentUpload } from 'platform-api/file-upload-api/post-file-upload'
-import { isDataUrl } from 'utils/url'
-import { getFormSaveErrorMessage } from '../../../../utils/error-message'
+import FormFooter from '../../form-footer/form-footer'
+import { useFileDocumentUpload } from '../../../../platform-api/file-upload-api/post-file-upload'
+import { isDataUrl } from '../../../../utils/url'
+import { getFormSaveErrorMessage } from 'utils/error-message'
 
 const initialValues = ({ primaryAddress, secondaryAddress, metadata }): ValuesType => ({
   primaryAddress: {
@@ -40,13 +40,13 @@ const initialValues = ({ primaryAddress, secondaryAddress, metadata }): ValuesTy
 })
 
 interface AddressInformationProps {
-  userData: ContactModel | undefined
+  contactData: ContactModel | undefined
 }
 
-const AddressInformation: FC<AddressInformationProps> = ({ userData }): ReactElement => {
-  const [isSecondaryFormActive, setIsSecondaryFormActive] = useState(!!userData?.secondaryAddress)
+const AddressInformation: FC<AddressInformationProps> = ({ contactData }): ReactElement => {
+  const [isSecondaryFormActive, setIsSecondaryFormActive] = useState(!!contactData?.secondaryAddress)
 
-  const { primaryAddress, secondaryAddress, metadata } = userData ?? {}
+  const { primaryAddress, secondaryAddress, metadata } = contactData ?? {}
 
   const { success, error } = useSnack()
 
@@ -62,7 +62,7 @@ const AddressInformation: FC<AddressInformationProps> = ({ userData }): ReactEle
     mode: 'onBlur',
   })
 
-  const { mutateAsync, isLoading: isUpdateContactLoading } = useUpdateContact(userData?.id!, userData?._eTag!)
+  const { mutateAsync, isLoading: isUpdateContactLoading } = useUpdateContact(contactData?.id!, contactData?._eTag!)
 
   const { fileUpload, isLoading: isFileUploadLoading } = useFileDocumentUpload()
 
@@ -82,14 +82,14 @@ const AddressInformation: FC<AddressInformationProps> = ({ userData }): ReactEle
     try {
       if (isDataUrl(getValues('metadata.primaryAddress.documentImage') as string)) {
         await uploadFileDocumentHandler(
-          `document-image-primary-address-${userData?.id!}`,
+          `document-image-primary-address-${contactData?.id!}`,
           'metadata.primaryAddress.documentImage',
         )
       }
 
       if (isDataUrl(getValues('metadata.secondaryAddress.documentImage') as string)) {
         await uploadFileDocumentHandler(
-          `document-image-secondary-address-${userData?.id!}`,
+          `document-image-secondary-address-${contactData?.id!}`,
           'metadata.secondaryAddress.documentImage',
         )
       }
@@ -99,7 +99,7 @@ const AddressInformation: FC<AddressInformationProps> = ({ userData }): ReactEle
           primaryAddress: getValues('primaryAddress'),
           secondaryAddress: getValues('secondaryAddress'),
           metadata: {
-            declarationRisk: userData?.metadata?.declarationRisk,
+            declarationRisk: contactData?.metadata?.declarationRisk,
             ...getValues('metadata'),
           },
         },
@@ -108,7 +108,7 @@ const AddressInformation: FC<AddressInformationProps> = ({ userData }): ReactEle
         },
       )
     } catch (e: any) {
-      error(getFormSaveErrorMessage('Address Information', e), 7500)
+      error(getFormSaveErrorMessage('Address information', e), 7500)
       console.error(e.message)
     }
   }
@@ -143,7 +143,7 @@ const AddressInformation: FC<AddressInformationProps> = ({ userData }): ReactEle
           )}
         </FormLayout>
         <FormFooter
-          idUser={userData?.id}
+          idUser={contactData?.id}
           isFieldError={!!Object.keys(errors).length}
           isFormSubmitting={isUpdateContactLoading || isFileUploadLoading}
         />
@@ -152,4 +152,4 @@ const AddressInformation: FC<AddressInformationProps> = ({ userData }): ReactEle
   )
 }
 
-export default React.memo(AddressInformation)
+export default AddressInformation
