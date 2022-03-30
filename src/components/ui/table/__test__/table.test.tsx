@@ -14,19 +14,27 @@ const axiosMock = new AxiosMockAdapter(Axios, {
 })
 
 //table show should same with the search
-describe('Table Show', () => {
+describe('Table Show & Search', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     axiosMock.reset()
   })
 
-  it('should match a snapshot when success status / isLoading false', () => {
-    expect(render(<TableResult items={defaultTableProps} />)).toMatchSnapshot()
+  describe('Snapshot',()=>{
+    it('snapshot table', () => {
+      expect(render(<TableResult items={defaultTableProps} />)).toMatchSnapshot()
+    })
+
   })
 
-  it('should match a snapshot when loading status / isLoading true', () => {
-    expect(render(<TableResult items={null} />)).toMatchSnapshot()
+  describe('Table',()=>{
+    it('show Loader', () => {
+      // const { getByTestId } = render(<SearchPage />);
+
+      // fireEvent.
+    })
   })
+  
 
   // it('onSubmit to have been called ', async () => {
   //     const { getByTestId } = renderSearch(defaultSearchParams);
