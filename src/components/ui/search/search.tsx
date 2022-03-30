@@ -131,7 +131,7 @@ export const SearchPage: FC = () => {
           <>
             {!searchParams || Number(result.data?._embedded?.length) === 0 ? (
               <PersistantNotification
-                data-testid={`test.persistantnotification.notfound`}
+                data-testid={'test.persistantnotification.notfound'}
                 isExpanded={true}
                 isFullWidth
               >
@@ -156,7 +156,7 @@ export const SearchPage: FC = () => {
             }
             currentPage={searchParams.pageNumber ?? 1}
             numberPages={result?.data?.totalPageCount ?? 1}
-            data-testid={`test.pagination.result`}
+            data-testid={'test.pagination.result'}
           />
         </FlexContainer>
       ) : null}
