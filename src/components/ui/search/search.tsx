@@ -84,7 +84,7 @@ export const SearchPage: FC = () => {
                 label="Search by address"
                 type="text"
                 id="address"
-                placeholder="Streetnam, Village, Town or Postcode"
+                placeholder="Streetname, Village, Town or Postcode"
                 {...register('searchAddress')}
                 data-testid={'test.input.searchAddress'}
               />
