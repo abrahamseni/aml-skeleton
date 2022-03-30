@@ -47,7 +47,7 @@ const ModalStatus = ({
       </BodyText>
       <div className="el-flex el-flex-row el-flex-wrap">
         {[
-          { label: 'Unchecked', value: 'unchecked', className: 'el-ml8' },
+          { label: 'Unchecked', value: 'unchecked', className: '' },
           { label: 'Pending', value: 'pending', className: 'el-ml8' },
           { label: 'Fail', value: 'fail', className: 'el-ml8' },
           { label: 'Cancelled', value: 'cancelled', className: 'el-ml8' },
