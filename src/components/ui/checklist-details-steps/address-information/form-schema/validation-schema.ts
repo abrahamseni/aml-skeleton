@@ -1,8 +1,7 @@
-/* eslint-disable */
 import * as Yup from 'yup'
-import { InternalOptions } from 'yup/lib/types'
 import { errorMessages } from '../../../../../constants/error-messages'
 import FileValidation from '../../../../../utils/file-validation'
+import { generateNewObject } from '../../../../../utils/generator'
 import { ValuesType } from './form-field'
 
 export const validationSchema: Yup.SchemaOf<ValuesType> = Yup.object().shape({
@@ -24,6 +23,12 @@ export const validationSchema: Yup.SchemaOf<ValuesType> = Yup.object().shape({
       .max(9, errorMessages.MAXIMUM_CHARACTER_LENGTH(9))
       .matches(/^[A-Z0-9 ]*$/, errorMessages.FIELD_MUST_CAPITALIZE)
       .trim(),
+    documentImage: FileValidation.create()
+      .required(errorMessages.FIELD_REQUIRED)
+      .maxSize(3, errorMessages.EXCEEDED_MAX_FILE_SIZE),
+    documentType: Yup.string().trim().required(errorMessages.FIELD_REQUIRED),
+    month: Yup.string().trim().required(errorMessages.FIELD_REQUIRED),
+    year: Yup.string().trim().required(errorMessages.FIELD_REQUIRED),
   }),
   secondaryAddress: Yup.object()
     .shape({
@@ -32,19 +37,22 @@ export const validationSchema: Yup.SchemaOf<ValuesType> = Yup.object().shape({
       line1: Yup.string()
         .trim()
         .max(35, errorMessages.MAXIMUM_CHARACTER_LENGTH(35))
-        .when('postcode', {
-          is: (postcode) => !!postcode,
-          then: (schema) => schema.required(errorMessages.FIELD_REQUIRED),
+        .nullable()
+        .test({
+          name: 'conditional-required',
+          message: errorMessages.FIELD_REQUIRED,
+          test: (_val, testContext) => conditionalFieldsCheck(testContext),
         }),
       line2: Yup.string().trim().max(30, errorMessages.MAXIMUM_CHARACTER_LENGTH(30)).notRequired().nullable(),
       line3: Yup.string()
         .trim()
         .max(30, errorMessages.MAXIMUM_CHARACTER_LENGTH(30))
-        .when('postcode', {
-          is: (postcode) => !!postcode,
-          then: (schema) => schema.required(errorMessages.FIELD_REQUIRED),
-        })
-        .nullable(),
+        .nullable()
+        .test({
+          name: 'conditional-required',
+          message: errorMessages.FIELD_REQUIRED,
+          test: (_val, testContext) => conditionalFieldsCheck(testContext),
+        }),
       line4: Yup.string().trim().max(30, errorMessages.MAXIMUM_CHARACTER_LENGTH(30)).notRequired().nullable(),
       postcode: Yup.string()
         .trim()
@@ -52,73 +60,65 @@ export const validationSchema: Yup.SchemaOf<ValuesType> = Yup.object().shape({
         .matches(/^[A-Z0-9 ]*$/, errorMessages.FIELD_MUST_CAPITALIZE)
         .trim()
         .nullable()
-        .when(['buildingName', 'buildingNumber', 'line2', 'line4'], {
-          is: (postcode, buildingName, buildingNumber, line2, line4) =>
-            !!(postcode || buildingName || buildingNumber || line2 || line4),
-          then: (schema) => schema.required(errorMessages.FIELD_REQUIRED),
+        .test({
+          name: 'conditional-required',
+          message: errorMessages.FIELD_REQUIRED,
+          test: (_val, testContext) => conditionalFieldsCheck(testContext),
         }),
+      documentImage: FileValidation.create()
+        .maxSize(3, errorMessages.EXCEEDED_MAX_FILE_SIZE)
+        .notRequired()
+        .nullable()
+        .test({
+          name: 'conditional-required',
+          message: errorMessages.FIELD_REQUIRED,
+          test: (_val, testContext) => conditionalFieldsCheck(testContext),
+        }),
+      documentType: Yup.string()
+        .trim()
+        .notRequired()
+        .nullable()
+        .test({
+          name: 'conditional-required',
+          message: errorMessages.FIELD_REQUIRED,
+          test: (_val, testContext) => conditionalFieldsCheck(testContext),
+        }),
+      month: Yup.string()
+        .notRequired()
+        .nullable()
+        .test({
+          name: 'conditional-required',
+          message: errorMessages.FIELD_REQUIRED,
+          test: (_val, testContext) => conditionalFieldsCheck(testContext),
+        }),
+      year: Yup.string()
+        .notRequired()
+        .test({
+          name: 'conditional-required',
+          message: errorMessages.FIELD_REQUIRED,
+          test: (_val, testContext) => conditionalFieldsCheck(testContext),
+        })
+        .nullable(),
     })
     .nullable(),
-  metadata: Yup.object().shape({
-    primaryAddress: Yup.object().shape({
-      documentImage: FileValidation.create()
-        .required(errorMessages.FIELD_REQUIRED)
-        .maxSize(3, errorMessages.EXCEEDED_MAX_FILE_SIZE),
-      documentType: Yup.string().trim().required(errorMessages.FIELD_REQUIRED),
-      month: Yup.string().trim().required(errorMessages.FIELD_REQUIRED),
-      year: Yup.string().trim().required(errorMessages.FIELD_REQUIRED),
-    }),
-    secondaryAddress: Yup.object()
-      .shape({
-        documentImage: FileValidation.create()
-          .maxSize(3, errorMessages.EXCEEDED_MAX_FILE_SIZE)
-          .when('year', {
-            is: (year) => !!(year && year !== 0),
-            then: (schema) => schema.required(errorMessages.FIELD_REQUIRED),
-          })
-          .notRequired()
-          .nullable(),
-        documentType: Yup.string()
-          .trim()
-          .notRequired()
-          .nullable()
-          .when('year', {
-            is: (year) => !!(year && year !== 0),
-            then: (schema) => schema.required(errorMessages.FIELD_REQUIRED),
-          }),
-        month: Yup.string()
-          .notRequired()
-          .nullable()
-          .when('year', {
-            is: (year) => !!(year && year !== 0),
-            then: (schema) => schema.required(errorMessages.FIELD_REQUIRED),
-          }),
-        year: Yup.string().notRequired().nullable(),
-      })
-      .nullable(),
-  }),
 })
 
-// test method
-const conditionalFields = (val: string | undefined, testContext: InternalOptions) => {
-  if (val === undefined) {
+const conditionalFieldsCheck = (testContext: any): boolean => {
+  const currentPath = testContext.path?.replace('secondaryAddress.', '')
+
+  if (testContext.originalValue) {
     return true
   }
-  return isOneOfSecondaryAddressFilled(testContext)
-}
 
-const isOneOfSecondaryAddressFilled = (currObj: InternalOptions): boolean => {
-  if (currObj.originalValue !== '') true
+  const currentObject = generateNewObject(
+    [currentPath, 'countryId', 'buildingName', 'buildingNumber', 'line2', 'line4', 'type', 'month', 'year'],
+    testContext.parent,
+  )
 
-  const baseSecondaryAddressField = {
-    ...currObj?.from?.[1]?.value?.secondaryAddress,
-    ...currObj?.from?.[2]?.value?.secondaryAddress,
+  for (const curr in currentObject) {
+    if (currentObject[curr] !== '') {
+      return false
+    }
   }
-
-  const isSecondaryAddressMusFilled =
-    baseSecondaryAddressField?.line1 !== '' &&
-    baseSecondaryAddressField?.line3 !== '' &&
-    baseSecondaryAddressField?.postcode !== ''
-
-  return isSecondaryAddressMusFilled
+  return true
 }
