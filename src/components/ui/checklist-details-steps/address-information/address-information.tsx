@@ -12,30 +12,24 @@ import FormField from './form-field'
 import FormFooter from '../../form-footer/form-footer'
 import { useFileDocumentUpload } from '../../../../platform-api/file-upload-api/post-file-upload'
 import { isDataUrl } from '../../../../utils/url'
-import { getFormSaveErrorMessage } from 'utils/error-message'
+import { generateNewObject } from '../../../../utils/generator'
 
 const initialValues = ({ primaryAddress, secondaryAddress, metadata }): ValuesType => ({
   primaryAddress: {
     type: 'primary',
+    documentImage: metadata?.primaryAddress?.documentImage ?? '',
+    documentType: metadata?.primaryAddress?.documentType ?? '',
+    month: metadata?.primaryAddress?.month ?? '',
+    year: metadata?.primaryAddress?.year ?? '',
     ...primaryAddress,
   },
   secondaryAddress: {
     type: 'secondary',
+    documentImage: metadata?.secondaryAddress?.documentImage ?? '',
+    documentType: metadata?.secondaryAddress?.documentType ?? '',
+    month: metadata?.secondaryAddress?.month ?? '',
+    year: metadata?.secondaryAddress?.year ?? '',
     ...secondaryAddress,
-  },
-  metadata: {
-    primaryAddress: {
-      documentImage: metadata?.primaryAddress?.documentImage ?? '',
-      documentType: metadata?.primaryAddress?.documentType ?? '',
-      month: metadata?.primaryAddress?.month ?? '',
-      year: metadata?.primaryAddress?.year ?? '',
-    },
-    secondaryAddress: {
-      documentImage: metadata?.secondaryAddress?.documentImage ?? '',
-      documentType: metadata?.secondaryAddress?.documentType ?? '',
-      month: metadata?.secondaryAddress?.month ?? '',
-      year: metadata?.secondaryAddress?.year ?? '',
-    },
   },
 })
 
@@ -68,7 +62,7 @@ const AddressInformation: FC<AddressInformationProps> = ({ contactData }): React
 
   const uploadFileDocumentHandler = async (
     name: string,
-    fileType: 'metadata.primaryAddress.documentImage' | 'metadata.secondaryAddress.documentImage',
+    fileType: 'primaryAddress.documentImage' | 'secondaryAddress.documentImage',
   ): Promise<void> => {
     await fileUpload(
       { name: name, imageData: getValues(fileType) as string },
@@ -80,27 +74,42 @@ const AddressInformation: FC<AddressInformationProps> = ({ contactData }): React
 
   const onSubmitHandler = async () => {
     try {
-      if (isDataUrl(getValues('metadata.primaryAddress.documentImage') as string)) {
+      if (isDataUrl(getValues('primaryAddress.documentImage') as string)) {
         await uploadFileDocumentHandler(
           `document-image-primary-address-${contactData?.id!}`,
-          'metadata.primaryAddress.documentImage',
+          'primaryAddress.documentImage',
         )
       }
 
-      if (isDataUrl(getValues('metadata.secondaryAddress.documentImage') as string)) {
+      if (isDataUrl(getValues('secondaryAddress.documentImage') as string)) {
         await uploadFileDocumentHandler(
           `document-image-secondary-address-${contactData?.id!}`,
-          'metadata.secondaryAddress.documentImage',
+          'secondaryAddress.documentImage',
         )
       }
 
       await mutateAsync(
         {
-          primaryAddress: getValues('primaryAddress'),
-          secondaryAddress: getValues('secondaryAddress'),
+          primaryAddress: generateNewObject(
+            ['documentImage', 'documentType', 'month', 'year', 'countryId'],
+            getValues('primaryAddress'),
+          ),
+          secondaryAddress: generateNewObject(
+            ['documentImage', 'documentType', 'month', 'year', 'countryId'],
+            getValues('secondaryAddress'),
+          ),
           metadata: {
             declarationRisk: contactData?.metadata?.declarationRisk,
-            ...getValues('metadata'),
+            primaryAddress: generateNewObject(
+              ['documentImage', 'documentType', 'month', 'year'],
+              getValues('primaryAddress'),
+              'pick',
+            ),
+            secondaryAddress: generateNewObject(
+              ['documentImage', 'documentType', 'month', 'year'],
+              getValues('secondaryAddress'),
+              'pick',
+            ),
           },
         },
         {
@@ -108,7 +117,7 @@ const AddressInformation: FC<AddressInformationProps> = ({ contactData }): React
         },
       )
     } catch (e: any) {
-      error(getFormSaveErrorMessage('Address information', e), 7500)
+      error(e.message, 7500)
       console.error(e.message)
     }
   }

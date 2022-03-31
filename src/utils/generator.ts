@@ -108,3 +108,22 @@ export const generateProgressBarResult = ({ tabContents }: GenerateProgressBarPr
   })
   return result
 }
+
+export const generateNewObject = (keys: string[], object?: object, type: 'pick' | 'remove' = 'remove') => {
+  if (!object) return
+
+  let clonedObject
+
+  switch (type) {
+    case 'pick':
+      clonedObject = {}
+      keys.forEach((key) => (clonedObject[key] = object[key]))
+      break
+    case 'remove':
+      clonedObject = { ...object }
+      keys.forEach((key) => delete clonedObject[key])
+      break
+  }
+
+  return clonedObject
+}

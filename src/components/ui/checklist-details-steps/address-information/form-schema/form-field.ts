@@ -3,23 +3,17 @@ import { AddressModel } from '@reapit/foundations-ts-definitions'
 type UpdatedAddressModel = {
   type?: string
 } & Omit<AddressModel, 'countryId'>
+
+type MetadataAddressModel = {
+  documentImage?: string
+  documentType?: string
+  month?: string
+  year?: string
+}
+
 export interface ValuesType {
-  primaryAddress?: UpdatedAddressModel
-  secondaryAddress?: UpdatedAddressModel
-  metadata: {
-    primaryAddress?: {
-      documentImage?: string
-      documentType?: string
-      month?: string
-      year?: string
-    }
-    secondaryAddress?: {
-      documentImage?: string
-      documentType?: string
-      month?: string
-      year?: string
-    }
-  }
+  primaryAddress?: UpdatedAddressModel & MetadataAddressModel
+  secondaryAddress?: UpdatedAddressModel & MetadataAddressModel
 }
 
 export const formFields = (formType: 'primaryAddress' | 'secondaryAddress') =>
@@ -57,19 +51,19 @@ export const formFields = (formType: 'primaryAddress' | 'secondaryAddress') =>
       label: 'Post Code',
     },
     yearField: {
-      name: `metadata.${formType}.year`,
+      name: `${formType}.year`,
       label: 'Number of Years at Address',
     },
     monthField: {
-      name: `metadata.${formType}.month`,
+      name: `${formType}.month`,
       label: 'Number of Months at Address',
     },
     documentTypeField: {
-      name: `metadata.${formType}.documentType`,
+      name: `${formType}.documentType`,
       label: `Document ${formType === 'primaryAddress' ? 'Primary Address' : 'Secondary Address'} Type`,
     },
     documentImageField: {
-      name: `metadata.${formType}.documentImage`,
+      name: `${formType}.documentImage`,
       label: `Upload  ${formType === 'primaryAddress' ? 'Primary Address' : 'Secondary Address'} File`,
     },
   } as const)
