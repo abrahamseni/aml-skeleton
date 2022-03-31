@@ -2,13 +2,13 @@ import React, { FC, ReactElement, useState } from 'react'
 import { InputGroup, Label, Select, InputWrap, InputWrapFull, FlexContainer } from '@reapit/elements'
 import { formFields, ValuesType } from './form-schema'
 import { UseFormReturn } from 'react-hook-form'
-import { generateLabelField, generateOptionsType, generateOptionsYearsOrMonths } from 'utils/generator'
+import { generateLabelField, generateOptionsType, generateOptionsYearsOrMonths } from '../../../../utils/generator'
 import { cx } from '@linaria/core'
 import { order0 } from './__styles__'
 
-import { FileInput } from 'components/ui/elements/file-input'
 import DocumentPreviewModal from 'components/ui/elements/document-preview-modal'
 import ErrorMessage from 'components/ui/elements/error-message'
+import FileInput from 'components/ui/elements/file-input'
 
 interface FormFieldProps {
   name: 'primaryAddress' | 'secondaryAddress'

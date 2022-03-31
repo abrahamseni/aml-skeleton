@@ -5,48 +5,42 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { validationSchema, ValuesType } from './form-schema'
 import { RightSideContainer } from './__styles__'
 import { ContactModel } from '@reapit/foundations-ts-definitions'
-import { notificationMessage } from 'constants/notification-message'
-import { useUpdateContact } from 'platform-api/contact-api/update-contact'
+import { notificationMessage } from '../../../../constants/notification-message'
+import { useUpdateContact } from '../../../../platform-api/contact-api/update-contact'
 
 import FormField from './form-field'
-import FormFooter from 'components/ui/form-footer/form-footer'
-import { useFileDocumentUpload } from 'platform-api/file-upload-api/post-file-upload'
-import { isDataUrl } from 'utils/url'
-import { getFormSaveErrorMessage } from '../../../../utils/error-message'
+import FormFooter from '../../form-footer/form-footer'
+import { useFileDocumentUpload } from '../../../../platform-api/file-upload-api/post-file-upload'
+import { isDataUrl } from '../../../../utils/url'
+import { generateNewObject } from '../../../../utils/generator'
 
 const initialValues = ({ primaryAddress, secondaryAddress, metadata }): ValuesType => ({
   primaryAddress: {
     type: 'primary',
+    documentImage: metadata?.primaryAddress?.documentImage ?? '',
+    documentType: metadata?.primaryAddress?.documentType ?? '',
+    month: metadata?.primaryAddress?.month ?? '',
+    year: metadata?.primaryAddress?.year ?? '',
     ...primaryAddress,
   },
   secondaryAddress: {
     type: 'secondary',
+    documentImage: metadata?.secondaryAddress?.documentImage ?? '',
+    documentType: metadata?.secondaryAddress?.documentType ?? '',
+    month: metadata?.secondaryAddress?.month ?? '',
+    year: metadata?.secondaryAddress?.year ?? '',
     ...secondaryAddress,
-  },
-  metadata: {
-    primaryAddress: {
-      documentImage: metadata?.primaryAddress?.documentImage ?? '',
-      documentType: metadata?.primaryAddress?.documentType ?? '',
-      month: metadata?.primaryAddress?.month ?? '',
-      year: metadata?.primaryAddress?.year ?? '',
-    },
-    secondaryAddress: {
-      documentImage: metadata?.secondaryAddress?.documentImage ?? '',
-      documentType: metadata?.secondaryAddress?.documentType ?? '',
-      month: metadata?.secondaryAddress?.month ?? '',
-      year: metadata?.secondaryAddress?.year ?? '',
-    },
   },
 })
 
 interface AddressInformationProps {
-  userData: ContactModel | undefined
+  contactData: ContactModel | undefined
 }
 
-const AddressInformation: FC<AddressInformationProps> = ({ userData }): ReactElement => {
-  const [isSecondaryFormActive, setIsSecondaryFormActive] = useState(!!userData?.secondaryAddress)
+const AddressInformation: FC<AddressInformationProps> = ({ contactData }): ReactElement => {
+  const [isSecondaryFormActive, setIsSecondaryFormActive] = useState(!!contactData?.secondaryAddress)
 
-  const { primaryAddress, secondaryAddress, metadata } = userData ?? {}
+  const { primaryAddress, secondaryAddress, metadata } = contactData ?? {}
 
   const { success, error } = useSnack()
 
@@ -62,13 +56,13 @@ const AddressInformation: FC<AddressInformationProps> = ({ userData }): ReactEle
     mode: 'onBlur',
   })
 
-  const { mutateAsync, isLoading: isUpdateContactLoading } = useUpdateContact(userData?.id!, userData?._eTag!)
+  const { mutateAsync, isLoading: isUpdateContactLoading } = useUpdateContact(contactData?.id!, contactData?._eTag!)
 
   const { fileUpload, isLoading: isFileUploadLoading } = useFileDocumentUpload()
 
   const uploadFileDocumentHandler = async (
     name: string,
-    fileType: 'metadata.primaryAddress.documentImage' | 'metadata.secondaryAddress.documentImage',
+    fileType: 'primaryAddress.documentImage' | 'secondaryAddress.documentImage',
   ): Promise<void> => {
     await fileUpload(
       { name: name, imageData: getValues(fileType) as string },
@@ -80,27 +74,42 @@ const AddressInformation: FC<AddressInformationProps> = ({ userData }): ReactEle
 
   const onSubmitHandler = async () => {
     try {
-      if (isDataUrl(getValues('metadata.primaryAddress.documentImage') as string)) {
+      if (isDataUrl(getValues('primaryAddress.documentImage') as string)) {
         await uploadFileDocumentHandler(
-          `document-image-primary-address-${userData?.id!}`,
-          'metadata.primaryAddress.documentImage',
+          `document-image-primary-address-${contactData?.id!}`,
+          'primaryAddress.documentImage',
         )
       }
 
-      if (isDataUrl(getValues('metadata.secondaryAddress.documentImage') as string)) {
+      if (isDataUrl(getValues('secondaryAddress.documentImage') as string)) {
         await uploadFileDocumentHandler(
-          `document-image-secondary-address-${userData?.id!}`,
-          'metadata.secondaryAddress.documentImage',
+          `document-image-secondary-address-${contactData?.id!}`,
+          'secondaryAddress.documentImage',
         )
       }
 
       await mutateAsync(
         {
-          primaryAddress: getValues('primaryAddress'),
-          secondaryAddress: getValues('secondaryAddress'),
+          primaryAddress: generateNewObject(
+            ['documentImage', 'documentType', 'month', 'year', 'countryId'],
+            getValues('primaryAddress'),
+          ),
+          secondaryAddress: generateNewObject(
+            ['documentImage', 'documentType', 'month', 'year', 'countryId'],
+            getValues('secondaryAddress'),
+          ),
           metadata: {
-            declarationRisk: userData?.metadata?.declarationRisk,
-            ...getValues('metadata'),
+            declarationRisk: contactData?.metadata?.declarationRisk,
+            primaryAddress: generateNewObject(
+              ['documentImage', 'documentType', 'month', 'year'],
+              getValues('primaryAddress'),
+              'pick',
+            ),
+            secondaryAddress: generateNewObject(
+              ['documentImage', 'documentType', 'month', 'year'],
+              getValues('secondaryAddress'),
+              'pick',
+            ),
           },
         },
         {
@@ -108,7 +117,7 @@ const AddressInformation: FC<AddressInformationProps> = ({ userData }): ReactEle
         },
       )
     } catch (e: any) {
-      error(getFormSaveErrorMessage('Address Information', e), 7500)
+      error(e.message, 7500)
       console.error(e.message)
     }
   }
@@ -143,7 +152,7 @@ const AddressInformation: FC<AddressInformationProps> = ({ userData }): ReactEle
           )}
         </FormLayout>
         <FormFooter
-          idUser={userData?.id}
+          idUser={contactData?.id}
           isFieldError={!!Object.keys(errors).length}
           isFormSubmitting={isUpdateContactLoading || isFileUploadLoading}
         />
@@ -152,4 +161,4 @@ const AddressInformation: FC<AddressInformationProps> = ({ userData }): ReactEle
   )
 }
 
-export default React.memo(AddressInformation)
+export default AddressInformation

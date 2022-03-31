@@ -73,7 +73,7 @@ export const generateTabsContent = (props: GenerateTabsContentProps): GenerateTa
       status: isCompletedSecondaryID(idCheck),
     },
     {
-      content: <AddressInformation userData={userData} />,
+      content: <AddressInformation contactData={userData} />,
       status: isCompletedAddress(userData),
     },
     {
