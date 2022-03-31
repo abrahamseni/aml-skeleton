@@ -157,7 +157,7 @@ export const ChecklistDetailPage: FC = () => {
       <main>
         <FlexContainer isFlexJustifyBetween>
           <FlexContainer isFlexColumn>
-            <Title hasNoMargin>{`${userData?.forename} ${userData?.surname}`}</Title>
+            <Title hasNoMargin>{`${userData?.title} ${userData?.forename} ${userData?.surname}`}</Title>
             <div className="el-flex el-flex-row">
               <Subtitle hasGreyText hasBoldText>
                 Status: {userData?.identityCheck?.toUpperCase()}
