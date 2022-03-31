@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import { Modal, BodyText, InputGroup, Button, useSnack } from '@reapit/elements'
 import { ContactModel, IdentityCheckModel } from '@reapit/foundations-ts-definitions'
 
-import { notificationMessage } from 'constants/notification-message'
 import { useUpdateIdentityCheck } from '../../../platform-api/identity-check-api'
+import { notificationMessage } from 'constants/notification-message'
 
 type Props = {
   userData: ContactModel
@@ -47,13 +47,12 @@ const ModalStatus = ({
       </BodyText>
       <div className="el-flex el-flex-row el-flex-wrap">
         {[
-          { label: 'Unknown', value: 'unknown', className: '' },
-          { label: 'Unchecked', value: 'unchecked', className: 'el-ml8' },
+          { label: 'Unchecked', value: 'unchecked', className: '' },
           { label: 'Pending', value: 'pending', className: 'el-ml8' },
           { label: 'Fail', value: 'fail', className: 'el-ml8' },
           { label: 'Cancelled', value: 'cancelled', className: 'el-ml8' },
           { label: 'Warnings', value: 'warnings', className: 'el-ml8' },
-          { label: 'Passed', value: 'pass', className: 'el-ml8' },
+          { label: 'Pass', value: 'pass', className: 'el-ml8' },
         ].map(({ label, value, className }, index) => (
           <InputGroup
             key={index}
